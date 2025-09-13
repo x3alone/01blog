@@ -1,0 +1,29 @@
+// Import Bootstrap globally
+@import 'node_modules/bootstrap/dist/css/bootstrap.min.css';
+
+@use '@angular/material' as mat;
+
+// Define a light theme
+$primary: mat.define-palette(mat.$cyan-palette);
+$accent: mat.define-palette(mat.$orange-palette);
+$theme: mat.define-light-theme((
+  color: (
+    primary: $primary,
+    accent: $accent,
+  )
+));
+
+// Include Angular Material core styles
+@include mat.core();
+
+// Include Angular Material theme
+@include mat.all-component-themes($theme);
+
+// Global body styles
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+}
