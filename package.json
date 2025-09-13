@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@angular/cdk": "^20.2.3",
+    "@angular/material": "^20.2.3",
+    "bootstrap": "^5.3.8",
+    "ngx-toastr": "^19.0.0"
+  }
+}
