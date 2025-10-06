@@ -1,0 +1,7 @@
+sudo systemctl start postgresql
+
+sudo service postgresql status
+
+psql -U postgres -h 127.0.0.1 -d postgres
+123456789
+\dt ---> to list tables
