@@ -1,42 +1,36 @@
 package com._blog._blog.controller;
 
-import com._blog._blog.model.User;
-import com._blog._blog.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com._blog._blog.dto.RegisterRequest;
+import com._blog._blog.dto.LoginRequest;
+import com._blog._blog.dto.AuthResponse;
+import com._blog._blog.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:4200") // Angular frontend
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
-        String username = body.get("username");
-        String password = body.get("password");
-
-        User user = userService.register(username, password);
-        if (user == null) {
-            return ResponseEntity.badRequest().body("Username already exists");
-        }
-        return ResponseEntity.ok("User registered successfully");
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+        authService.register(request);
+        return ResponseEntity.ok(new AuthResponse("User registered successfully"));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-        String username = body.get("username");
-        String password = body.get("password");
-
-        boolean success = userService.login(username, password);
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+        boolean success = authService.login(request);
         if (success) {
-            return ResponseEntity.ok("Login successful");
+            return ResponseEntity.ok(new AuthResponse("Login successful"));
         } else {
-            return ResponseEntity.status(401).body("Invalid username or password");
+            return ResponseEntity.status(401).body(new AuthResponse("Invalid credentials"));
         }
     }
 }
