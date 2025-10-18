@@ -26,11 +26,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        boolean success = authService.login(request);
-        if (success) {
-            return ResponseEntity.ok(new AuthResponse("Login successful"));
-        } else {
-            return ResponseEntity.status(401).body(new AuthResponse("Invalid credentials"));
-        }
-    }
+    String token = authService.generateJwtToken(request);
+    return ResponseEntity.ok(new AuthResponse(token));
+}
+
+
 }

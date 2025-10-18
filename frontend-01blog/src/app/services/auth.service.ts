@@ -1,48 +1,41 @@
-// src/app/services/auth.service.ts
-import { Injectable } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
-
-interface AuthResponse {
-  token: string;
-}
+import { isPlatformBrowser } from '@angular/common'; // <-- Needed for platform check
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'http://localhost:8080/api';
-  private tokenKey = 'jwtToken';
+  private http = inject(HttpClient); 
+  // Inject the platform identifier
+  private platformId = inject(PLATFORM_ID); // <-- New injection
 
-  constructor(private http: HttpClient) {}
+  constructor() {} 
 
-  /** Register a new user */
-  register(username: string, password: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/register`, { username, password });
+  login(data: { username: string; password: string }): Observable<any> {
+    return this.http.post('/api/auth/login', data);
   }
 
-  /** Login user and store JWT */
-  login(username: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.baseUrl}/login`, { username, password })
-      .pipe(
-        tap(res => {
-          if (res.token) localStorage.setItem(this.tokenKey, res.token);
-        })
-      );
+  register(data: { username: string; password: string }): Observable<any> {
+    return this.http.post('/api/auth/register', data);
   }
 
-  /** Logout user */
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
+    // Check if running in a browser environment before accessing localStorage
+    if (isPlatformBrowser(this.platformId)) {
+        localStorage.removeItem('token');
+    }
   }
 
-  /** Check if user is logged in */
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem(this.tokenKey);
-  }
-
-  /** Get JWT token */
-  getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+  isAuthenticated(): boolean {
+    // CRITICAL FIX: Only access localStorage if the application is running in the browser
+    if (isPlatformBrowser(this.platformId)) {
+        return !!localStorage.getItem('token');
+    }
+    
+    // During Server-Side Rendering, we assume the user is NOT authenticated.
+    // This allows the router to either prerender the login page or wait for client-side hydration.
+    return false; 
   }
 }

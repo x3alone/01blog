@@ -1,8 +1,8 @@
-import { Component, signal } from '@angular/core';
+// src/app/home/home.component.ts
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../services/auth.service';
-import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 interface Post { title: string; date: string; content: string; }
 

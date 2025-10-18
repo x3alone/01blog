@@ -63,7 +63,8 @@
               "buildTarget": "frontend-01blog:build:production"
             },
             "development": {
-              "buildTarget": "frontend-01blog:build:development"
+              "buildTarget": "frontend-01blog:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
