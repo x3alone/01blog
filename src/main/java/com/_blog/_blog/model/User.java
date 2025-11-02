@@ -14,8 +14,13 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 💡 CRITICAL FIX APPLIED: This ensures no two users can have the same username.
+    @Column(unique = true, nullable = false)
     private String username;
+    
+    @Column(nullable = false) // Ensures password cannot be null
     private String password;
+    
     private String role;
 
     public User() {}
