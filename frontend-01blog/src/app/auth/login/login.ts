@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { delay } from 'rxjs/operators'; // Import delay operator
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,7 @@ export class LoginComponent {
   // Use a property to control the display of the error message instead of alert()
   loginError: string | null = null; 
 
+  // Modern dependency injection using inject()
   private auth = inject(AuthService);
   private router = inject(Router);
 
@@ -26,8 +28,12 @@ export class LoginComponent {
     // Call the service method
     this.auth.login({ username: this.username, password: this.password }).subscribe({
       next: () => {
-        // On successful login (token is saved in service via tap operator)
-        this.router.navigate(['/home']);
+        // FIX: The delay ensures the auth state is fully synchronized 
+        // after token storage before the guard runs.
+        // Even a 10ms delay is often enough to resolve the race condition.
+        setTimeout(() => {
+            this.router.navigate(['/home']);
+        }, 10);
       },
       error: (err) => {
         // Handle HTTP error
