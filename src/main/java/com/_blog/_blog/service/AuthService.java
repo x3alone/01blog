@@ -6,15 +6,16 @@ import com._blog._blog.model.User;
 import com._blog._blog.repository.UserRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys; // Required for secure key generation
+import io.jsonwebtoken.security.Keys; 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException; // IMPORTANT: New required import
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.Optional;
-import java.util.Base64; // Required for Base64 decoding
+import java.util.Base64; 
 
 @Service
 public class AuthService {
@@ -22,17 +23,12 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder; 
 
-    // --- FIX FOR WeakKeyException ---
-    // Problem: The previous use of @Value("${jwt.secret}") failed the security check
-    // because the key was not long enough for HS512.
-    // Solution: Use a hardcoded, cryptographically strong, Base64-encoded key 
-    // and decode it into a secure Key object. This guarantees the required length.
+    // --- JWT Key Initialization (Kept as provided) ---
     private final String jwtSecretBase64 = "L7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD";
     private final Key key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecretBase64));
-    // ---------------------------------
-
+    
     @Value("${jwt.expiration-ms}")
-    private long jwtExpirationMs; // Keep expiration value from properties
+    private long jwtExpirationMs; 
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -50,7 +46,7 @@ public class AuthService {
         User user = new User(
                 request.getUsername(),
                 passwordEncoder.encode(request.getPassword()),
-                request.getRole() != null ? request.getRole() : "USER" // Default role to USER
+                request.getRole() != null ? request.getRole() : "ROLE_USER"
         );
 
         userRepository.save(user);
@@ -58,21 +54,21 @@ public class AuthService {
 
     /**
      * Handles user login (manual authentication) and generates a JWT token upon success.
-     * This method performs both user lookup and password verification.
      */
     public String login(LoginRequest request) {
-        // 1. Find user by username
+        // 1. Find user by username. 
         Optional<User> userOpt = userRepository.findByUsername(request.getUsername());
         
         if (userOpt.isEmpty()) {
-            // Throw a general "Invalid credentials" error for security
-            throw new RuntimeException("Invalid credentials");
+            // FIX: Throw BadCredentialsException
+            throw new BadCredentialsException("Invalid credentials");
         }
         User user = userOpt.get();
 
         // 2. Manually check password
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            // FIX: Throw BadCredentialsException
+            throw new BadCredentialsException("Invalid credentials");
         }
         
         // 3. Build the JWT token
@@ -84,7 +80,7 @@ public class AuthService {
                 .claim("role", user.getRole()) 
                 .setIssuedAt(now)
                 .setExpiration(expirationDate)
-                .signWith(key, SignatureAlgorithm.HS512) // Use the secure Key object for signing
+                .signWith(key, SignatureAlgorithm.HS512) 
                 .compact();
     }
 }
