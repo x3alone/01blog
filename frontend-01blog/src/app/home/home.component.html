@@ -1,61 +1,96 @@
-<div class="min-h-screen bg-gray-100 p-4 sm:p-8">
-  <div class="max-w-6xl mx-auto">
+<div class="min-h-screen bg-gray-900 text-gray-100 p-0">
+    <!-- Max width container for a feed-style layout (like Twitter/X) -->
+    <div class="max-w-xl mx-auto border-x border-gray-800 h-full">
 
-    <!-- Header & Action Bar -->
-    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 pb-4 border-b border-indigo-200">
-      
-      <!-- Greeting and Title -->
-      <div>
-        <h1 class="text-4xl font-extrabold text-gray-800 mb-1">Welcome, {{ currentUser }}</h1>
-        <p class="text-indigo-600 text-lg">Your dashboard is ready.</p>
-      </div>
-      
-      <!-- Actions (Create Post & Logout) -->
-      <div class="flex space-x-3 mt-4 sm:mt-0">
-        <button 
-          (click)="createNewPost()"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200 flex items-center"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          New Post
-        </button>
+        <!-- Header & Action Bar (Sticky at the top of the feed) -->
+        <header class="sticky top-0 bg-gray-900/95 backdrop-blur-sm z-10 border-b border-gray-700 py-4 px-4 sm:px-6 flex justify-between items-center">
+            
+            <!-- Greeting and Title -->
+            <div>
+                <h1 class="text-xl font-bold text-gray-200">Home Feed</h1>
+                <p class="text-xs text-indigo-400">Welcome, {{ currentUser }}</p>
+            </div>
+            
+            <!-- Actions (Logout) -->
+            <button 
+                (click)="logout()"
+                class="bg-red-600 hover:bg-red-500 text-white font-semibold py-1 px-3 rounded-full shadow-md transition duration-200 text-sm"
+                aria-label="Logout"
+            >
+                Logout
+            </button>
+        </header>
 
-        <button 
-          (click)="logout()"
-          class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200"
-          aria-label="Logout"
-        >
-          Logout
-        </button>
-      </div>
-    </header>
-
-    <!-- Post List Container -->
-    <h2 class="text-2xl font-bold text-gray-700 mb-6">Published Articles</h2>
-    
-    <div class="space-y-6">
-      <!-- Blog Posts Loop -->
-      @for (post of posts(); track post.id) {
-        <div class="bg-white border border-gray-200 rounded-xl shadow-lg p-6 hover:shadow-2xl transition duration-300 transform hover:scale-[1.005]">
-          <h3 class="text-xl font-bold text-gray-900 mb-2">{{ post.title }}</h3>
-          
-          <div class="flex justify-between items-center mb-3">
-              <p class="text-sm text-indigo-500 font-medium">Published on: {{ post.date }}</p>
-              <div class="flex space-x-3 text-sm">
-                  <button class="text-blue-500 hover:text-blue-700 font-medium">Edit</button>
-                  <button class="text-red-500 hover:text-red-700 font-medium">Delete</button>
-              </div>
-          </div>
-          
-          <p class="text-gray-600 line-clamp-2">{{ post.content }}</p>
+        <!-- 1. Make Post Area (Embedded Form) -->
+        <div class="p-4 sm:p-6 border-b border-gray-700">
+            <!-- CRITICAL FIX: Added (postCreated) handler to refresh the feed -->
+            <app-make-post-form (postCreated)="onPostCreated()"></app-make-post-form>
         </div>
-      } @empty {
-        <div class="text-center p-10 bg-white rounded-xl shadow-lg border border-gray-300">
-          <p class="text-gray-500 italic text-lg">No articles found. Click "New Post" to start writing!</p>
-        </div>
-      }
+
+        <!-- 2. Post List Container -->
+
+        <!-- Loading State -->
+        @if (isLoading()) {
+            <div class="text-center p-10">
+                <svg class="animate-spin h-8 w-8 text-indigo-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-4 text-indigo-400">Loading articles...</p>
+            </div>
+        } 
+        <!-- Error State -->
+        @else if (loadError()) {
+            <div class="p-6 bg-red-900 border border-red-700 text-red-300 rounded-xl shadow-lg m-4">
+                <p class="font-semibold">{{ loadError() }}</p>
+                <button (click)="loadPosts()" class="mt-3 text-sm font-medium text-blue-400 hover:text-blue-200 underline">Try Reloading</button>
+            </div>
+        }
+        <!-- Empty State -->
+        @else if (posts().length === 0) {
+            <div class="text-center p-10 text-gray-500 italic">
+                <p class="text-lg">No articles found. Be the first to publish above!</p>
+            </div>
+        }
+        <!-- Posts List -->
+        @else {
+            <!-- Uses divide-y for separation lines between posts, like a feed -->
+            <div class="divide-y divide-gray-800">
+                <!-- Post Loop -->
+                @for (post of posts(); track post.id) {
+                    <div class="bg-gray-900 hover:bg-gray-800 transition duration-300 p-4 sm:p-6 cursor-pointer" 
+                         (click)="viewPostDetails(post.id)">
+                        
+                        <div class="flex items-center text-sm text-gray-400 mb-2">
+                            <!-- Avatar Placeholder (using authorName) -->
+                            <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold mr-3">
+                                {{ post.authorName[0].toUpperCase() }}
+                            </div>
+                            <span class="font-semibold text-gray-300">{{ post.authorName }}</span>
+                            <span class="ml-2">·</span>
+                            <span class="ml-2 text-xs">{{ post.createdAt | date:'short' }}</span>
+                        </div>
+
+                        <h3 class="text-xl font-bold text-gray-100 mb-2">{{ post.title }}</h3>
+                        
+                        <p class="text-gray-400 mt-2 line-clamp-3">{{ post.content }}</p>
+                        
+                        <!-- Engagement Icons/Buttons (Placeholder) -->
+                        <div class="flex space-x-4 mt-3 pt-3 border-t border-gray-800 text-sm text-gray-500">
+                            <!-- Placeholder for comments count -->
+                            <button class="hover:text-indigo-400 transition flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M12 20.25c4.97 0 9.25-2.238 12-6.25l-2.73-2.73a.75.75 0 00-1.06 0L12 17.5l-8.21-8.21a.75.75 0 00-1.06 0L0 14c2.75 4.012 7.03 6.25 12 6.25z"/></svg>
+                                0
+                            </button>
+                            <!-- Placeholder for likes count -->
+                            <button class="hover:text-red-400 transition flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.257-4.312 3.0-3.597-1.743-5.259-3.0-4.312-3.0C3.099 3.75 1 5.765 1 8.25c0 7.22 9 12 11 12s11-4.78 11-12z"/></svg>
+                                0
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
     </div>
-  </div>
 </div>

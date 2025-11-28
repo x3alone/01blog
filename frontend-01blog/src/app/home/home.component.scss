@@ -1,0 +1,53 @@
+/*
+ * SCSS for Home Component
+ * Adds custom styles that complement the Tailwind CSS utilities used in the template.
+ */
+
+:host {
+    /* Ensures the component takes up its designated space */
+    display: block;
+}
+
+/* Target the individual post cards for improved accessibility and focus */
+/* The element with space-y-6 > div is the post card itself */
+.space-y-6 > div {
+    /* Use the existing hover classes in the HTML for the primary effect, 
+       but add a specific focus ring for better keyboard accessibility */
+    transition: all 0.2s ease-in-out;
+
+    /* Styles applied when an interactive element inside the card gains focus */
+    &:focus-within {
+        /* Add a visible ring when an interactive element inside the card is focused */
+        box-shadow: 0 0 0 3px rgba(0, 240, 128, 0.5); /* Tailwind indigo-600 ring */
+        outline: none; /* Remove default browser outline */
+    }
+}
+
+/* Style the main buttons for a subtle press effect (active state) */
+button {
+    transition: transform 0.1s ease, filter 0.1s ease;
+    
+    &:active {
+        /* Slightly shrink the button to indicate a press */
+        transform: scale(0.98);
+        filter: brightness(0.95);
+    }
+}
+
+/* Responsive adjustment for the header buttons on small screens */
+@media (max-width: 640px) {
+    header {
+        .space-x-3 {
+            /* Restructure buttons to stack vertically on mobile */
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            
+            & > button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    }
+}

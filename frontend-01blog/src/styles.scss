@@ -1,23 +1,19 @@
-@use '@angular/material' as mat;
+// GLOBAL APPLICATION BASE STYLES ---
 
-// Define a dark theme
-$primary: mat.define-palette(mat.$grey-palette, 900);
-$accent: mat.define-palette(mat.$grey-palette, 100);
-$theme: mat.define-dark-theme((
-  color: (
-    primary: $primary,
-    accent: $accent,
-  )
-));
-
-@include mat.core();
-@include mat.all-component-themes($theme);
-
-// Override global body
+// 1. Set base properties for the document structure
 html, body {
   height: 100%;
   margin: 0;
-  font-family: 'Courier New', Courier, monospace;
-  background-color: #000000 !important;  // enforce black
-  color: #000000 !important;             // enforce white
+  // Using a common, readable font
+  font-family: 'Inter', sans-serif;
+}
+
+// 2. Target the Angular root element (<app-root>) for global styling.
+app-root {
+  display: block;
+  height: 100%;
+  
+  /* Basic default theme colors for better visibility */
+  background: black; /* Dark Grey Background */
+  color: #f3f4f6;            /* Light Text */
 }

@@ -1,43 +1,72 @@
-import { Component, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Component, signal, inject, OnInit } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common'; 
+import { Router, RouterModule } from '@angular/router'; // Added RouterModule
 import { AuthService } from '../services/auth.service';
+import { PostService, Post } from '../services/post.service'; 
+import { MakePostFormComponent} from '../posts/make-post-form.component';
 
-interface Post { 
-  id: number; // Added ID for tracking
-  title: string; 
-  date: string; 
-  content: string; 
-}
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DatePipe, RouterModule, MakePostFormComponent], 
   templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'] 
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit { 
   private auth = inject(AuthService);
   private router = inject(Router);
+  private postService = inject(PostService); 
 
-  // Mock property: In a real app, this would be fetched from a service after login.
+  // Placeholder user (will likely come from AuthService in the future)
   currentUser = 'Blogger Max'; 
 
-  posts = signal<Post[]>([
-    { id: 1, title: 'Understanding Angular Signals', date: 'Sep 13, 2025', content: 'Signals are a modern way to manage state in Angular applications, offering performance benefits...' },
-    { id: 2, title: 'Why I Switched to Tailwind CSS', date: 'Sep 12, 2025', content: 'Tailwind provides utility-first styling that drastically speeds up development time and component design.' },
-    { id: 3, title: 'The Power of Standalone Components', date: 'Sep 11, 2025', content: 'Standalone components simplify the NgModule system and make dependency management much cleaner.' }
-  ]);
+  posts = signal<Post[]>([]); 
+  isLoading = signal(true); 
+  loadError = signal<string | null>(null);
+
+  ngOnInit(): void {
+    // Start fetching posts and listening to real-time changes
+    this.loadPosts();
+  }
+
+  loadPosts() {
+    this.isLoading.set(true);
+    this.loadError.set(null);
+
+    // Subscribe to the real-time stream of posts from the service
+    this.postService.getAllPosts().subscribe({
+      next: (data) => {
+        // Reverse the data so newest posts appear at the top
+        this.posts.set(data.reverse()); 
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load posts:', err);
+        // Ensure the error message is clear about the backend requirement
+        this.loadError.set('Failed to load articles. Please ensure the backend is running and you are logged in.');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  /**
+   * Handler for the (postCreated) output event from the post form.
+   * Forces a refresh of the post feed.
+   */
+  onPostCreated(): void {
+    console.log('Post creation successful. Refreshing feed...');
+    this.loadPosts();
+  }
 
   logout() {
     this.auth.logout();
-    this.router.navigate(['login']);
+    this.router.navigate(['/login']); // Fixed path to start with /
   }
 
-  // Placeholder method for future implementation
-  createNewPost() {
-    console.log('Navigating to create new post...');
-    // In a real application, you would navigate to a /create route here.
-    // this.router.navigate(['/create-post']);
+  // Placeholder methods for future features
+  viewPostDetails(postId: string) { 
+    console.log(`Viewing post ${postId}`);
+    // Future: this.router.navigate(['/posts', postId]);
   }
 }
