@@ -8,11 +8,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys; 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException; // IMPORTANT: New required import
+import org.springframework.security.authentication.BadCredentialsException; 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
+import java.security.Key; // Use java.security.Key
 import java.util.Date;
 import java.util.Optional;
 import java.util.Base64; 
@@ -23,8 +23,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder; 
 
-    // --- JWT Key Initialization (Kept as provided) ---
-    private final String jwtSecretBase64 = "L7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD";
+    // --- JWT Key Initialization (MUST match JwtAuthFilter) ---
+    private final String jwtSecretBase64 = "L7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD";
     private final Key key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecretBase64));
     
     @Value("${jwt.expiration-ms}")
@@ -60,14 +60,12 @@ public class AuthService {
         Optional<User> userOpt = userRepository.findByUsername(request.getUsername());
         
         if (userOpt.isEmpty()) {
-            // FIX: Throw BadCredentialsException
             throw new BadCredentialsException("Invalid credentials");
         }
         User user = userOpt.get();
 
         // 2. Manually check password
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            // FIX: Throw BadCredentialsException
             throw new BadCredentialsException("Invalid credentials");
         }
         

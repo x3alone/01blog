@@ -6,4 +6,25 @@ psql -U postgres -h 127.0.0.1 -d postgres
 123456789
 \dt ---> to list tables
 
+SELECT * FROM users WHERE username = 'test'; 
+SELECT * FROM users;
+
+
+DELETE FROM users
+
 w4r749aij855rq3qxpgjafmb6pkzpfabuqz7m9tjvfytsvsu
+
+db 
+psql -U postgres
+\c postgres; -- Connect to a default database
+DROP DATABASE microblog_db;
+CREATE DATABASE microblog_db;
+\q -- Quit psql
+
+clean front 
+
+npm cache clean --force
+rm -rf dist
+ng serve 
+
+mvn clean spring-boot:run

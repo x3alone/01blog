@@ -15,11 +15,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration; // Added import
-import org.springframework.web.cors.CorsConfigurationSource; // Added import
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource; // Added import
+import org.springframework.web.cors.CorsConfiguration; 
+import org.springframework.web.cors.CorsConfigurationSource; 
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource; 
+import org.springframework.http.HttpMethod; // NEW IMPORT FOR HTTP METHOD
 
-import java.util.List; // Added import
+import java.util.List; 
 
 @Configuration
 @EnableWebSecurity
@@ -45,14 +46,9 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
     
-    /**
-     * FIX 1: Configures a permissive CORS policy to allow the frontend (localhost:4200) 
-     * to communicate with the backend (localhost:8080).
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow all origins, methods, and headers during development
         configuration.setAllowedOrigins(List.of("*")); 
         configuration.setAllowedMethods(List.of("*")); 
         configuration.setAllowedHeaders(List.of("*"));
@@ -65,7 +61,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // FIX 2: Enable CORS using the configuration defined above
+            // Enable CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             
             // Disable CSRF protection for stateless APIs
@@ -75,10 +71,13 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
             .authorizeHttpRequests(auth -> auth
-                // Permit both /auth/** (backend mapping) AND /api/auth/** (frontend request path)
+                // Permit registration and login
                 .requestMatchers("/auth/**", "/api/auth/**").permitAll() 
                 
-                // Require authentication for all other requests
+                // FIX: Allow unauthenticated access for GET requests to /api/posts (for the feed)
+                .requestMatchers(HttpMethod.GET, "/api/posts").permitAll() 
+                
+                // Require authentication for all other requests (like POST /api/posts)
                 .anyRequest().authenticated()
             )
             

@@ -33,8 +33,9 @@ public class PostService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         
         // 2. Fetch the full User object to link the post
+        // Use IllegalStateException for unexpected security issues
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Authenticated user not found in database."));
+                .orElseThrow(() -> new IllegalStateException("Authenticated user not found in database. Cannot create post."));
 
         // 3. Create and populate the Post entity
         Post post = new Post();
@@ -54,7 +55,7 @@ public class PostService {
      */
     @Transactional(readOnly = true)
     public List<PostResponse> getAllPosts() {
-        // Use the custom repository method to fetch and order posts
+        // This method is now publicly accessible via SecurityConfig
         return postRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());

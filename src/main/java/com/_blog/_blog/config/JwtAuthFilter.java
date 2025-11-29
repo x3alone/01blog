@@ -8,34 +8,29 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component; 
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.AntPathMatcher;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.SignatureAlgorithm; // Added import for SignatureAlgorithm
-import javax.crypto.SecretKey;
+import io.jsonwebtoken.security.Keys; 
+import io.jsonwebtoken.SignatureAlgorithm; 
 
 import java.io.IOException;
+import java.security.Key;
 import java.util.Base64;
 import java.util.Collections;
 
 @Component 
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final SecretKey key;
+    private final Key key;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    /**
-     * Constructor fixes the WeakKeyException by generating a strong key.
-     * * NOTE: For full functionality, the exact same key bytes must be used in AuthService 
-     * for token creation. For now, we generate a strong key to allow the application to start.
-     */
-    public JwtAuthFilter(@Value("${jwt.secret}") String jwtSecret) {
-         // CRITICAL FIX: To prevent WeakKeyException, we generate a strong, 256-bit key.
-         // This key must match the one used in AuthService for token creation to work.
-         // The provided key from application.properties is likely too short.
-         this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    // CRITICAL FIX: Use the SAME hardcoded Base64 secret key as defined in AuthService
+    private final String jwtSecretBase64 = "L7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD";
+
+    public JwtAuthFilter() {
+        // Initialize the key using the Base64 string for HMAC SHA-512 signing
+        this.key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecretBase64));
     }
 
     /**
@@ -45,8 +40,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
         
-        // FIX: Check for both /auth/** and /api/auth/** to ensure the filter skips the public endpoints,
-        // regardless of the application's context path configuration.
         return pathMatcher.match("/api/auth/**", path) || pathMatcher.match("/auth/**", path);
     }
 
@@ -55,15 +48,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        // This code block is now skipped if shouldNotFilter returns true for /auth/** or /api/auth/**
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
-                // Use the strong key generated in the constructor
-                Claims claims = Jwts.parser()
-                        .setSigningKey(key.getEncoded()) // Use the key bytes for compatibility
+                // FIX: Use Jwts.parserBuilder() and the initialized key
+                Claims claims = Jwts.parserBuilder()
+                        .setSigningKey(key) 
+                        .build()
                         .parseClaimsJws(token)
                         .getBody();
 
@@ -77,9 +70,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
 
             } catch (Exception e) {
-                 // Log and clear context if the token is invalid or expired
-                 System.err.println("JWT Validation Failed: " + e.getMessage());
-                 SecurityContextHolder.clearContext();
+                // Log and clear context if the token is invalid or expired
+                System.err.println("JWT Validation Failed: " + e.getMessage());
+                SecurityContextHolder.clearContext();
             }
         }
 
