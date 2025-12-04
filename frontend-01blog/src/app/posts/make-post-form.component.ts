@@ -67,7 +67,7 @@ export class MakePostFormComponent {
         this.title = '';
         this.content = '';
         // FIX: Navigate back to the home page after creation
-        this.router.navigate(['/home']); 
+//         this.router.navigate(['/home']); 
       },
       error: (err) => {
         this.loading.set(false);

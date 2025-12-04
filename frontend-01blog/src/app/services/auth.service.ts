@@ -54,6 +54,16 @@ export class AuthService {
     }
 
     /**
+     * Retrieves the username from local storage for display purposes.
+     */
+    public getUsername(): string | null {
+        if (isPlatformBrowser(this.platformId)) {
+            return localStorage.getItem(LAST_USER_KEY);
+        }
+        return null;
+    }
+
+    /**
      * Handles user login and token storage.
      */
     login(data: { username: string; password: string }): Observable<string> {

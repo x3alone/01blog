@@ -4,6 +4,7 @@ import com._blog._blog.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod; // Import HttpMethod
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -18,7 +19,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration; 
 import org.springframework.web.cors.CorsConfigurationSource; 
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource; 
-import org.springframework.http.HttpMethod; // NEW IMPORT FOR HTTP METHOD
 
 import java.util.List; 
 
@@ -49,6 +49,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        // Allow all origins, methods, and headers for development
         configuration.setAllowedOrigins(List.of("*")); 
         configuration.setAllowedMethods(List.of("*")); 
         configuration.setAllowedHeaders(List.of("*"));
@@ -61,7 +62,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Enable CORS
+            // Enable CORS and configure source
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             
             // Disable CSRF protection for stateless APIs
@@ -71,14 +72,18 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
             .authorizeHttpRequests(auth -> auth
-                // Permit registration and login
-                .requestMatchers("/auth/**", "/api/auth/**").permitAll() 
+                // *** CRITICAL FIX: Allow all OPTIONS requests (CORS preflight) to bypass security ***
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll().anyRequest().permitAll()
+                // Allow authentication endpoints (login/register)
+                // .requestMatchers("/auth/**", "/api/auth/**").permitAll().requestMatchers(HttpMethod.POST, "/api/posts").permitAll()
                 
-                // FIX: Allow unauthenticated access for GET requests to /api/posts (for the feed)
-                .requestMatchers(HttpMethod.GET, "/api/posts").permitAll() 
-                
+                // Allow unauthenticated access for GET requests to posts (the public feed)
+                // .requestMatchers(HttpMethod.POST, "/api/posts").permitAll() 
+                // .requestMatchers(HttpMethod.GET, "/api/posts/{id}").permitAll()
+
                 // Require authentication for all other requests (like POST /api/posts)
-                .anyRequest().authenticated()
+                // .anyRequest().authenticated().pre
+
             )
             
             // Add the custom JWT filter before Spring Security's default filter

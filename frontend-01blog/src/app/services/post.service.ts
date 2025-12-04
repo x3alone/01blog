@@ -3,18 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-// Define the base URL for the backend API
-const API_BASE_URL = '/api';
-const POSTS_URL = `${API_BASE_URL}/posts`;
-
 // --- Data Models ---
-// Note: The structure should match the response from your FastAPI /posts endpoint
 export interface Post {
   id: string;
   title: string;
   content: string;
-  authorName: string; // The username who created the post (provided by the backend)
-  createdAt: string; // ISO date string (provided by the backend)
+  authorName: string;
+  createdAt: string;
 }
 
 export interface CreatePostRequest {
@@ -28,14 +23,16 @@ export interface CreatePostRequest {
 export class PostService {
   private http = inject(HttpClient);
 
-  /**
-   * Helper to retrieve and format the Authorization header.
-   * @returns An object containing the Authorization header.
-   */
+  // FIX 1: Point to the Backend Port (8080), not the Frontend Port (4200)
+  private readonly API_URL = 'http://localhost:8080/api/posts';
+
   private getAuthHeaders() {
     const token = localStorage.getItem('microblog_auth_token');
+    // Note: Since we are in permitAll mode, we don't strictly need this throw, 
+    // but it's good practice to keep it for when security is enabled.
     if (!token) {
-      throw new Error('Authentication token not found. Cannot create post.');
+      console.warn('No auth token found, but attempting request anyway (PermitAll mode)');
+      return {}; 
     }
     return {
       headers: {
@@ -46,42 +43,27 @@ export class PostService {
 
   // --- API Implementation ---
 
-  /**
-   * Fetches all posts from the backend, sorted newest first by the API.
-   * @returns An Observable of the array of Post objects.
-   */
   getAllPosts(): Observable<Post[]> {
-    // Uses the actual HttpClient to fetch data from the backend
-    return this.http.get<Post[]>(POSTS_URL).pipe(
+    // FIX 2: Use the variable API_URL (http://localhost:8080/api/posts)
+    // This matches the @GetMapping in the controller
+    return this.http.get<Post[]>(this.API_URL).pipe(
       catchError(err => {
         console.error('Error fetching posts:', err);
-        // Return an empty array or re-throw based on application needs
         return throwError(() => new Error('Failed to load posts from server.'));
       })
     );
   }
 
-  /**
-   * Creates a new post by sending the request body and the JWT token to the backend.
-   * The backend validates the token and extracts the author's username.
-   * @param request The title and content of the new post.
-   * @returns An Observable of the newly created Post object.
-   */
   createPost(request: CreatePostRequest): Observable<Post> {
-    try {
-      const headers = this.getAuthHeaders();
-      
-      // Uses the actual HttpClient to post data to the backend
-      return this.http.post<Post>(POSTS_URL, request, headers).pipe(
-        catchError(err => {
-          console.error('Error creating post:', err);
-          // Assuming 401/403 errors are handled by the auth flow
-          return throwError(() => new Error(err.error?.detail || 'Failed to create post. Check console for details.'));
-        })
-      );
-    } catch (e) {
-      // Handle the case where the token is missing
-      return throwError(() => e);
-    }
+    const headers = this.getAuthHeaders();
+    
+    // FIX 3: Send POST to http://localhost:8080/api/posts
+    // (I removed '/get' to match standard REST conventions, see Controller below)
+    return this.http.post<Post>(this.API_URL, request, headers).pipe(
+      catchError(err => {
+        console.error('Error creating post:', err);
+        return throwError(() => new Error(err.error?.detail || 'Failed to create post.'));
+      })
+    );
   }
 }

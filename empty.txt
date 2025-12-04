@@ -8,7 +8,7 @@ psql -U postgres -h 127.0.0.1 -d postgres
 
 SELECT * FROM users WHERE username = 'test'; 
 SELECT * FROM users;
-
+SELECT * FROM posts;
 
 DELETE FROM users
 
