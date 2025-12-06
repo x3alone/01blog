@@ -8,13 +8,14 @@ export interface Post {
   id: string;
   title: string;
   content: string;
-  authorName: string;
+  username: string;
   createdAt: string;
 }
 
 export interface CreatePostRequest {
   title: string;
   content: string;
+  
 }
 
 @Injectable({

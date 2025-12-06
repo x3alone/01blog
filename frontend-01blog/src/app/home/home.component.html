@@ -62,11 +62,10 @@
                          (click)="viewPostDetails(post.id)">
                         
                         <div class="flex items-center text-sm text-gray-400 mb-2">
-                            <!-- Avatar Placeholder (using authorName) -->
                             <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold mr-3">
-                                {{ post.authorName[0].toUpperCase() }}
+                                {{ <post class="username"></post>[0].toUpperCase() }}
                             </div>
-                            <span class="font-semibold text-gray-300">{{ post.authorName }}</span>
+                            <span class="font-semibold text-gray-300">{{ post.username }}</span>
                             <span class="ml-2">·</span>
                             <span class="ml-2 text-xs">{{ post.createdAt | date:'short' }}</span>
                         </div>
