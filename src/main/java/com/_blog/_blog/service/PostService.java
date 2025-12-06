@@ -9,6 +9,11 @@ import com._blog._blog.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com._blog._blog.dto.UpdatePostRequest; // Import the new DTO
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,10 +28,56 @@ public class PostService {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
     }
+    /**
+     * Updates a post. Only the author can update their post.
+     */
+    @Transactional
+    public PostResponse updatePost(Long id, UpdatePostRequest request) {
+        // 1. Find the post
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        // 2. Get current user
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 3. Check permission: ONLY the author can edit
+        if (!post.getUser().getUsername().equals(currentUsername)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to edit this post");
+        }
+
+        // 4. Update fields
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+
+        // 5. Save and return
+        Post updatedPost = postRepository.save(post);
+        return mapToDto(updatedPost);
+    }
 
     /**
-     * Creates a new post for the currently authenticated user.
+     * Deletes a post. The author OR an Admin can delete.
      */
+    @Transactional
+    public void deletePost(Long id) {
+        // 1. Find the post
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        // 2. Get current user details
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = auth.getName();
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // 3. Check permission: Author OR Admin
+        if (!post.getUser().getUsername().equals(currentUsername) && !isAdmin) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to delete this post");
+        }
+
+        // 4. Delete
+        postRepository.delete(post);
+    }
+
     @Transactional
     public PostResponse createPost(CreatePostRequest request) {
         // 1. Get the username of the currently authenticated user from the Security Context
