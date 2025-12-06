@@ -24,6 +24,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity // used when @PreAuthorize("hasRole('ADMIN')")
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 

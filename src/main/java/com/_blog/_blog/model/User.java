@@ -7,14 +7,14 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "users") // ✅ FIX: avoid using reserved keyword "user"
+@Table(name = "users") //  FIX: avoid using reserved keyword "user"
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 💡 CRITICAL FIX APPLIED: This ensures no two users can have the same username.
+    //  FIX : This ensures no two users can have the same username.
     @Column(unique = true, nullable = false)
     private String username;
     
@@ -22,6 +22,9 @@ public class User implements UserDetails {
     private String password;
     
     private String role;
+
+    @Column(nullable = false)
+    private boolean isBanned = false; // Default
 
     public User() {}
 
@@ -34,6 +37,10 @@ public class User implements UserDetails {
     // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+    public boolean isBanned() { return isBanned; }
+    public void setBanned(boolean banned) { isBanned = banned; }
+
+    
 
     @Override
     public String getUsername() { return username; }
@@ -50,6 +57,11 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(() -> role); // Simple GrantedAuthority using lambda
+    }
+// manual ban check
+    @Override
+    public boolean isAccountNonLocked() {
+        return !isBanned; // If banned, account is LOCKED (false)
     }
 
     @Override

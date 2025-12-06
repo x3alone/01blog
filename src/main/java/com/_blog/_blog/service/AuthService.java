@@ -17,6 +17,10 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.Base64; 
 
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+// import com._blog._blog.repository.UserRepository;
+
 @Service
 public class AuthService {
 
@@ -43,11 +47,20 @@ public class AuthService {
             throw new RuntimeException("Username already exists"); 
         }
 
-        User user = new User(
-                request.getUsername(),
-                passwordEncoder.encode(request.getPassword()),
-                request.getRole() != null ? request.getRole() : "ROLE_USER"
-        );
+        String role = (userRepository.count() == 0) ? "ADMIN" : "USER"; // sokan l asliyon or new commers
+
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(role);
+        user.setBanned(false);
+
+        // FIX: Check if this is the FIRST user
+        // if (userRepository.count() == 0) {
+        //     user.setRole("ADMIN"); // sokan l asliyon
+        // } else {
+        //     user.setRole("USER"); 
+        // }
 
         userRepository.save(user);
     }

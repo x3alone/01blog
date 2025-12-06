@@ -1,0 +1,1 @@
+user add, role managment and ban in userdetailservice - authservice -user - user service

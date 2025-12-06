@@ -5,66 +5,86 @@ import { catchError } from 'rxjs/operators';
 
 // --- Data Models ---
 export interface Post {
-  id: string;
-  title: string;
-  content: string;
-  username: string;
-  createdAt: string;
+  id: number; // NOTE: Changed to 'number' to match Java Long/ID type better
+  title: string;
+  content: string;
+  username: string;
+  createdAt: string;
 }
 
 export interface CreatePostRequest {
-  title: string;
-  content: string;
-  
+  title: string;
+  content: string;
+}
+
+// NEW DTO for Updates
+export interface UpdatePostRequest {
+  title: string;
+  content: string;
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root',
 })
 export class PostService {
-  private http = inject(HttpClient);
+  private http = inject(HttpClient);
 
-  // FIX 1: Point to the Backend Port (8080), not the Frontend Port (4200)
-  private readonly API_URL = 'http://localhost:8080/api/posts';
-
-  private getAuthHeaders() {
-    const token = localStorage.getItem('microblog_auth_token');
-    // Note: Since we are in permitAll mode, we don't strictly need this throw, 
-    // but it's good practice to keep it for when security is enabled.
-    if (!token) {
-      console.warn('No auth token found, but attempting request anyway (PermitAll mode)');
-      return {}; 
-    }
-    return {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    };
-  }
-
-  // --- API Implementation ---
-
-  getAllPosts(): Observable<Post[]> {
-    // FIX 2: Use the variable API_URL (http://localhost:8080/api/posts)
-    // This matches the @GetMapping in the controller
-    return this.http.get<Post[]>(this.API_URL).pipe(
-      catchError(err => {
-        console.error('Error fetching posts:', err);
-        return throwError(() => new Error('Failed to load posts from server.'));
-      })
-    );
-  }
-
-  createPost(request: CreatePostRequest): Observable<Post> {
-    const headers = this.getAuthHeaders();
+  private readonly API_URL = 'http://localhost:8080/api/posts';
     
-    // FIX 3: Send POST to http://localhost:8080/api/posts
-    // (I removed '/get' to match standard REST conventions, see Controller below)
-    return this.http.post<Post>(this.API_URL, request, headers).pipe(
-      catchError(err => {
-        console.error('Error creating post:', err);
-        return throwError(() => new Error(err.error?.detail || 'Failed to create post.'));
-      })
-    );
-  }
+    // NOTE: Removed unnecessary console.warn and simplified headers
+  private getAuthHeaders() {
+    const token = localStorage.getItem('microblog_auth_token');
+    return {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    };
+  }
+
+  // --- API Implementation ---
+
+  getAllPosts(): Observable<Post[]> {
+    return this.http.get<Post[]>(this.API_URL).pipe(
+      catchError(err => {
+        console.error('Error fetching posts:', err);
+        return throwError(() => new Error('Failed to load posts from server.'));
+      })
+    );
+  }
+
+  createPost(request: CreatePostRequest): Observable<Post> {
+    const headers = this.getAuthHeaders();
+    return this.http.post<Post>(this.API_URL, request, headers).pipe(
+      catchError(err => {
+        console.error('Error creating post:', err);
+        // Using optional chaining is good practice for deep errors
+        return throwError(() => new Error(err.error?.detail || 'Failed to create post.')); 
+      })
+    );
+  }
+
+    // NEW: Update Post Method
+    updatePost(id: number, request: UpdatePostRequest): Observable<Post> {
+        const headers = this.getAuthHeaders();
+        return this.http.put<Post>(`${this.API_URL}/${id}`, request, headers).pipe(
+            catchError(err => {
+                console.error(`Error updating post ${id}:`, err);
+                // The backend will return 403 Forbidden if the user is not the author/admin
+                return throwError(() => new Error(err.error?.message || `Failed to update post. Status: ${err.status}`));
+            })
+        );
+    }
+
+    // NEW: Delete Post Method
+    deletePost(id: number): Observable<void> {
+        const headers = this.getAuthHeaders();
+        // Backend returns HTTP 204 No Content for a successful delete (type void)
+        return this.http.delete<void>(`${this.API_URL}/${id}`, headers).pipe(
+            catchError(err => {
+                console.error(`Error deleting post ${id}:`, err);
+                // The backend will return 403 Forbidden if the user is not the author/admin
+                return throwError(() => new Error(err.error?.message || `Failed to delete post. Status: ${err.status}`));
+            })
+        );
+    }
 }

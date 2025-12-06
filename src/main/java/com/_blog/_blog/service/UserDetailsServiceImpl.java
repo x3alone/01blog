@@ -14,6 +14,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.springframework.security.authentication.LockedException; 
+// thiss is where to delete if i got duplicates method handling bc LockedException is manually set in user getters and setters
+
 /**
  * Custom implementation of Spring Security's UserDetailsService interface.
  * This class is responsible for fetching user details (username, password, roles)
@@ -43,6 +46,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userOptional.orElseThrow(() -> 
             new UsernameNotFoundException("User not found with username: " + username)
         );
+
+        //ban check
+        if (user.isBanned()) {
+        throw new LockedException("Your account has been banned.");
+    }
 
         // Map the user's role (e.g., "USER", "ADMIN") to Spring Security's GrantedAuthority
         return new org.springframework.security.core.userdetails.User(

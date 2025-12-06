@@ -24,6 +24,31 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public void promoteUser(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        
+        user.setRole("ADMIN");
+        userRepository.save(user);
+    }
+
+    // Ban (or Unban) a user
+    public void banUser(Long userId) {
+        User user = userRepository.findById(userId)
+             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        
+        // Toggle ban status (if true = false. if false = true)
+        user.setBanned(!user.isBanned());
+
+        // Prevent banning yourself (optional but recommended)
+        // user.setBanned(true);
+        // userRepository.save(user);
+        
+        userRepository.save(user);
+
+
+    }
+
     public User saveUser(User user) {
         return userRepository.save(user);
     }
