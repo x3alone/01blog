@@ -10,6 +10,8 @@ SELECT * FROM users WHERE username = 'test';
 SELECT * FROM users;
 SELECT * FROM posts;
 
+TRUNCATE posts, users RESTART IDENTITY CASCADE;
+
 DELETE FROM users
 
 w4r749aij855rq3qxpgjafmb6pkzpfabuqz7m9tjvfytsvsu

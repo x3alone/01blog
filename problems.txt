@@ -1,0 +1,32 @@
+api endpoints & paths 
+issues when login in it shows the credentials in the path
+double check if all the paths are showing correct pages and redirect to the correct path
+
+
+so far user has admin role as the first user and has ban status f or t 
+i have edit and delete posts set in the back and only current user and admin that can edit/delete post 
+
+
++++ added profile and accessibility to authed user or public viewer path endpoint
+ GET /api/users/{profileOwnerId}
+
+
+
+now i need to add final touches before moving on to front end fully 
+content categorization, search, notification, or commenting.
+
+
+not added to the front 
+--profile api
+--dashboard that includes baning, promoting roles or managing posts
+--commenting to back and front 
+--notifs to  back and front
+!! fix the ui, and make it like x, make the post maker in home not another endpoint
+
+
+i have to add it to  routes.compoent 
+
+http://localhost:4200/api/users/%7B1%7D this should be n error  404
+
+
+project wise i need to change security to signals in the whole project and make it real time 

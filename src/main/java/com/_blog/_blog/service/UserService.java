@@ -7,13 +7,21 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+
+import com._blog._blog.repository.FollowRepository;
+import com._blog._blog.dto.UserProfileDto;
+
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final FollowRepository followRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, FollowRepository followRepository) {
         this.userRepository = userRepository;
+        this.followRepository = followRepository;
     }
 
     public List<User> getAllUsers() {
@@ -40,7 +48,7 @@ public class UserService {
         // Toggle ban status (if true = false. if false = true)
         user.setBanned(!user.isBanned());
 
-        // Prevent banning yourself (optional but recommended)
+        // Prevent banning self (rec)
         // user.setBanned(true);
         // userRepository.save(user);
         
@@ -55,5 +63,41 @@ public class UserService {
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    // gets user profile including follow counts and status.
+    //profileOwnerId: the user whose profile is being viewed
+    //currentUserId: the user who is currently logged in (can be null if not logged in)
+    //UserProfileDto: the DTO containing profile info
+    public UserProfileDto getUserProfile(Long profileOwnerId, Long currentUserId) {
+        // 1. Get the user whose profile is being viewed
+        User profileOwner = userRepository.findById(profileOwnerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found."));
+        
+        // 2. Calculate Follow Counts
+        long followersCount = followRepository.countByFollowing(profileOwner);
+        long followingCount = followRepository.countByFollower(profileOwner);
+        
+        // 3. Determine Follow Status (only if a user is logged in)
+        boolean isFollowedByCurrentUser = false;
+        
+        if (currentUserId != null) {
+            Optional<User> currentUserOptional = userRepository.findById(currentUserId);
+            
+            if (currentUserOptional.isPresent()) {
+                User currentUser = currentUserOptional.get();
+                isFollowedByCurrentUser = followRepository.findByFollowerAndFollowing(currentUser, profileOwner).isPresent();
+            }
+        }
+        
+        // 4. Map to DTO
+        return new UserProfileDto(
+                profileOwner.getId(),
+                profileOwner.getUsername(),
+                profileOwner.getRole(),
+                followersCount,
+                followingCount,
+                isFollowedByCurrentUser
+        );
     }
 }
