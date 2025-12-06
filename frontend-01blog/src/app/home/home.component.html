@@ -56,37 +56,47 @@
         @else {
             <!-- Uses divide-y for separation lines between posts, like a feed -->
             <div class="divide-y divide-gray-800">
-                <!-- Post Loop -->
+                <!--post loop-->
                 @for (post of posts(); track post.id) {
-                    <div class="bg-gray-900 hover:bg-gray-800 transition duration-300 p-4 sm:p-6 cursor-pointer" 
-                         (click)="viewPostDetails(post.id)">
-                        
+                    <div class="bg-gray-900 hover:bg-gray-800 transition duration-300 p-4 sm:p-6" 
+                            (click)="viewPostDetails(post.id)">
+            
                         <div class="flex items-center text-sm text-gray-400 mb-2">
-                            <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold mr-3">
-                                {{ <post class="username"></post>[0].toUpperCase() }}
                             </div>
-                            <span class="font-semibold text-gray-300">{{ post.username }}</span>
-                            <span class="ml-2">·</span>
-                            <span class="ml-2 text-xs">{{ post.createdAt | date:'short' }}</span>
-                        </div>
 
-                        <h3 class="text-xl font-bold text-gray-100 mb-2">{{ post.title }}</h3>
+                        @if (editingPostId() === post.id) {
+                            <form (ngSubmit)="submitEdit()">
+                                <input type="text" [(ngModel)]="editTitle" name="editTitle" required
+                                    class="w-full p-2 mb-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-xl font-bold focus:ring-indigo-500" />
+                                <textarea [(ngModel)]="editContent" name="editContent" rows="5" required
+                                    class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-indigo-500"></textarea>
+                    
+                                <div class="flex space-x-2 mt-3 justify-end">
+                                    <button type="button" (click)="cancelEdit()"
+                                        class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-sm">Cancel</button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm">Save Changes</button>
+                                </div>
+                            </form>
+                        } @else {
+                            <h3 class="text-xl font-bold text-gray-100 mb-2">{{ post.title }}</h3>
+                            <p class="text-gray-400 mt-2 line-clamp-3">{{ post.content }}</p>
+
+                            @if (loggedIn() && currentUsername() === post.username) {
+                                <div class="flex space-x-3 mt-3 pt-3 border-t border-gray-800 text-sm">
                         
-                        <p class="text-gray-400 mt-2 line-clamp-3">{{ post.content }}</p>
+                                    <button (click)="$event.stopPropagation(); startEdit(post)"
+                                        class="text-indigo-400 hover:text-indigo-300 transition flex items-center">
+                                        Edit
+                                    </button>
                         
-                        <!-- Engagement Icons/Buttons (Placeholder) -->
-                        <div class="flex space-x-4 mt-3 pt-3 border-t border-gray-800 text-sm text-gray-500">
-                            <!-- Placeholder for comments count -->
-                            <button class="hover:text-indigo-400 transition flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M12 20.25c4.97 0 9.25-2.238 12-6.25l-2.73-2.73a.75.75 0 00-1.06 0L12 17.5l-8.21-8.21a.75.75 0 00-1.06 0L0 14c2.75 4.012 7.03 6.25 12 6.25z"/></svg>
-                                0
-                            </button>
-                            <!-- Placeholder for likes count -->
-                            <button class="hover:text-red-400 transition flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.257-4.312 3.0-3.597-1.743-5.259-3.0-4.312-3.0C3.099 3.75 1 5.765 1 8.25c0 7.22 9 12 11 12s11-4.78 11-12z"/></svg>
-                                0
-                            </button>
-                        </div>
+                                    <button (click)="$event.stopPropagation(); deletePost(post.id)"
+                                        class="text-red-400 hover:text-red-300 transition flex items-center">
+                                        Delete
+                                    </button>
+                                </div>
+                            }
+                        }
                     </div>
                 }
             </div>

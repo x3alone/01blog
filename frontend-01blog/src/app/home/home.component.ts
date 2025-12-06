@@ -1,15 +1,17 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { PostService, Post } from '../services/post.service';
+import { PostService, Post, UpdatePostRequest} from '../services/post.service';
+
 import { AuthService } from '../services/auth.service';
 // MakePostFormComponent removed as creation is now a separate route
 import { RouterLink } from '@angular/router'; 
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   // Removed MakePostFormComponent
-  imports: [CommonModule, DatePipe, RouterLink], 
+  imports: [CommonModule, DatePipe, RouterLink, FormsModule], // Add FormsModule for editing
   template: `
     <div class="space-y-8">
       @if (!loggedIn()) {
@@ -68,6 +70,13 @@ export class HomeComponent implements OnInit {
   // Signals to hold data and state
   posts = signal<Post[]>([]);
   loggedIn = signal(false);
+  currentUsername = signal(''); // Store the logged-in username
+  isAdmin = signal(false); // Store the Admin status
+
+// State for editing
+  editingPostId = signal<number | null>(null);
+  editTitle = signal('');
+  editContent = signal('');
 
   ngOnInit(): void {
     // Check authentication status
@@ -75,6 +84,17 @@ export class HomeComponent implements OnInit {
     // Load posts when the component initializes
     this.loadPosts();
   }
+  checkAuthStatus(): void {
+    this.loggedIn.set(this.authService.isAuthenticated());
+    if (this.loggedIn()) {
+      const username = this.authService.getUsername() || '';
+      this.currentUsername.set(username);
+      //i don't have a direct way to check the role in the frontend yet, 
+      // but i'll store the role in local storage later. 
+      // for now, lets keep it simple and just rely on the backend check.
+      //will leave isAdmin logic for when i implement profiles/role fetching.
+    }
+  }
 
   /**
    * Fetches all posts from the PostService and updates the posts signal.
@@ -89,4 +109,57 @@ export class HomeComponent implements OnInit {
       }
     });
   }
+
+  // int edit mode
+  startEdit(post: Post): void {
+    this.editingPostId.set(post.id);
+    this.editTitle.set(post.title);
+    this.editContent.set(post.content);
+  }
+
+//concell edit mode
+  cancelEdit(): void {
+    this.editingPostId.set(null);
+    this.editTitle.set('');
+    this.editContent.set('');
+  }
+//submit edit
+  submitEdit(): void {
+    const postId = this.editingPostId();
+    if (postId === null) return;
+    
+    const request: UpdatePostRequest = { 
+      title: this.editTitle(), 
+      content: this.editContent() 
+    };
+
+    this.postService.updatePost(postId, request).subscribe({
+      next: (updatedPost) => {
+        // Update the local state with the new post content
+        this.posts.update(currentPosts => currentPosts.map(p => 
+          p.id === postId ? { ...p, title: updatedPost.title, content: updatedPost.content } : p
+        ));
+        this.cancelEdit(); // Exit edit mode
+      },
+      error: (err) => {
+        alert(`Update failed: ${err.message}`);
+      }
+    });
+  }
+
+  // NEW: Delete Post
+  deletePost(id: number): void {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+
+    this.postService.deletePost(id).subscribe({
+      next: () => {
+        // Remove the post from the local state
+        this.posts.update(currentPosts => currentPosts.filter(p => p.id !== id));
+        alert('Post deleted successfully!');
+      },
+      error: (err) => {
+        alert(`Deletion failed: ${err.message}`);
+      }
+    });
+  }
 }
