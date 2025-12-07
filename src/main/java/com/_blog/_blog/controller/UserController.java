@@ -7,6 +7,8 @@ import com._blog._blog.dto.UserProfileDto;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import com._blog._blog.model.User;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -42,6 +44,14 @@ public class UserController {
         UserProfileDto profileDto = userService.getUserProfile(profileOwnerId, currentUserId);
         return ResponseEntity.ok(profileDto);
     }
+    //NEW END PONTS FOR ADMIN
+    @GetMapping("/all")
+    @PreAuthorize("hasAuthority('ADMIN')") 
+            public ResponseEntity<List<User>> getAllUsers() {
+            List<User> users = userService.getAllUsers();
+            System.out.println("Fetched users: \n\n");
+    return ResponseEntity.ok(users);
+}
 
     /**
      * Promote a user to ADMIN.

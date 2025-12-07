@@ -5,6 +5,7 @@ public class UserProfileDto {
     private Long id;
     private String username;
     private String role; // For display on profile, e.g., to show "Admin"
+    private boolean isBanned;
     
     // Follow statistics
     private long followersCount;
@@ -18,13 +19,14 @@ public class UserProfileDto {
     public UserProfileDto() {
     }
 
-    public UserProfileDto(Long id, String username, String role, long followersCount, long followingCount, boolean isFollowedByCurrentUser) {
+    public UserProfileDto(Long id, String username, String role, long followersCount, long followingCount, boolean isFollowedByCurrentUser, boolean isBanned) {
         this.id = id;
         this.username = username;
         this.role = role;
         this.followersCount = followersCount;
         this.followingCount = followingCount;
         this.isFollowedByCurrentUser = isFollowedByCurrentUser;
+        this.isBanned = isBanned;
     }
 
     public Long getId() {
@@ -70,6 +72,9 @@ public class UserProfileDto {
     public boolean getIsFollowedByCurrentUser() {
         return isFollowedByCurrentUser;
     }
+    public boolean getIsBanned() { return isBanned; }
+    
+    public void setIsBanned(boolean isBanned) { this.isBanned = isBanned; }
 
     public void setIsFollowedByCurrentUser(boolean isFollowedByCurrentUser) {
         this.isFollowedByCurrentUser = isFollowedByCurrentUser;

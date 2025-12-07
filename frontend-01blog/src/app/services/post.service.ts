@@ -33,7 +33,7 @@ export class PostService {
     
     // NOTE: Removed unnecessary console.warn and simplified headers
   private getAuthHeaders() {
-    const token = localStorage.getItem('microblog_auth_token');
+    const token = localStorage.getItem('01blog_auth_token');
     return {
       headers: {
         'Authorization': `Bearer ${token}`

@@ -97,7 +97,8 @@ public class UserService {
                 profileOwner.getRole(),
                 followersCount,
                 followingCount,
-                isFollowedByCurrentUser
+                isFollowedByCurrentUser,
+                profileOwner.isBanned()
         );
     }
 }

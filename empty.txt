@@ -19,8 +19,8 @@ w4r749aij855rq3qxpgjafmb6pkzpfabuqz7m9tjvfytsvsu
 db 
 psql -U postgres
 \c postgres; -- Connect to a default database
-DROP DATABASE microblog_db;
-CREATE DATABASE microblog_db;
+DROP DATABASE 01blog_db;
+CREATE DATABASE 01blog_db;
 \q -- Quit psql
 
 clean front 

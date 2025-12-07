@@ -1,0 +1,42 @@
+<div class="dashboard-wrapper">
+  
+  <h2 class="dashboard-title">Admin Dashboard</h2>
+  
+  <div class="user-list-container">
+    @for (user of users(); track user.id) {
+      <div class="user-item">
+        <div class="user-info">
+          <a [routerLink]="['/profile', user.id]" class="username-text hover:text-indigo-400 transition">
+             {{ user.username }}
+          </a>
+          <p class="role-text">Role: {{ user.role }}</p>
+        </div>
+        
+        <div class="action-buttons-group">
+          
+          <button 
+            (click)="toggleRole(user)" 
+            class="action-button role-toggle-btn"
+            [class.promoted]="user.role === 'ADMIN'"
+          >
+            {{ user.role === 'ADMIN' ? 'Demote' : 'Promote' }}
+          </button>
+
+          <button 
+            (click)="toggleBan(user)" 
+            class="action-button ban-toggle-btn"
+            [class.banned]="user.isBanned"
+          >
+            {{ user.isBanned ? 'Unban' : 'Ban' }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (users().length === 0) {
+    <div class="no-users-message">
+      No users found in the system.
+    </div>
+  }
+</div>

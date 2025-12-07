@@ -14,8 +14,8 @@ interface AuthenticationResponse {
 
 // Define the base URL for the backend API
 const API_BASE_URL = '/api/auth';
-const TOKEN_KEY = 'microblog_auth_token';
-const LAST_USER_KEY = 'microblog_last_user';
+const TOKEN_KEY = '01blog_auth_token';
+const LAST_USER_KEY = '01blog_last_user';
 
 @Injectable({
     providedIn: 'root'

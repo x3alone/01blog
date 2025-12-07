@@ -72,19 +72,22 @@ public class SecurityConfig {
             // Set session management to stateless
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
+            // ----------------------------------------------------
+            // CORRECT AUTHORIZATION RULES START HERE
+            // ----------------------------------------------------
             .authorizeHttpRequests(auth -> auth
-                // *** CRITICAL FIX: Allow all OPTIONS requests (CORS preflight) to bypass security ***
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll().anyRequest().permitAll()
-                // Allow authentication endpoints (login/register)
-                // .requestMatchers("/auth/**", "/api/auth/**").permitAll().requestMatchers(HttpMethod.POST, "/api/posts").permitAll()
+                // 1. Allow all CORS preflight requests
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
-                // Allow unauthenticated access for GET requests to posts (the public feed)
-                // .requestMatchers(HttpMethod.POST, "/api/posts").permitAll() 
-                // .requestMatchers(HttpMethod.GET, "/api/posts/{id}").permitAll()
+                // 2. Allow public authentication paths (login, register)
+                .requestMatchers("/api/auth/**").permitAll() 
+                
+                // 3. Allow public GET requests to posts (viewing the feed)
+                .requestMatchers(HttpMethod.GET, "/api/posts", "/api/posts/{id}").permitAll()
 
-                // Require authentication for all other requests (like POST /api/posts)
-                // .anyRequest().authenticated().pre
-
+                // 4. REQUIRE AUTHENTICATION for all other requests.
+                // Note: Permissions like @PreAuthorize("hasRole('ADMIN')") will then check the role.
+                .anyRequest().authenticated() 
             )
             
             // Add the custom JWT filter before Spring Security's default filter

@@ -11,7 +11,7 @@ const authInterceptorFn: HttpInterceptorFn = (req, next) => {
     // which handles the SSR environment check implicitly.
     if (typeof localStorage !== 'undefined') {
         // Retrieve the token using the consistent key from AuthService
-        const token = localStorage.getItem('microblog_auth_token'); 
+        const token = localStorage.getItem('01blog_auth_token'); 
 
         // Check if token exists and if the request is going to our API
         if (token && req.url.includes('/api/')) {

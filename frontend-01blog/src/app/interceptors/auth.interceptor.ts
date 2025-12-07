@@ -14,7 +14,10 @@ export class AuthInterceptor implements HttpInterceptor {
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         
         // 1. Get the token from localStorage
-        const token = localStorage.getItem('microblog_jwt');
+        // FIX: The key must match the one used in AuthService ('01blog_auth_token').
+        // We'll define the constant here for clarity.
+        const TOKEN_KEY = '01blog_auth_token';
+        const token = localStorage.getItem(TOKEN_KEY);
 
         // 2. Check if a token exists and if the request is going to our API
         if (token && request.url.includes('/api/')) {

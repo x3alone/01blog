@@ -1,0 +1,28 @@
+<div class="app-container">
+
+  <header class="app-header">
+    
+    <span class="app-title">01BLOG</span>
+    
+    <div class="auth-actions">
+      
+      @if (loggedIn()) {
+        <a routerLink="/" class="nav-link">Posts</a>
+        <button 
+          (click)="logout()"
+          class="logout-btn"
+        >
+          Log Out
+        </button>
+      } @else {
+        <a routerLink="/login" class="nav-link">Log In</a>
+        <a routerLink="/register" class="register-btn">Register</a>
+      }
+    </div>
+  </header>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+</div>

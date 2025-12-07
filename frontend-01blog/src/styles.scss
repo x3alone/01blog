@@ -1,33 +1,14 @@
-/* GLOBAL APPLICATION BASE STYLES */
+/* frontend-01blog/src/styles.scss */
 
-// 1. Set base properties for the document structure
-html, body {
-  // Ensure the body and html tags take up the full viewport height and width.
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-
-  // Using a common, readable font (Inter is used by default in Tailwind projects)
-  font-family: 'Inter', sans-serif;
-  
-  // Smooth scrolling for a better UX when using anchor links
-  scroll-behavior: smooth; 
-}
-
-// 2. Target the Angular root element (<app-root>) for global styling.
-app-root {
-  // Necessary for flex/grid layouts inside the component to span the full page height
-  display: block;
-  height: 100%;
-  width: 100%;
-  
-  /* Basic default theme colors for better visibility */
-  background: #0a0a0a; /* Almost Black Background */
-  color: #e5e7eb;      /* Light Gray Text */
-}
-
-// Global Tailwind base layer reset compatibility (optional, but good practice)
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add any custom global CSS or resets below the Tailwind imports */ 
+body {
+  margin: 0;
+  padding: 0;
+  // This is a global style, it belongs here.
+  background-color: black; 
+  color: white; 
+}

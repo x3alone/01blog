@@ -4,6 +4,8 @@ import { RegisterComponent } from './auth/register/register';
 import { HomeComponent } from './home/home.component';
 import { MakePostFormComponent } from './posts/make-post-form.component'; 
 import { authGuard } from './guards/auth.guard';
+import { UserProfileComponent } from './profile/UserProfileComponent';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 
 export const routes: Routes = [
@@ -19,6 +21,9 @@ export const routes: Routes = [
   
   // Authenticated Routes - Protected access
   { path: 'post/new', component: MakePostFormComponent, canActivate: [authGuard] }, // Route for creating a new post
+  { path: 'user/:id', component: UserProfileComponent }, 
+  { path: 'dashboard', component: DashboardComponent },
+  
 
   // Fallback route (redirects any unknown path to home)
   { path: '**', redirectTo: 'home' }
