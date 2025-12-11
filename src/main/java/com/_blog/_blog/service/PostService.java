@@ -96,7 +96,6 @@ public class PostService {
 
         // 4. Save to database
         post = postRepository.save(post);
-                System.out.println("service\n\n  zdzdzdzdazdazdazdzadazd");
 
         // 5. Convert to DTO and return
         return mapToDto(post);

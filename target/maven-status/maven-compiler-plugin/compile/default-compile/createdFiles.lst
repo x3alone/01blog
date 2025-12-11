@@ -1,3 +1,5 @@
+com/_blog/_blog/dto/ReportResponse.class
+com/_blog/_blog/service/ReportService.class
 com/_blog/_blog/config/JwtAuthFilter.class
 com/_blog/_blog/dto/AuthenticationResponse.class
 com/_blog/_blog/model/Follow.class
@@ -11,6 +13,9 @@ com/_blog/_blog/service/PostService.class
 com/_blog/_blog/service/AuthService.class
 com/_blog/_blog/controller/PostController.class
 com/_blog/_blog/Application.class
+com/_blog/_blog/controller/ReportController.class
+com/_blog/_blog/repository/ReportRepository.class
+com/_blog/_blog/model/Report.class
 com/_blog/_blog/controller/UserController.class
 com/_blog/_blog/model/User.class
 com/_blog/_blog/dto/AuthResponse.class

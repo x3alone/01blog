@@ -2,23 +2,25 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { PostService, Post, UpdatePostRequest } from '../services/post.service';
 import { AuthService } from '../services/auth.service';
-import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ReportService } from '../services/report.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, DatePipe, RouterLink, FormsModule],
-  templateUrl: './home.component.html', // Now pointing to the separate HTML file
-  styleUrl: './home.component.scss'     // Now pointing to the separate SCSS file
+  imports: [CommonModule, DatePipe, FormsModule],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit {
   private postService = inject(PostService);
   private authService = inject(AuthService);
+  private reportService = inject(ReportService);
 
   posts = signal<Post[]>([]);
   loggedIn = signal(false);
   currentUsername = signal('');
+  currentUserRole = signal('');
 
   newPostTitle = '';
   newPostContent = '';
@@ -26,6 +28,19 @@ export class HomeComponent implements OnInit {
   editingPostId = signal<number | null>(null);
   editTitle = '';
   editContent = '';
+
+  // Report Modal State
+  reportModalOpen = signal(false);
+  reportingPostId: number | null = null;
+  reportReason = 'Inappropriate Content'; // Default
+  reportDetails = '';
+  reportOptions = [
+    'Inappropriate Content',
+    'Harmful or Dangerous',
+    'Hate Speech',
+    'Scam or Fraud',
+    'Other'
+  ];
 
   ngOnInit() {
     this.checkAuth();
@@ -37,6 +52,7 @@ export class HomeComponent implements OnInit {
     if (this.loggedIn()) {
       const u = localStorage.getItem('01blog_last_user');
       this.currentUsername.set(u || '');
+      this.currentUserRole.set(this.authService.getUserRole() || '');
     }
   }
 
@@ -48,10 +64,10 @@ export class HomeComponent implements OnInit {
   }
 
   createPost() {
-    if(!this.newPostTitle.trim() || !this.newPostContent.trim()) return;
-    
+    if (!this.newPostTitle.trim() || !this.newPostContent.trim()) return;
+
     const postData = { title: this.newPostTitle.trim(), content: this.newPostContent.trim() };
-    
+
     this.postService.createPost(postData).subscribe({
       next: () => {
         this.newPostTitle = '';
@@ -62,8 +78,13 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  // Updated to allow Admins or Authors
+  canDelete(post: Post): boolean {
+    return this.currentUsername() === post.username || this.currentUserRole() === 'ADMIN';
+  }
+
   deletePost(id: number) {
-    if(confirm("Delete this post?")) {
+    if (confirm("Delete this post?")) {
       this.postService.deletePost(id).subscribe(() => {
         this.loadPosts();
       });
@@ -83,7 +104,7 @@ export class HomeComponent implements OnInit {
   submitEdit() {
     const id = this.editingPostId();
     if (!id) return;
-    
+
     const req: UpdatePostRequest = { title: this.editTitle, content: this.editContent };
     this.postService.updatePost(id, req).subscribe({
       next: () => {
@@ -91,5 +112,34 @@ export class HomeComponent implements OnInit {
         this.cancelEdit();
       }
     });
+  }
+
+  // --- Report Logic ---
+
+  openReportModal(post: Post) {
+    this.reportingPostId = post.id;
+    this.reportReason = 'Inappropriate Content';
+    this.reportDetails = '';
+    this.reportModalOpen.set(true);
+  }
+
+  closeReportModal() {
+    this.reportModalOpen.set(false);
+    this.reportingPostId = null;
+  }
+
+  submitReport() {
+    if (!this.reportingPostId) return;
+
+    this.reportService.createReport(this.reportingPostId, this.reportReason, this.reportDetails)
+      .subscribe({
+        next: () => {
+          alert("Report submitted successfully.");
+          this.closeReportModal();
+        },
+        error: (e) => {
+          alert("Failed to submit report: " + (e.error?.message || e.message));
+        }
+      });
   }
 }

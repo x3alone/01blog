@@ -1,91 +1,121 @@
 @if (loggedIn()) {
-  <div class="post-form-container">
-    <h3 class="form-title">What's on your mind?</h3>
-    <div class="form-content-wrap">
-      <div class="avatar-sm">
-         {{ currentUsername().charAt(0).toUpperCase() }}
-      </div>
-      
-      <div class="input-area">
-        <input
-          type="text"
-          [(ngModel)]="newPostTitle"
-          placeholder="Title (Required)"
-          required
-          class="title-input"
-        />
-        
-        <textarea 
-          [(ngModel)]="newPostContent"
-          placeholder="Post content..."
-          class="content-textarea"
-          rows="4"
-        ></textarea>
+<div class="post-form-container">
+  <h3 class="form-title">What's on your mind?</h3>
+  <div class="form-content-wrap">
+    <div class="avatar-sm">
+      {{ currentUsername().charAt(0).toUpperCase() }}
+    </div>
 
-        <div class="action-bar">
-          <button 
-            (click)="createPost()" 
-            [disabled]="!newPostContent.trim() || !newPostTitle.trim()"
-            class="publish-btn"
-          >
-            Publish Post
-          </button>
-        </div>
+    <div class="input-area">
+      <input type="text" [(ngModel)]="newPostTitle" placeholder="Title (Required)" required class="title-input" />
+
+      <textarea [(ngModel)]="newPostContent" placeholder="Post content..." class="content-textarea" rows="4"></textarea>
+
+      <div class="action-bar">
+        <button (click)="createPost()" [disabled]="!newPostContent.trim() || !newPostTitle.trim()" class="publish-btn">
+          Publish Post
+        </button>
       </div>
     </div>
   </div>
+</div>
 }
 
 <div class="post-feed-list">
-  
+
   <h3 class="feed-title">Latest Posts</h3>
 
   @if (posts().length === 0) {
-    <div class="empty-feed-message">
-      No posts found.
-    </div>
+  <div class="empty-feed-message">
+    No posts found.
+  </div>
   }
 
   @for (post of posts(); track post.id) {
-    <div class="post-item">
-      
-      <div class="post-header">
-        <div class="author-info">
-          <div class="avatar-md">
-              {{ post.username.charAt(0).toUpperCase() }}
-          </div>
-          <div class="author-details">
-              <span class="author-name">{{ post.username || 'Anonymous' }}</span>
-              <span class="post-date">
-                  @{{ post.username }} · {{ post.createdAt | date:'MMM d, y' }}
-              </span>
-          </div>
-        </div>
+  <div class="post-item">
 
-        @if (loggedIn() && currentUsername() === post.username) {
-          <div class="post-actions">
-              <button (click)="startEdit(post)" class="edit-btn">Edit</button>
-              <button (click)="deletePost(post.id)" class="delete-btn">Delete</button>
-          </div>
-        }
+    <div class="post-header">
+      <div class="author-info">
+        <div class="avatar-md">
+          {{ post.username.charAt(0).toUpperCase() }}
+        </div>
+        <div class="author-details">
+          <span class="author-name">{{ post.username || 'Anonymous' }}</span>
+          <span class="post-date">
+            @{{ post.username }} · {{ post.createdAt | date:'MMM d, y' }}
+          </span>
+        </div>
       </div>
 
-      @if (editingPostId() === post.id) {
-         <div class="edit-mode-container">
-           <input [(ngModel)]="editTitle" class="edit-title-input" placeholder="Title">
-           <textarea [(ngModel)]="editContent" class="edit-content-textarea" rows="3"></textarea>
-           
-           <div class="edit-action-bar">
-             <button (click)="cancelEdit()" class="cancel-edit-btn">Cancel</button>
-             <button (click)="submitEdit()" class="save-edit-btn">Save</button>
-           </div>
-         </div>
-      } @else {
-         <div class="post-body">
-           <h4 class="post-body-title">{{ post.title }}</h4>
-           <p class="post-body-content">{{ post.content }}</p>
-         </div>
-      }
+      <div class="post-actions">
+        @if (loggedIn()) {
+        <!-- Edit/Delete for Author (or Admin for Delete) -->
+        @if (currentUsername() === post.username) {
+        <button (click)="startEdit(post)" class="edit-btn">Edit</button>
+        }
+
+        @if (canDelete(post)) {
+        <button (click)="deletePost(post.id)" class="delete-btn">Delete</button>
+        }
+
+        <!-- Report for Others -->
+        @if (currentUsername() !== post.username) {
+        <button (click)="openReportModal(post)" class="report-btn">
+          Report
+        </button>
+        }
+        }
+      </div>
     </div>
+
+    @if (editingPostId() === post.id) {
+    <div class="edit-mode-container">
+      <input [(ngModel)]="editTitle" class="edit-title-input" placeholder="Title">
+      <textarea [(ngModel)]="editContent" class="edit-content-textarea" rows="3"></textarea>
+
+      <div class="edit-action-bar">
+        <button (click)="cancelEdit()" class="cancel-edit-btn">Cancel</button>
+        <button (click)="submitEdit()" class="save-edit-btn">Save</button>
+      </div>
+    </div>
+    } @else {
+    <div class="post-body">
+      <h4 class="post-body-title">{{ post.title }}</h4>
+      <p class="post-body-content">{{ post.content }}</p>
+    </div>
+    }
+  </div>
   }
 </div>
+
+<!-- REPORT MODAL -->
+@if (reportModalOpen()) {
+<div class="modal-overlay">
+  <div class="modal-content">
+    <h3>Report Post</h3>
+
+    <div class="form-group">
+      <label>Reason</label>
+      <select [(ngModel)]="reportReason">
+        @for(opt of reportOptions; track opt) {
+        <option [value]="opt">{{ opt }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Show details input if "Other" is selected, OR allow purely optional details for all? 
+           User request said: 'something else place holder in an input option ... small input included in that report toggle' 
+           I'll make it always visible or visible on Other. Let's make it always visible but optional/focused on Other.
+      -->
+    <div class="form-group">
+      <label>Details (Optional)</label>
+      <input type="text" [(ngModel)]="reportDetails" placeholder="Tell us more...">
+    </div>
+
+    <div class="modal-actions">
+      <button (click)="closeReportModal()" class="cancel-btn">Cancel</button>
+      <button (click)="submitReport()" class="submit-btn" [disabled]="!reportReason">Submit Report</button>
+    </div>
+  </div>
+</div>
+}
