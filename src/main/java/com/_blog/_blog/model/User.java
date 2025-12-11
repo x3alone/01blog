@@ -1,6 +1,7 @@
 package com._blog._blog.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore; // <-- NEW IMPORT
+import com.fasterxml.jackson.annotation.JsonIgnore; 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +25,7 @@ public class User implements UserDetails {
     private String role;
 
     @Column(nullable = false)
+    @JsonProperty("isBanned") // Force JSON field name to match frontend
     private boolean isBanned = false; 
 
     // ------------------------------------------------------------------

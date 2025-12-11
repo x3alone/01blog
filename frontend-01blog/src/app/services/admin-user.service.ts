@@ -17,7 +17,7 @@ export interface User {
 export class AdminUserService {
   private http = inject(HttpClient);
   // Assuming a new admin endpoint for listing all users: /api/admin/users
-  private apiUrl = '/api/users'; 
+  private apiUrl = '/api/users';
 
   // --- API CALLS ---
 
@@ -34,6 +34,10 @@ export class AdminUserService {
     // or adjust the UserService to handle setting the role explicitly. 
     // For now, we only call 'promote'.
     return this.http.put<void>(`${this.apiUrl}/${userId}/promote`, {});
+  }
+
+  demoteUser(id: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}/demote`, {});
   }
 
   toggleBan(userId: number): Observable<void> {

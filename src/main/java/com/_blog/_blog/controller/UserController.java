@@ -27,18 +27,17 @@ public class UserController {
     @GetMapping("/{profileOwnerId}")
     public ResponseEntity<UserProfileDto> getUserProfile(
             @PathVariable Long profileOwnerId,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal String username) {
 
-        // Determine the current user's ID. If null, they are unauthenticated.
+        // Determine the current user's ID. 
         Long currentUserId = null;
-        if (userDetails != null) {
-            try {
-                // Assuming your UserDetails username is the User ID as a String
-                currentUserId = Long.parseLong(userDetails.getUsername());
-            } catch (NumberFormatException e) {
-                // Log or handle if the username is not the ID.
-                // For this example, we proceed with currentUserId = null.
-            }
+        if (username != null && !username.equals("anonymousUser")) {
+             try {
+                User currentUser = userService.getUserByUsername(username);
+                currentUserId = currentUser.getId();
+             } catch (Exception e) {
+                // User might have a token but wrong username, or deleted. Treat as guest.
+             }
         }
 
         UserProfileDto profileDto = userService.getUserProfile(profileOwnerId, currentUserId);
@@ -59,9 +58,18 @@ public class UserController {
      */
     @PutMapping("/{id}/promote")
     @PreAuthorize("hasRole('ADMIN')") 
-    public ResponseEntity<Void> promoteUser(@PathVariable Long id) {
-        userService.promoteUser(id);
+    public ResponseEntity<Void> promoteUser(@PathVariable Long id, @AuthenticationPrincipal String username) {
+        Long currentUserId = userService.getUserByUsername(username).getId();
+        userService.promoteUser(id, currentUserId);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/demote")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> demoteUser(@PathVariable Long id, @AuthenticationPrincipal String username) {
+         Long currentUserId = userService.getUserByUsername(username).getId();
+         userService.demoteUser(id, currentUserId);
+         return ResponseEntity.ok().build();
     }
 
     /**
@@ -70,8 +78,9 @@ public class UserController {
      */
     @PutMapping("/{id}/ban")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> banUser(@PathVariable Long id) {
-        userService.banUser(id);
+    public ResponseEntity<Void> banUser(@PathVariable Long id, @AuthenticationPrincipal String username) {
+        Long currentUserId = userService.getUserByUsername(username).getId();
+        userService.banUser(id, currentUserId);
         return ResponseEntity.ok().build();
     }
 }

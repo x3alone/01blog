@@ -81,14 +81,20 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Invalid credentials");
         }
+
+        // 3. Check if user is banned
+        if (user.isBanned()) {
+             throw new BadCredentialsException("Account is locked by admin.");
+        }
         
-        // 3. Build the JWT token
+        // 4. Build the JWT token
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + jwtExpirationMs);
 
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("role", user.getRole()) 
+                .claim("id", user.getId()) // Add ID to token
                 .setIssuedAt(now)
                 .setExpiration(expirationDate)
                 .signWith(key, SignatureAlgorithm.HS512) 

@@ -27,34 +27,71 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+    
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
 
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
-    public void promoteUser(Long userId) {
-        User user = userRepository.findById(userId)
+    // --- Admin Actions with Protection Logic ---
+
+    // Helper to get currentUser and validate logic
+    private void validateAdminAction(Long targetUserId, Long currentUserId, String action) {
+        if (currentUserId.equals(targetUserId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot " + action + " yourself.");
+        }
+
+        // 1. Protection for Super Admin (Target)
+        if (targetUserId == 1L) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Super Admin cannot be modified.");
+        }
+
+        // 2. Logic for Standard Admins (Current)
+        // If current user is NOT Super Admin (ID 1), they have restrictions.
+        if (currentUserId != 1L) {
+            User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+            
+            // Cannot modify other Admins
+            if ("ADMIN".equals(targetUser.getRole())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admins cannot " + action + " other Admins.");
+            }
+        }
+    }
+
+    public void promoteUser(Long targetUserId, Long currentUserId) {
+        validateAdminAction(targetUserId, currentUserId, "promote");
+
+        User user = userRepository.findById(targetUserId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
         user.setRole("ADMIN");
         userRepository.save(user);
     }
 
-    // Ban (or Unban) a user
-    public void banUser(Long userId) {
-        User user = userRepository.findById(userId)
+    public void demoteUser(Long targetUserId, Long currentUserId) {
+         validateAdminAction(targetUserId, currentUserId, "demote");
+
+        User user = userRepository.findById(targetUserId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        user.setRole("USER");
+        userRepository.save(user);
+    }
+
+    public void banUser(Long targetUserId, Long currentUserId) {
+        validateAdminAction(targetUserId, currentUserId, "ban");
+
+        User user = userRepository.findById(targetUserId)
              .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
-        // Toggle ban status (if true = false. if false = true)
+        // Toggle ban status
         user.setBanned(!user.isBanned());
-
-        // Prevent banning self (rec)
-        // user.setBanned(true);
-        // userRepository.save(user);
-        
         userRepository.save(user);
-
-
     }
 
     public User saveUser(User user) {

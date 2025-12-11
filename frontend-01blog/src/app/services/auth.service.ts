@@ -2,14 +2,14 @@ import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
-import { tap, map } from 'rxjs/operators'; 
+import { tap, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 // Define the expected response structure from the backend
 interface AuthenticationResponse {
     jwtToken: string;
     // Assuming backend returns username for the app component to display
-    username: string; 
+    username: string;
 }
 
 // Define the base URL for the backend API
@@ -25,8 +25,8 @@ export class AuthService {
     private platformId = inject(PLATFORM_ID);
     private router = inject(Router);
 
-    constructor() {}
-    
+    constructor() { }
+
     /**
      * Safely stores the JWT in local storage.
      */
@@ -64,13 +64,48 @@ export class AuthService {
     }
 
     /**
+     * Extracts the user's ID from the JWT token.
+     */
+    public getCurrentUserId(): number | null {
+        const token = this.getToken();
+        if (!token) return null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            // Assuming the JWT subject (sub) contains the username, 
+            // BUT we need the ID. 
+            // **Correction**: The backend `Jwts.builder().setSubject(user.getUsername())` sets username as subject.
+            // **Critical Fix**: The backend sets `username` as subject. It does NOT currently put ID in the token.
+            // I need to update the backend `AuthService.java` to put the ID in the token or rely on a separate "me" endpoint.
+            // OR I can parse the ID if I change the backend to put ID in subject.
+            // For now, let's assume I will update backend to add an "id" claim.
+            return payload.id ? Number(payload.id) : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /** 
+     * Extract role from token
+     */
+    public getUserRole(): string | null {
+        const token = this.getToken();
+        if (!token) return null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.role || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /**
      * Handles user login and token storage.
      */
     login(data: { username: string; password: string }): Observable<string> {
         return this.http.post<AuthenticationResponse>(`${API_BASE_URL}/login`, data)
             .pipe(
                 // Use map to transform the backend response into just the token string
-                map(response => response.jwtToken), 
+                map(response => response.jwtToken),
                 tap((token: string) => {
                     if (token) {
                         this.setToken(token);
@@ -96,7 +131,7 @@ export class AuthService {
                 // Auto-login after successful registration
                 tap(() => {
                     // Note: Subscribing here ensures the login call executes immediately after registration succeeds.
-                    this.login(data).subscribe(); 
+                    this.login(data).subscribe();
                 })
             );
     }
