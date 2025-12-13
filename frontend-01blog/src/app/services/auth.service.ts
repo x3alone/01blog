@@ -98,6 +98,10 @@ export class AuthService {
         }
     }
 
+    public isAdmin(): boolean {
+        return this.getUserRole() === 'ADMIN';
+    }
+
     /**
      * Handles user login and token storage.
      */

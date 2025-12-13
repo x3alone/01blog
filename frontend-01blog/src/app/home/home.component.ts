@@ -139,8 +139,7 @@ export class HomeComponent implements OnInit {
     this.editingPostId.set(null);
   }
 
-  submitEdit() {
-    const id = this.editingPostId();
+  saveEdit(id: number) {
     if (!id) return;
 
     const update: UpdatePostRequest = { title: this.editTitle, content: this.editContent };
@@ -162,15 +161,14 @@ export class HomeComponent implements OnInit {
 
   // --- PERMISSIONS ---
   canDelete(post: Post): boolean {
-    const role = this.authService.getUserRole();
-    const currentId = this.currentUserId();
-    // Admin or Owner can delete
-    return role === 'ADMIN' || (currentId !== null && post.userId === currentId);
+    const currentId = this.authService.getCurrentUserId();
+    if (!currentId) return false;
+    const isAdmin = this.authService.isAdmin(); // Assuming AuthService has isAdmin() or check role
+    return post.userId === currentId || isAdmin;
   }
 
   canEdit(post: Post): boolean {
-    const currentId = this.currentUserId();
-    // Only Owner can edit
+    const currentId = this.authService.getCurrentUserId();
     return currentId !== null && post.userId === currentId;
   }
 

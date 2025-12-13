@@ -302,6 +302,62 @@
   box-shadow: none;
 }
 
+/* USER PROVIDED UI UPDATES */
+button.comment-toggle-btn {
+  display: flex;
+  /* Added display flex to ensure alignment */
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: auto;
+  /* Override fixed width to allow text next to icon if needed, or keep 40px if icon only. User said 40px but text says "Comments" next to it? */
+  padding: 0 10px;
+  /* Add padding if it has text */
+}
+
+/* Edit Post Form Styles */
+.edit-post-form {
+  background: #f0f4f8;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  /* derived from mb-6 */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  /* shadow-xl approximation */
+  border: 1px solid #e2e8f0;
+  /* derived from border */
+}
+
+.edit-post-form input {
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 4px 0;
+  outline: none;
+  width: 100%;
+}
+
+.edit-post-form textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  resize: none;
+  outline: none;
+  font-size: 1rem;
+  min-height: 48px;
+}
+
 
 .comment-avatar {
   width: 32px;

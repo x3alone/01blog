@@ -71,8 +71,20 @@
     @if (reports().length === 0 && !isLoading()) { <p>No reports found.</p> }
 
     @for (report of reports(); track report.id) {
-    <div class="list-item">
+    <div class="list-item report-item">
       <div class="item-info">
+        <span class="main-text">Reported Post: {{ report.reportedPostTitle }}</span>
+        <p class="sub-text">Reason: <strong class="text-red-500">{{ report.reason }}</strong></p>
+        <p class="sub-text">Details: {{ report.details }}</p>
+        <p class="sub-text">By: {{ report.reporterUsername }} | Date: {{ report.timestamp | date:'short' }}</p>
+
+        <div class="reported-content mt-2 p-3 bg-gray-100 rounded text-sm text-gray-700">
+          <strong>Content Preview:</strong><br>
+          {{ report.reportedPostContent }}
+        </div>
+      </div>
+
+      <div class="actions">
         <span class="main-text">{{ report.reason }}</span>
         <span class="sub-text">on Post #{{ report.reportedPostId }} • by {{ report.reporterUsername }}</span>
       </div>
