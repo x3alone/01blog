@@ -7,15 +7,27 @@
     </div>
 
     <div class="input-area">
-      <input type="text" [(ngModel)]="newPostTitle" placeholder="Title (Required)" required class="title-input" />
+
+      @if (imagePreviewUrl) {
+      <div class="media-preview">
+        <img [src]="imagePreviewUrl" alt="Preview" style="max-width:100px; max-height:100px;">
+        <button (click)="selectedFile = null; imagePreviewUrl = null">Remove</button>
+      </div>
+      }
+
+      <input type="text" [(ngModel)]="newPostTitle" placeholder="Title (Required)" class="title-input" />
 
       <textarea [(ngModel)]="newPostContent" placeholder="Post content..." class="content-textarea" rows="4"></textarea>
 
       <div class="action-bar">
-        <button (click)="createPost()" [disabled]="!newPostContent.trim() || !newPostTitle.trim()" class="publish-btn">
-          Publish Post
+        <input type="file" (change)="onFileSelected($event)" accept="image/*,video/*">
+
+        <button (click)="createPost()" [disabled]="!newPostContent.trim() || !newPostTitle.trim() || isPosting()"
+          class="publish-btn">
+          {{ isPosting() ? 'Publishing...' : 'Publish Post' }}
         </button>
       </div>
+
     </div>
   </div>
 </div>
@@ -26,9 +38,7 @@
   <h3 class="feed-title">Latest Posts</h3>
 
   @if (posts().length === 0) {
-  <div class="empty-feed-message">
-    No posts found.
-  </div>
+  <div class="empty-feed-message">No posts found.</div>
   }
 
   @for (post of posts(); track post.id) {
@@ -40,7 +50,7 @@
           {{ post.username.charAt(0).toUpperCase() }}
         </div>
         <div class="author-details">
-          <span class="author-name">{{ post.username || 'Anonymous' }}</span>
+          <span class="author-name">{{ post.username }}</span>
           <span class="post-date">
             @{{ post.username }} · {{ post.createdAt | date:'MMM d, y' }}
           </span>
@@ -48,8 +58,10 @@
       </div>
 
       <div class="post-actions">
+        <button (click)="toggleComments(post.id)" class="comment-btn">Comments</button>
+
         @if (loggedIn()) {
-        <!-- Edit/Delete for Author (or Admin for Delete) -->
+
         @if (currentUsername() === post.username) {
         <button (click)="startEdit(post)" class="edit-btn">Edit</button>
         }
@@ -58,17 +70,16 @@
         <button (click)="deletePost(post.id)" class="delete-btn">Delete</button>
         }
 
-        <!-- Report for Others -->
         @if (currentUsername() !== post.username) {
-        <button (click)="openReportModal(post)" class="report-btn">
-          Report
-        </button>
+        <button (click)="openReportModal(post)" class="report-btn">Report</button>
         }
+
         }
       </div>
     </div>
 
     @if (editingPostId() === post.id) {
+
     <div class="edit-mode-container">
       <input [(ngModel)]="editTitle" class="edit-title-input" placeholder="Title">
       <textarea [(ngModel)]="editContent" class="edit-content-textarea" rows="3"></textarea>
@@ -78,17 +89,103 @@
         <button (click)="submitEdit()" class="save-edit-btn">Save</button>
       </div>
     </div>
+
     } @else {
+
     <div class="post-body">
       <h4 class="post-body-title">{{ post.title }}</h4>
       <p class="post-body-content">{{ post.content }}</p>
+
+      @if (post.mediaUrl) {
+      <div class="post-media">
+
+        @if (post.mediaType === 'video') {
+        <video [src]="post.mediaUrl" controls style="max-width:100%; margin-top:10px;"></video>
+        } @else {
+        <img [src]="post.mediaUrl" alt="Post media"
+          style="max-width:100%; height:auto; margin-top:10px; border-radius:8px;">
+        }
+
+      </div>
+      }
+
+    </div>
+
+    }
+
+    @if (isCommentsExpanded(post.id)) {
+    <div class="comments-section">
+
+      <div class="comments-list">
+        @for (comment of getCommentsForPost(post.id); track comment.id) {
+        <div class="comment-item">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="flex-grow: 1;">
+              <span class="comment-author">{{ comment.username }}:</span>
+              <div>
+                <span class="comment-text">{{ comment.content }}</span>
+                @if (comment.mediaUrl) {
+                <div class="comment-media" style="margin-top: 5px;">
+                  @if (comment.mediaType === 'video') {
+                  <video [src]="comment.mediaUrl" controls style="max-width: 200px; border-radius: 4px;"></video>
+                  } @else {
+                  <img [src]="comment.mediaUrl" alt="Comment media" style="max-width: 200px; border-radius: 4px;">
+                  }
+                </div>
+                }
+              </div>
+              <span class="comment-date">{{ comment.createdAt | date:'short' }}</span>
+            </div>
+
+            <!-- DELETE COMMENT BUTTON -->
+            @if (loggedIn()) {
+            @if (currentUsername() === comment.username || currentUserRole() === 'ADMIN') {
+            <button (click)="deleteComment(post.id, comment.id)"
+              style="color: #999; font-size: 0.8rem; background: none; border: none; cursor: pointer; margin-left: 10px;">
+              ✕
+            </button>
+            }
+            }
+          </div>
+        </div>
+        }
+        @if (getCommentsForPost(post.id).length === 0) {
+        <div class="no-comments">No comments yet.</div>
+        }
+      </div>
+
+      @if (loggedIn()) {
+      <div class="add-comment-box">
+        <div class="comment-inputs">
+
+          <!-- PREVIEW AREA -->
+          @if (getCommentFile(post.id)) {
+          <div class="comment-preview" style="margin-bottom: 5px; position: relative; display: inline-block;">
+            <span style="font-size: 12px; color: #666;">Attached: {{ getCommentFile(post.id)?.name }}</span>
+            <button (click)="removeCommentFile(post.id)"
+              style="margin-left: 10px; color: red; border: none; background: none; cursor: pointer; font-size: 12px;">(Remove)</button>
+          </div>
+          }
+
+          <input type="text" [value]="getNewCommentInput(post.id)"
+            (input)="updateNewCommentInput(post.id, $any($event.target).value)" placeholder="Write a comment..."
+            (keyup.enter)="submitComment(post.id)" style="margin-bottom: 5px;">
+
+          <!-- File Input -->
+          <input type="file" (change)="onCommentFileSelected($event, post.id)" style="font-size: 0.8rem;">
+
+        </div>
+        <button (click)="submitComment(post.id)">Post</button>
+      </div>
+      }
+
     </div>
     }
+
   </div>
   }
 </div>
 
-<!-- REPORT MODAL -->
 @if (reportModalOpen()) {
 <div class="modal-overlay">
   <div class="modal-content">
@@ -97,16 +194,12 @@
     <div class="form-group">
       <label>Reason</label>
       <select [(ngModel)]="reportReason">
-        @for(opt of reportOptions; track opt) {
+        @for (opt of reportOptions; track opt) {
         <option [value]="opt">{{ opt }}</option>
         }
       </select>
     </div>
 
-    <!-- Show details input if "Other" is selected, OR allow purely optional details for all? 
-           User request said: 'something else place holder in an input option ... small input included in that report toggle' 
-           I'll make it always visible or visible on Other. Let's make it always visible but optional/focused on Other.
-      -->
     <div class="form-group">
       <label>Details (Optional)</label>
       <input type="text" [(ngModel)]="reportDetails" placeholder="Tell us more...">
@@ -114,7 +207,7 @@
 
     <div class="modal-actions">
       <button (click)="closeReportModal()" class="cancel-btn">Cancel</button>
-      <button (click)="submitReport()" class="submit-btn" [disabled]="!reportReason">Submit Report</button>
+      <button (click)="submitReport()" class="submit-btn">Submit</button>
     </div>
   </div>
 </div>

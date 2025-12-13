@@ -2,20 +2,22 @@ package com._blog._blog.service;
 
 import com._blog._blog.dto.CreatePostRequest;
 import com._blog._blog.dto.PostResponse;
+import com._blog._blog.dto.UpdatePostRequest;
 import com._blog._blog.model.Post;
 import com._blog._blog.model.User;
 import com._blog._blog.repository.PostRepository;
 import com._blog._blog.repository.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com._blog._blog.dto.UpdatePostRequest; // Import the new DTO
-import org.springframework.http.HttpStatus;
+import org.springframework.web.multipart.MultipartFile; // IMPORTANT: Need this import
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.io.IOException; // IMPORTANT: Need this import
 import java.util.List;
+import java.util.Map; // IMPORTANT: Need this import
 import java.util.stream.Collectors;
 
 @Service
@@ -23,85 +25,125 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final MediaService mediaService;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, MediaService mediaService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
-    }
-    /**
-     * Updates a post. Only the author can update their post.
-     */
-    @Transactional
-    public PostResponse updatePost(Long id, UpdatePostRequest request) {
-        // 1. Find the post
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
-
-        // 2. Get current user
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        // 3. Check permission: ONLY the author can edit
-        if (!post.getUser().getUsername().equals(currentUsername)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to edit this post");
-        }
-
-        // 4. Update fields
-        post.setTitle(request.getTitle());
-        post.setContent(request.getContent());
-
-        // 5. Save and return
-        Post updatedPost = postRepository.save(post);
-        return mapToDto(updatedPost);
+        this.mediaService = mediaService;
     }
 
-    /**
-     * Deletes a post. The author OR an Admin can delete.
-     */
+    // RENAMED and IMPLEMENTED method to match PostController
     @Transactional
-    public void deletePost(Long id) {
-        // 1. Find the post
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
-
-        // 2. Get current user details
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = auth.getName();
-        boolean isAdmin = auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
-        // 3. Check permission: Author OR Admin
-        if (!post.getUser().getUsername().equals(currentUsername) && !isAdmin) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to delete this post");
-        }
-
-        // 4. Delete
-        postRepository.delete(post);
-    }
-
-    @Transactional
-    public PostResponse createPost(CreatePostRequest request) {
-        // 1. Get the username of the currently authenticated user from the Security Context
+    public PostResponse createPostWithMedia(CreatePostRequest request, MultipartFile file) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        
-        // 2. Fetch the full User object to link the post
-        // Use IllegalStateException for unexpected security issues
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalStateException("Authenticated user not found in database. Cannot create post."));
+                .orElseThrow(() -> new IllegalStateException("Authenticated user not found."));
 
-        // 3. Create and populate the Post entity
+        // 1. Create Post Object
         Post post = new Post();
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
         post.setUser(user);
+        
+        // Ensure new fields are initialized to null/default before save
+        post.setMediaUrl(null);
+        post.setPublicId(null);
+        post.setMediaType(null);
 
-        // 4. Save to database
-        post = postRepository.save(post);
+        // 2. Save first to generate the Post ID (needed for naming)
+        Post savedPost = postRepository.save(post);
 
-        // 5. Convert to DTO and return
-        return mapToDto(post);
+        // 3. Handle File Upload if exists
+        if (file != null && !file.isEmpty()) {
+            try {
+                // Naming pattern: user{id}_post{id}_{timestamp}
+                String customName = "user" + user.getId() + "_post" + savedPost.getId() + "_" + System.currentTimeMillis();
+                
+                // Upload to "01blog/posts" folder
+                Map uploadResult = mediaService.uploadFile(file, "01blog/posts", customName);
+                
+                // 4. Update Post with Cloudinary Data
+                savedPost.setMediaUrl((String) uploadResult.get("secure_url"));
+                savedPost.setPublicId((String) uploadResult.get("public_id"));
+                savedPost.setMediaType((String) uploadResult.get("resource_type")); 
+                
+                // Save again with media info
+                savedPost = postRepository.save(savedPost);
+            } catch (IOException e) {
+                // Log and throw a controlled error
+                System.err.println("Cloudinary Upload Error: " + e.getMessage());
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload media");
+            }
+        }
+
+        return mapToDto(savedPost);
     }
+    
+    // DELETE METHOD: Updated to handle media deletion
+    @Transactional
+    public void deletePost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
-    /**
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = auth.getName();
+        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!post.getUser().getUsername().equals(currentUsername) && !isAdmin) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to delete this post");
+        }
+        
+        // 1. Delete media for ALL comments associated with this post
+        for (com._blog._blog.model.Comment comment : post.getComments()) {
+            if (comment.getPublicId() != null && !comment.getPublicId().isEmpty()) {
+                try {
+                    mediaService.deleteFile(comment.getPublicId());
+                } catch (IOException e) {
+                    System.err.println("Warning: Failed to delete media for Comment ID: " + comment.getId());
+                }
+            }
+        }
+
+        // 2. Delete media for the post itself
+        if (post.getPublicId() != null && !post.getPublicId().isEmpty()) {
+            try {
+                mediaService.deleteFile(post.getPublicId());
+            } catch (IOException e) {
+                // Log the failure, but still delete the DB record
+                System.err.println("Warning: Failed to delete media from Cloudinary for Post ID: " + id + ". Error: " + e.getMessage());
+            }
+        }
+
+        postRepository.delete(post);
+    }
+    
+    // Existing updatePost method...
+    @Transactional
+    public PostResponse updatePost(Long id, UpdatePostRequest request) {
+       // 1. Find the post... (Keep your existing update logic)
+       Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+       String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+       if (!post.getUser().getUsername().equals(currentUsername)) {
+          throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to edit this post");
+       }
+       post.setTitle(request.getTitle());
+       post.setContent(request.getContent());
+       Post updatedPost = postRepository.save(post);
+       return mapToDto(updatedPost);
+    }
+    
+
+    // Existing createPost method (without media) should be REMOVED or MODIFIED, 
+    // as it is redundant and can cause confusion. Since the Controller uses the new method, 
+    // we can remove the old one:
+    /* REMOVE THIS METHOD:
+    @Transactional
+    public PostResponse createPost(CreatePostRequest request) { ... }
+    */
+
+ /**
      * Retrieves all posts, ordered by creation date (newest first).
      */
     @Transactional(readOnly = true)
@@ -115,13 +157,16 @@ public class PostService {
     /**
      * Helper method to map Post entity to PostResponse DTO.
      */
+    // UPDATED mapToDto method
     private PostResponse mapToDto(Post post) {
         return new PostResponse(
             post.getId(),
             post.getTitle(),
             post.getContent(),
-            post.getUser().getUsername(), // Safely get username from the associated User
-            post.getCreatedAt()
+            post.getUser().getUsername(),
+            post.getCreatedAt(),
+            post.getMediaUrl(),  // NEW ARGUMENT
+            post.getMediaType()  // NEW ARGUMENT
         );
     }
 }

@@ -2,10 +2,6 @@ package com._blog._blog.dto;
 
 import java.time.LocalDateTime;
 
-/**
- * DTO for sending Post data back to the frontend.
- * Includes the username instead of the full User object.
- */
 public class PostResponse {
     
     private Long id;
@@ -13,14 +9,18 @@ public class PostResponse {
     private String content;
     private String username; // The author's username
     private LocalDateTime createdAt;
+    private String mediaType; // NEW FIELD
+    private String mediaUrl;  // NEW FIELD
 
-    // Constructor
-    public PostResponse(Long id, String title, String content, String username, LocalDateTime createdAt) {
+    // UPDATED CONSTRUCTOR: Now takes 7 arguments
+    public PostResponse(Long id, String title, String content, String username, LocalDateTime createdAt, String mediaUrl, String mediaType) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.username = username;
         this.createdAt = createdAt;
+        this.mediaUrl = mediaUrl;   // Assigning mediaUrl
+        this.mediaType = mediaType; // Assigning mediaType
     }
     
     // Getters and Setters
@@ -62,5 +62,21 @@ public class PostResponse {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
+    }
+
+    public String getMediaUrl() {
+        return mediaUrl;
+    }
+
+    public void setMediaUrl(String mediaUrl) {
+        this.mediaUrl = mediaUrl;
     }
 }

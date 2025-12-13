@@ -343,3 +343,92 @@
 .submit-btn:hover:not(:disabled) {
   background: #dc2626;
 }
+
+/* Comment Section Styles */
+.comment-btn {
+  border: none;
+  background: transparent;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #6366f1;
+  /* Indigo-500 */
+}
+
+.comment-btn:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.comments-section {
+  margin-top: 15px;
+  border-top: 1px solid #334155;
+  padding-top: 15px;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.comment-item {
+  background: #0f172a;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.comment-author {
+  color: #818cf8;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.comment-text {
+  color: #cbd5e1;
+}
+
+.comment-date {
+  display: block;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.no-comments {
+  color: #64748b;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.add-comment-box {
+  display: flex;
+  gap: 10px;
+}
+
+.add-comment-box input {
+  flex-grow: 1;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #fff;
+}
+
+.add-comment-box button {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.add-comment-box button:hover {
+  background: #4f46e5;
+}

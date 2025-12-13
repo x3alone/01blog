@@ -14,12 +14,20 @@ public class Post {
     @Column(nullable = false)
     private String title;
 
-    @Lob // Use @Lob for large strings (blog content)
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @Column
+    private String mediaUrl;
+
+    @Column
+    private String mediaType; // IMAGE, VIDEO
+
+    @Column
+    private String publicId;
 
     // ManyToOne relationship: Many posts can belong to one user
     @ManyToOne(fetch = FetchType.LAZY)
@@ -60,11 +68,59 @@ public class Post {
         return createdAt;
     }
 
+    public String getMediaUrl() {
+        return mediaUrl;
+    }
+
+    public void setMediaUrl(String mediaUrl) {
+        this.mediaUrl = mediaUrl;
+    }
+
+    public String getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
+    }
+
+    public String getPublicId() {
+        return publicId;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
+    }
+
     public User getUser() {
         return user;
     }
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    // Bidirectional OneToMany with Comment
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<Comment> comments = new java.util.ArrayList<>();
+
+    public java.util.List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(java.util.List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    // Bidirectional OneToMany with Report
+    @OneToMany(mappedBy = "reportedPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<Report> reports = new java.util.ArrayList<>();
+
+    public java.util.List<Report> getReports() {
+        return reports;
+    }
+
+    public void setReports(java.util.List<Report> reports) {
+        this.reports = reports;
     }
 }

@@ -3,6 +3,7 @@
     "@angular/cdk": "^20.2.3",
     "@angular/material": "^20.2.3",
     "bootstrap": "^5.3.8",
+    "cloudinary": "^2.8.0",
     "ngx-toastr": "^19.0.0"
   }
 }

@@ -30,3 +30,13 @@ rm -rf dist
 ng serve 
 
 mvn clean spring-boot:run
+
+
+cloud name
+dibe3wgh1
+api key
+632548746385176
+api secret
+GSt_Y30ps-6kFdimHOOoVKcpE60
+env var api 
+CLOUDINARY_URL=cloudinary://632548746385176:GSt_Y30ps-6kFdimHOOoVKcpE60@dibe3wgh1

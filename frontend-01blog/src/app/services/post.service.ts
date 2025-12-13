@@ -9,7 +9,9 @@ export interface Post {
   title: string;
   content: string;
   username: string;
-  createdAt: string;
+  mediaUrl: string;
+  mediaType: string;
+  createdAt: string;
 }
 
 export interface CreatePostRequest {
@@ -52,16 +54,19 @@ export class PostService {
     );
   }
 
-  createPost(request: CreatePostRequest): Observable<Post> {
-    const headers = this.getAuthHeaders();
-    return this.http.post<Post>(this.API_URL, request, headers).pipe(
-      catchError(err => {
-        console.error('Error creating post:', err);
-        // Using optional chaining is good practice for deep errors
-        return throwError(() => new Error(err.error?.detail || 'Failed to create post.')); 
-      })
-    );
-  }
+  createPost(title: string, content: string, file: File | null): Observable<Post> {
+    const headers = this.getAuthHeaders();
+    //this for text + media uploads
+    
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('content', content);
+    if (file) {
+      formData.append('file', file);
+    }
+
+    return this.http.post<Post>(this.API_URL, formData, headers);
+  }
 
     // NEW: Update Post Method
     updatePost(id: number, request: UpdatePostRequest): Observable<Post> {

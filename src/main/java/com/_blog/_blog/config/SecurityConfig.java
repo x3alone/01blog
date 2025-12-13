@@ -82,8 +82,9 @@ public class SecurityConfig {
                 // 2. Allow public authentication paths (login, register)
                 .requestMatchers("/api/auth/**").permitAll() 
                 
-                // 3. Allow public GET requests to posts (viewing the feed)
+                // 3. Allow public GET requests to posts (viewing the feed) and comments
                 .requestMatchers(HttpMethod.GET, "/api/posts", "/api/posts/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
 
                 // 4. REQUIRE AUTHENTICATION for all other requests.
                 // Note: Permissions like @PreAuthorize("hasRole('ADMIN')") will then check the role.
