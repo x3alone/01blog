@@ -1,5 +1,6 @@
 com/_blog/_blog/dto/ReportResponse.class
 com/_blog/_blog/service/ReportService.class
+com/_blog/_blog/repository/NotificationRepository.class
 com/_blog/_blog/service/MediaService.class
 com/_blog/_blog/config/JwtAuthFilter.class
 com/_blog/_blog/dto/AuthenticationResponse.class
@@ -31,8 +32,11 @@ com/_blog/_blog/dto/CreatePostRequest.class
 com/_blog/_blog/config/SecurityConfig.class
 com/_blog/_blog/dto/UpdatePostRequest.class
 com/_blog/_blog/controller/AuthController.class
+com/_blog/_blog/service/NotificationService.class
 com/_blog/_blog/model/Post.class
+com/_blog/_blog/model/Notification.class
 com/_blog/_blog/repository/UserRepository.class
+com/_blog/_blog/controller/NotificationController.class
 com/_blog/_blog/dto/LoginRequest.class
 com/_blog/_blog/model/Comment.class
 com/_blog/_blog/repository/CommentRepository.class

@@ -1,42 +1,89 @@
-<div class="dashboard-wrapper">
-  
+<div class="dashboard-shell">
   <h2 class="dashboard-title">Admin Dashboard</h2>
-  
-  <div class="user-list-container">
-    @for (user of users(); track user.id) {
-      <div class="user-item">
-        <div class="user-info">
-          <a [routerLink]="['/profile', user.id]" class="username-text hover:text-indigo-400 transition">
-             {{ user.username }}
-          </a>
-          <p class="role-text">Role: {{ user.role }}</p>
-        </div>
-        
-        <div class="action-buttons-group">
-          
-          <button 
-            (click)="toggleRole(user)" 
-            class="action-button role-toggle-btn"
-            [class.promoted]="user.role === 'ADMIN'"
-          >
-            {{ user.role === 'ADMIN' ? 'Demote' : 'Promote' }}
-          </button>
 
-          <button 
-            (click)="toggleBan(user)" 
-            class="action-button ban-toggle-btn"
-            [class.banned]="user.isBanned"
-          >
-            {{ user.isBanned ? 'Unban' : 'Ban' }}
-          </button>
-        </div>
+  <!-- HUB VIEW: Main state when no specific view is selected -->
+  @if (currentView === 'hub') {
+  <div class="dashboard-hub">
+    <div class="hub-card" (click)="setView('users')">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="stroke-indigo-500">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
       </div>
-    }
+      <h3>Manage Users</h3>
+      <p>View, ban, or promote users.</p>
+    </div>
+
+    <div class="hub-card" (click)="setView('reports')">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stroke-red-500">
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+          <line x1="4" y1="22" x2="4" y2="15"></line>
+        </svg>
+      </div>
+      <h3>Reported Posts</h3>
+      <p>Moderation queue for content.</p>
+    </div>
+  </div>
+  }
+
+  <!-- USERS VIEW -->
+  @if (currentView === 'users') {
+  <div class="view-header">
+    <button (click)="setView('hub')" class="back-btn">← Back</button>
+    <h3>User Management</h3>
   </div>
 
-  @if (users().length === 0) {
-    <div class="no-users-message">
-      No users found in the system.
+  <div class="data-list fade-in">
+    @if(isLoading()) { <p>Loading users...</p> }
+    @for (user of users(); track user.id) {
+    <div class="list-item">
+      <span class="main-text">{{ user.username }} <small>({{ user.role }})</small></span>
+      <div class="actions">
+        @if (user.role !== 'ADMIN') {
+        @if (user.isBanned) {
+        <button (click)="unbanUser(user.id)" class="action-btn">Unban</button>
+        } @else {
+        <button (click)="banUser(user.id)" class="action-btn ban-btn">Ban</button>
+        }
+        }
+      </div>
     </div>
+    }
+  </div>
   }
+
+  <!-- REPORTS VIEW -->
+  @if (currentView === 'reports') {
+  <div class="view-header">
+    <button (click)="setView('hub')" class="back-btn">← Back</button>
+    <h3>Reported Posts</h3>
+  </div>
+
+  <div class="data-list fade-in">
+    @if(isLoading()) { <p>Loading reports...</p> }
+    @if (reports().length === 0 && !isLoading()) { <p>No reports found.</p> }
+
+    @for (report of reports(); track report.id) {
+    <div class="list-item">
+      <div class="item-info">
+        <span class="main-text">{{ report.reason }}</span>
+        <span class="sub-text">on Post #{{ report.reportedPostId }} • by {{ report.reporterUsername }}</span>
+      </div>
+      <div class="actions">
+        <button (click)="dismissReport(report.id)" class="action-btn dismiss-btn">Dismiss</button>
+        <button (click)="deleteReportedPost(report.reportedPostId, report.id)" class="action-btn ban-btn">Delete
+          Post</button>
+      </div>
+    </div>
+    }
+  </div>
+  }
+
 </div>

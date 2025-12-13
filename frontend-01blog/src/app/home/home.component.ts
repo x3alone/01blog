@@ -5,11 +5,13 @@ import { AuthService } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { ReportService } from '../services/report.service';
 import { CommentService, Comment } from '../services/comment.service';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { FollowService } from '../services/follow.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, DatePipe, FormsModule],
+  imports: [CommonModule, DatePipe, FormsModule, RouterModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -17,105 +19,116 @@ export class HomeComponent implements OnInit {
   private postService = inject(PostService);
   private authService = inject(AuthService);
   private reportService = inject(ReportService);
-  private commentService = inject(CommentService);
+  public commentService = inject(CommentService);
+  private route = inject(ActivatedRoute);
+  private followService = inject(FollowService);
 
   posts = signal<Post[]>([]);
   loggedIn = signal(false);
   currentUsername = signal('');
-  currentUserRole = signal('');
+  currentUserId = signal<number | null>(null);
 
-  // Report state
+  // Post Creation Signals
+  newPostTitle = signal('');
+  newPostContent = signal('');
+  selectedFile: File | null = null;
+  imagePreviewUrl: string | null = null;
+  selectedMediaType: 'image' | 'video' | 'none' = 'none';
+  isPosting = signal(false);
+
+  // Edit State
+  editingPostId = signal<number | null>(null);
+  editTitle = '';
+  editContent = '';
+
+  // Report State
   reportModalOpen = signal(false);
   reportingPostId: number | null = null;
   reportReason = 'Inappropriate Content';
   reportDetails = '';
-  reportOptions = [
-    'Inappropriate Content',
-    'Spam',
-    'Harassment',
-    'Misinformation',
-    'Other'
-  ];
+  reportOptions = ['Inappropriate Content', 'Spam', 'Harassment', 'Misinformation', 'Other'];
 
-  // Comment state
+  // Comment State
   expandedComments = signal<Set<number>>(new Set());
   postComments = signal<Map<number, Comment[]>>(new Map());
   newCommentInputs = signal<Map<number, string>>(new Map());
   commentFiles = signal<Map<number, File>>(new Map());
 
-  newPostTitle = '';
-  newPostContent = '';
-
-  // --- NEW FILE UPLOAD STATE ---
-  selectedFile: File | null = null;
-  imagePreviewUrl: string | null = null;
-  isPosting = signal(false); // NEW: Prevent double post
-
-  // Edit state
-  editingPostId = signal<number | null>(null);
-  editTitle = '';
-  editContent = '';
-
   ngOnInit() {
-    this.loggedIn.set(this.authService.isAuthenticated()); // Using isAuthenticated() which returns boolean
-    this.currentUsername.set(this.authService.getUsername() || ''); // Handle null
-    this.currentUserRole.set(this.authService.getUserRole() || ''); // Handle null
+    this.checkLoginStatus();
+
+    // Always load posts on init
     this.loadPosts();
+
+    this.route.queryParams.subscribe(params => {
+      if (params['refresh']) {
+        this.loadPosts();
+      }
+    });
+  }
+
+  checkLoginStatus() {
+    if (this.authService.isAuthenticated()) {
+      this.loggedIn.set(true);
+      this.currentUsername.set(this.authService.getUsername() || '');
+    }
   }
 
   loadPosts() {
     this.postService.getAllPosts().subscribe({
-      next: (posts) => this.posts.set(posts),
-      error: (e) => console.error('Error loading posts', e)
+      next: (data) => {
+        // Sort newest first
+        this.posts.set(data.sort((a, b) => b.id - a.id));
+      },
+      error: (e: any) => console.error('Failed to load posts', e)
     });
   }
 
+  // --- POST CREATION ---
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
+      this.selectedMediaType = file.type.startsWith('video') ? 'video' : 'image';
+
       const reader = new FileReader();
-      reader.onload = (e) => this.imagePreviewUrl = e.target?.result as string;
+      reader.onload = (e: any) => this.imagePreviewUrl = e.target.result;
       reader.readAsDataURL(file);
     }
   }
 
-  // --- CREATE POST WITH FILE ---
   createPost() {
-    if (!this.newPostTitle.trim() || !this.newPostContent.trim() || this.isPosting()) return;
-
+    if (!this.newPostTitle() || !this.newPostContent()) return;
     this.isPosting.set(true);
 
-    this.postService
-      .createPost(this.newPostTitle.trim(), this.newPostContent.trim(), this.selectedFile)
-      .subscribe({
-        next: () => {
-          this.newPostTitle = '';
-          this.newPostContent = '';
-          this.selectedFile = null;
-          this.imagePreviewUrl = null;
-          this.isPosting.set(false);
-          this.loadPosts();
-        },
-        error: (e) => {
-          alert('Failed to post: ' + e.message);
-          this.isPosting.set(false);
-        }
-      });
+    this.postService.createPost(
+      this.newPostTitle(),
+      this.newPostContent(),
+      this.selectedFile || null
+    ).subscribe({
+      next: () => {
+        this.newPostTitle.set('');
+        this.newPostContent.set('');
+        this.selectedFile = null;
+        this.imagePreviewUrl = null;
+        this.loadPosts();
+        this.isPosting.set(false);
+      },
+      error: (e: any) => {
+        console.error('Create post failed', e);
+        this.isPosting.set(false);
+      }
+    });
   }
 
-  // Permissions
-  canDelete(post: Post): boolean {
-    return this.currentUsername() === post.username || this.currentUserRole() === 'ADMIN';
-  }
-
+  // --- POST ACTIONS ---
   deletePost(id: number) {
-    if (confirm('Delete this post?')) {
-      this.postService.deletePost(id).subscribe(() => this.loadPosts());
-    }
+    if (!confirm('Are you sure?')) return;
+    this.postService.deletePost(id).subscribe(() => {
+      this.posts.update(p => p.filter(post => post.id !== id));
+    });
   }
 
-  // Editing
   startEdit(post: Post) {
     this.editingPostId.set(post.id);
     this.editTitle = post.title;
@@ -130,72 +143,99 @@ export class HomeComponent implements OnInit {
     const id = this.editingPostId();
     if (!id) return;
 
-    const req: UpdatePostRequest = {
-      title: this.editTitle,
-      content: this.editContent
-    };
-
-    this.postService.updatePost(id, req).subscribe({
-      next: () => {
-        this.loadPosts();
-        this.cancelEdit();
-      }
+    const update: UpdatePostRequest = { title: this.editTitle, content: this.editContent };
+    this.postService.updatePost(id, update).subscribe(() => {
+      this.posts.update(list => list.map(p => p.id === id ? { ...p, title: this.editTitle, content: this.editContent } : p));
+      this.editingPostId.set(null);
     });
   }
 
-  // Report modal
+  followUser(post: Post) {
+    // Dummy implementation or call service
+    // Ideally fetching user ID from post if available, but post often returns username
+    // We need user ID to follow. Assuming post has userId, or we fetch it.
+    // Current Post model might only have username.
+    // If endpoint needs ID, we need to ensure Post DTO includes userId.
+    // For now, logging to avoid error.
+    console.log('Follow clicked on home', post.username);
+  }
+
+  // --- PERMISSIONS ---
+  canDelete(post: Post): boolean {
+    const role = this.authService.getUserRole();
+    const currentId = this.currentUserId();
+    // Admin or Owner can delete
+    return role === 'ADMIN' || (currentId !== null && post.userId === currentId);
+  }
+
+  canEdit(post: Post): boolean {
+    const currentId = this.currentUserId();
+    // Only Owner can edit
+    return currentId !== null && post.userId === currentId;
+  }
+
+  canDeleteComment(comment: Comment): boolean {
+    const role = this.authService.getUserRole();
+    const currentUsername = this.currentUsername();
+    // Admin or Owner can delete
+    return role === 'ADMIN' || (currentUsername !== '' && comment.username === currentUsername);
+  }
+
+  canEditComment(comment: Comment): boolean {
+    const currentUsername = this.currentUsername();
+    // Only Owner can edit
+    return currentUsername !== '' && comment.username === currentUsername;
+  }
+
+  // --- REPORTS ---
   openReportModal(post: Post) {
     this.reportingPostId = post.id;
-    this.reportReason = 'Inappropriate Content';
-    this.reportDetails = '';
     this.reportModalOpen.set(true);
   }
 
   closeReportModal() {
     this.reportModalOpen.set(false);
     this.reportingPostId = null;
+    this.reportDetails = '';
   }
 
   submitReport() {
-    if (!this.reportingPostId) return;
-
-    this.reportService.createReport(
-      this.reportingPostId,
-      this.reportReason,
-      this.reportDetails
-    ).subscribe({
-      next: () => {
-        alert('Report submitted successfully.');
+    if (this.reportingPostId) {
+      this.reportService.createReport(this.reportingPostId, this.reportReason, this.reportDetails).subscribe(() => {
+        alert('Report submitted');
         this.closeReportModal();
-      },
-      error: (e) => alert('Failed to submit report: ' + (e.error?.message || e.message))
-    });
-  }
-
-  // Comments
-  toggleComments(postId: number) {
-    const expanded = new Set(this.expandedComments());
-    if (expanded.has(postId)) {
-      expanded.delete(postId);
-    } else {
-      expanded.add(postId);
-      this.loadComments(postId);
+      });
     }
-    this.expandedComments.set(expanded);
   }
 
+  // --- COMMENTS ---
   isCommentsExpanded(postId: number): boolean {
     return this.expandedComments().has(postId);
   }
 
+  toggleComments(postId: number) {
+    const set = this.expandedComments();
+    if (set.has(postId)) {
+      set.delete(postId);
+    } else {
+      set.add(postId);
+      if (!this.postComments().has(postId)) {
+        this.loadComments(postId);
+      }
+    }
+    // trigger signal update
+    this.expandedComments.set(new Set(set));
+  }
+
   loadComments(postId: number) {
     this.commentService.getComments(postId).subscribe({
-      next: (comments) => {
-        const map = new Map(this.postComments());
-        map.set(postId, comments);
-        this.postComments.set(map);
+      next: (data: Comment[]) => {
+        this.postComments.update(map => {
+          map.set(postId, data);
+          return new Map(map);
+        });
       },
-      error: (e) => console.error('Failed to load comments', e)
+      error: (e: any) => console.error(e)
     });
   }
 
@@ -203,70 +243,62 @@ export class HomeComponent implements OnInit {
     return this.postComments().get(postId) || [];
   }
 
-  getNewCommentInput(postId: number): string {
-    return this.newCommentInputs().get(postId) || '';
-  }
-
-  updateNewCommentInput(postId: number, value: string) {
-    const map = new Map(this.newCommentInputs());
-    map.set(postId, value);
-    this.newCommentInputs.set(map);
-  }
-
-  // NEW: Handle comment file selection
-  onCommentFileSelected(event: any, postId: number) {
-    const file = event.target.files[0];
-    if (file) {
-      const map = new Map(this.commentFiles());
-      map.set(postId, file);
-      this.commentFiles.set(map);
-    }
-  }
-
-  getCommentFile(postId: number): File | undefined {
-    return this.commentFiles().get(postId);
-  }
-
-  // Helper to allow removing the selected file
-  removeCommentFile(postId: number) {
-    const map = new Map(this.commentFiles());
-    map.delete(postId);
-    this.commentFiles.set(map);
-  }
-
-  submitComment(postId: number) {
-    const content = this.getNewCommentInput(postId);
-    const file = this.getCommentFile(postId) || null;
-
-    // Must have either content or file
-    if (!content.trim() && !file) return;
-
-    this.commentService.addComment(postId, content, file).subscribe({
-      next: (comment) => {
-        const map = new Map(this.postComments());
-        const list = map.get(postId) || [];
-        map.set(postId, [...list, comment]);
-        this.postComments.set(map);
-
-        // Reset input and file
-        this.updateNewCommentInput(postId, '');
-        this.removeCommentFile(postId); // Clear file
-      },
-      error: (e) => alert('Failed to add comment: ' + e.message)
+  updateCommentInput(postId: number, event: any) {
+    this.newCommentInputs.update(map => {
+      map.set(postId, event.target.value);
+      return new Map(map);
     });
   }
 
-  deleteComment(postId: number, commentId: number) {
-    if (confirm('Delete this comment?')) {
-      this.commentService.deleteComment(commentId).subscribe({
-        next: () => {
-          const map = new Map(this.postComments());
-          const list = map.get(postId) || [];
-          map.set(postId, list.filter(c => c.id !== commentId));
-          this.postComments.set(map);
-        },
-        error: (e) => alert('Failed to delete comment: ' + e.message)
+  onCommentFileSelected(postId: number, event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.commentFiles.update(map => {
+        map.set(postId, file);
+        return new Map(map);
       });
     }
+  }
+
+  addComment(postId: number) {
+    const content = this.newCommentInputs().get(postId);
+    if (!content) return;
+
+    const file = this.commentFiles().get(postId) || null;
+
+    this.commentService.addComment(postId, content, file).subscribe({
+      next: (newComment: Comment) => {
+        this.postComments.update(map => {
+          const list = map.get(postId) || [];
+          list.push(newComment);
+          map.set(postId, list);
+          return new Map(map);
+        });
+        // Clear input
+        this.newCommentInputs.update(map => { map.set(postId, ''); return new Map(map); });
+        this.commentFiles.update(map => { map.delete(postId); return new Map(map); });
+      },
+      error: (e: any) => console.error('Failed to add comment', e)
+    });
+  }
+
+  // --- COMMENT ACTIONS ---
+  deleteComment(postId: number, commentId: number) {
+    this.commentService.deleteComment(commentId).subscribe({
+      next: () => {
+        this.postComments.update(map => {
+          let list = map.get(postId) || [];
+          list = list.filter(c => c.id !== commentId);
+          map.set(postId, list);
+          return new Map(map);
+        });
+      },
+      error: (e: any) => console.error(e)
+    });
+  }
+
+  // Map helper methods for template
+  getNewCommentInput(postId: number) {
+    return this.newCommentInputs().get(postId) || '';
   }
 }

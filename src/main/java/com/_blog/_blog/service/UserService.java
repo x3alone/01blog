@@ -112,8 +112,8 @@ public class UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found."));
         
         // 2. Calculate Follow Counts
-        long followersCount = followRepository.countByFollowing(profileOwner);
-        long followingCount = followRepository.countByFollower(profileOwner);
+        long followersCount = followRepository.countByFollowingId(profileOwner.getId());
+        long followingCount = followRepository.countByFollowerId(profileOwner.getId());
         
         // 3. Determine Follow Status (only if a user is logged in)
         boolean isFollowedByCurrentUser = false;
@@ -123,7 +123,7 @@ public class UserService {
             
             if (currentUserOptional.isPresent()) {
                 User currentUser = currentUserOptional.get();
-                isFollowedByCurrentUser = followRepository.findByFollowerAndFollowing(currentUser, profileOwner).isPresent();
+                isFollowedByCurrentUser = followRepository.findByFollowerIdAndFollowingId(currentUser.getId(), profileOwner.getId()).isPresent();
             }
         }
         

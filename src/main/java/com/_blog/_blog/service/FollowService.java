@@ -4,79 +4,64 @@ import com._blog._blog.model.Follow;
 import com._blog._blog.model.User;
 import com._blog._blog.repository.FollowRepository;
 import com._blog._blog.repository.UserRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class FollowService {
 
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
-    public FollowService(FollowRepository followRepository, UserRepository userRepository) {
+    public FollowService(FollowRepository followRepository, UserRepository userRepository, NotificationService notificationService) {
         this.followRepository = followRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
-    /**
-     * Creates a follow relationship between two users.
-     * @param followerId The ID of the user initiating the follow.
-     * @param followingId The ID of the user being followed.
-     */
     @Transactional
-    public void followUser(Long followerId, Long followingId) {
-        if (followerId.equals(followingId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User cannot follow themselves.");
+    public void followUser(String followerUsername, Long followingId) {
+        User follower = userRepository.findByUsername(followerUsername)
+                .orElseThrow(() -> new RuntimeException("Follower not found"));
+        User following = userRepository.findById(followingId)
+                .orElseThrow(() -> new RuntimeException("User to follow not found"));
+
+        if (follower.getId().equals(following.getId())) {
+            throw new RuntimeException("You cannot follow yourself");
         }
 
-        User follower = userRepository.findById(followerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Follower not found."));
-
-        User following = userRepository.findById(followingId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User to follow not found."));
-
-        // Check if relationship already exists
-        if (followRepository.findByFollowerAndFollowing(follower, following).isPresent()) {
-            // Already following, no action needed, or you could throw a BAD_REQUEST here.
-            return;
+        if (followRepository.existsByFollowerIdAndFollowingId(follower.getId(), following.getId())) {
+             return; // Already following
         }
 
         Follow follow = new Follow(follower, following);
         followRepository.save(follow);
+
+        // Trigger Notification
+        notificationService.createNotification(
+                following,
+                follower, // Actor
+                follower.getUsername() + " started following you.",
+                "FOLLOW",
+                follower.getId() // relatedId is the follower's user ID
+        );
     }
 
-    /**
-     * Removes a follow relationship between two users.
-     * @param followerId The ID of the user who is unfollowing.
-     * @param followingId The ID of the user being unfollowed.
-     */
     @Transactional
-    public void unfollowUser(Long followerId, Long followingId) {
-        User follower = userRepository.findById(followerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Follower not found."));
-
-        User following = userRepository.findById(followingId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User to unfollow not found."));
-
-        Follow follow = followRepository.findByFollowerAndFollowing(follower, following)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Follow relationship not found."));
+    public void unfollowUser(String followerUsername, Long followingId) {
+        User follower = userRepository.findByUsername(followerUsername)
+                .orElseThrow(() -> new RuntimeException("Follower not found"));
+        
+        Follow follow = followRepository.findByFollowerIdAndFollowingId(follower.getId(), followingId)
+                .orElseThrow(() -> new RuntimeException("Follow relationship not found"));
 
         followRepository.delete(follow);
     }
 
-    /**
-     * Checks if one user follows another.
-     */
-    public boolean isFollowing(Long followerId, Long followingId) {
-        User follower = userRepository.findById(followerId).orElse(null);
-        User following = userRepository.findById(followingId).orElse(null);
-        
-        if (follower == null || following == null) {
-            return false;
-        }
-
-        return followRepository.findByFollowerAndFollowing(follower, following).isPresent();
+    public boolean isFollowing(String followerUsername, Long followingId) {
+        User follower = userRepository.findByUsername(followerUsername)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return followRepository.existsByFollowerIdAndFollowingId(follower.getId(), followingId);
     }
 }

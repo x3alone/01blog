@@ -85,6 +85,7 @@ public class SecurityConfig {
                 // 3. Allow public GET requests to posts (viewing the feed) and comments
                 .requestMatchers(HttpMethod.GET, "/api/posts", "/api/posts/{id}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll() // Allow public profile viewing
 
                 // 4. REQUIRE AUTHENTICATION for all other requests.
                 // Note: Permissions like @PreAuthorize("hasRole('ADMIN')") will then check the role.

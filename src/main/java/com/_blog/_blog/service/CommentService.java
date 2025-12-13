@@ -24,12 +24,14 @@ public class CommentService {
     private final UserRepository userRepository;
 
     private final MediaService mediaService;
+    private final NotificationService notificationService;
 
-    public CommentService(CommentRepository commentRepository, PostRepository postRepository, UserRepository userRepository, MediaService mediaService) {
+    public CommentService(CommentRepository commentRepository, PostRepository postRepository, UserRepository userRepository, MediaService mediaService, NotificationService notificationService) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.mediaService = mediaService;
+        this.notificationService = notificationService;
     }
 
     public CommentResponse addCommentWithMedia(CreateCommentRequest request, org.springframework.web.multipart.MultipartFile file, String username) {
@@ -64,6 +66,17 @@ public class CommentService {
                 System.err.println("Comment Media Upload Error: " + e.getMessage());
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload media for comment");
             }
+        }
+
+        // Trigger Notification if commenter is not the post owner
+        if (!savedComment.getUser().getId().equals(post.getUser().getId())) {
+            notificationService.createNotification(
+                    post.getUser(),
+                    savedComment.getUser(), // Actor
+                    savedComment.getUser().getUsername() + " commented on your post.",
+                    "COMMENT",
+                    post.getId()
+            );
         }
 
         return new CommentResponse(

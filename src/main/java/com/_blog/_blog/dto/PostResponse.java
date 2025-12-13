@@ -7,16 +7,18 @@ public class PostResponse {
     private Long id;
     private String title;
     private String content;
+    private Long userId; // NEW FIELD
     private String username; // The author's username
     private LocalDateTime createdAt;
     private String mediaType; // NEW FIELD
     private String mediaUrl;  // NEW FIELD
 
-    // UPDATED CONSTRUCTOR: Now takes 7 arguments
-    public PostResponse(Long id, String title, String content, String username, LocalDateTime createdAt, String mediaUrl, String mediaType) {
+    // UPDATED CONSTRUCTOR: Now takes 8 arguments
+    public PostResponse(Long id, String title, String content, Long userId, String username, LocalDateTime createdAt, String mediaUrl, String mediaType) {
         this.id = id;
         this.title = title;
         this.content = content;
+        this.userId = userId;
         this.username = username;
         this.createdAt = createdAt;
         this.mediaUrl = mediaUrl;   // Assigning mediaUrl
@@ -30,6 +32,14 @@ public class PostResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getTitle() {

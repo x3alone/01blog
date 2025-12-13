@@ -1,90 +1,75 @@
-<div class="profile-page-wrapper">
-  
+<div class="main-content">
+
   @if (isLoading()) {
-    <div class="loading-message">Loading profile...</div>
+  <div class="loading-message">Loading profile...</div>
   } @else if (profile()) {
-    
+
+  <div class="profile-layout">
+
+    <!-- PROFILE CARD -->
     <div class="profile-card">
-      
-      <div class="profile-cover"></div>
+      <div class="cover-photo"></div>
 
       <div class="profile-content">
-        
-        <div class="header-section">
-          
-          <div class="avatar-actions-group">
-            
-            <div class="avatar-wrapper">
-              <div class="profile-avatar">
-                <span class="avatar-letter">
-                  {{ profile()?.username?.charAt(0)?.toUpperCase() }}
-                </span>
-              </div>
-              @if (profile()?.isBanned) {
-                <span class="banned-badge">
-                  BANNED
-                </span>
-              }
-            </div>
-
-            <div class="action-buttons-group">
-              @if (!isOwnProfile()) {
-                <button 
-                  (click)="toggleFollow()"
-                  [class]="profile()?.isFollowedByCurrentUser 
-                    ? 'unfollow-btn' 
-                    : 'follow-btn'"
-                  class="action-button"
-                >
-                  {{ profile()?.isFollowedByCurrentUser ? 'Unfollow' : 'Follow' }}
-                </button>
-              }
-              
-              @if (profile()?.role === 'ADMIN') {
-                <div class="admin-badge">
-                  Admin
-                </div>
-              }
-            </div>
+        <div class="profile-top">
+          <div class="avatar-lg">
+            {{ profile()?.username?.charAt(0)?.toUpperCase() }}
           </div>
 
-          <div class="profile-details-section">
-            <div class="username-section">
-              <h1 class="username-title">{{ profile()?.username }}</h1>
-              <p class="join-date">Joined recently</p>
-            </div>
+          <div class="action-area">
+            @if (currentUser() && currentUser() !== profile()?.username) {
+            <button (click)="toggleFollow()" class="follow-btn" [class.unfollow]="isFollowing()">
+              {{ isFollowing() ? 'Unfollow' : 'Follow' }}
+            </button>
+            }
+          </div>
+        </div>
 
-            <div class="stats-bar">
-              <div class="stat-item">
-                <span class="stat-count">{{ profile()?.followingCount }}</span>
-                <span class="stat-label">Following</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-count">{{ profile()?.followersCount }}</span>
-                <span class="stat-label">Followers</span>
-              </div>
-            </div>
+        <h1 class="username-title">
+          {{ profile()?.username }}
+          @if (profile()?.role === 'ADMIN') { <span class="admin-tag"
+            style="font-size: 0.5em; background: #f59e0b; color: white; padding: 2px 6px; border-radius: 4px; vertical-align: middle;">Admin</span>
+          }
+        </h1>
 
-            <div class="about-section">
-              <h2 class="about-title">About</h2>
-              <p class="about-text">
-                {{ profile()?.about || 'This user has not written a bio yet.' }}
-              </p>
-            </div>
-
+        <div class="stats-bar">
+          <div class="stat-item">
+            <span class="stat-val">{{ posts().length }}</span>
+            <span class="stat-label">Thoghts</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val">{{ profile()?.followersCount || 0 }}</span>
+            <span class="stat-label">Followers</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val">{{ profile()?.followingCount || 0 }}</span>
+            <span class="stat-label">Following</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="posts-section">
-      <h2 class="posts-title">Posts</h2>
-      <div class="posts-placeholder">
-        User's posts will appear here...
+    <!-- POSTS -->
+    <h2 class="section-title">Latest Clouds</h2>
+
+    <div class="users-posts">
+      @for (post of posts(); track post.id) {
+      <div class="post-card">
+        <span class="post-date">{{ post.createdAt | date:'mediumDate' }}</span>
+        <h3>{{ post.title }}</h3>
+        <p>{{ post.content }}</p>
+        @if (post.mediaUrl) {
+        <div class="media-container">
+          <img [src]="post.mediaUrl" style="max-width: 100%; border-radius: 8px;">
+        </div>
+        }
       </div>
+      }
     </div>
 
+  </div>
+
   } @else {
-    <div class="not-found-message">User not found.</div>
+  <div class="not-found-message">User not found.</div>
   }
 </div>

@@ -8,11 +8,14 @@ import { UserProfileComponent } from './profile/UserProfileComponent';
 import { DashboardComponent } from './dashboard/dashboard.component';
 
 
+import { adminGuard } from './guards/admin.guard';
+
 export const routes: Routes = [
   // Redirect root path to the home route
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
-  // Public Routes (Authentication is handled within the AppComponent, but these are defined for routing)
+  // Public Routes - Add logic to redirect if already logged in? 
+  // For now simple routing.
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
 
@@ -25,6 +28,7 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
+    canActivate: [authGuard, adminGuard], // Protected
     children: [
       { path: '', redirectTo: 'users', pathMatch: 'full' },
       { path: 'users', loadComponent: () => import('./dashboard/users/dashboard-users.component').then(m => m.DashboardUsersComponent) },

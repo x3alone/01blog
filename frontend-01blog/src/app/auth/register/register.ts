@@ -18,6 +18,12 @@ export class RegisterComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
 
+  constructor() {
+    if (this.auth.isAuthenticated()) {
+        this.router.navigate(['/home']);
+    }
+  }
+
   register() {
     this.registerError = null; // Clear previous errors
     

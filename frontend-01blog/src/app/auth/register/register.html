@@ -1,67 +1,46 @@
-<h2>Register</h2>
-<!-- Display the server-side error message if registerError is set -->
-<div *ngIf="registerError" class="error-message">
-    {{ registerError }}
+<div class="auth-wrapper">
+
+  <div class="auth-card">
+
+    <div class="auth-content">
+      <h2 class="auth-title">Join Us</h2>
+
+      @if (registerError) {
+      <div class="error-message">{{ registerError }}</div>
+      }
+
+      <form #registerForm="ngForm" (ngSubmit)="registerForm.valid && register()" class="auth-form">
+        <div class="form-group">
+          <label>Username</label>
+          <input [(ngModel)]="username" name="username" required minlength="4" #usernameField="ngModel"
+            placeholder="Username..." class="clean-input">
+          @if (usernameField.invalid && (usernameField.dirty || usernameField.touched)) {
+          <div class="validation-error">Username must be at least 4 characters.</div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input [(ngModel)]="password" name="password" type="password" required minlength="8" #passwordField="ngModel"
+            placeholder="Password..." class="clean-input">
+          @if (passwordField.invalid && (passwordField.dirty || passwordField.touched)) {
+          <div class="validation-error">Password must be at least 8 characters.</div>
+          }
+        </div>
+
+        <button type="submit" [disabled]="!registerForm.valid" class="clean-btn">
+          Sign Up
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <a routerLink="/login" class="text-link">Already have an account? Log In</a>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<!-- Form structure updated to handle validation (template-driven forms) -->
-<form #registerForm="ngForm" (ngSubmit)="registerForm.valid && register()">
-  <!-- Username Input (Min 4 chars) -->
-  <input 
-    [(ngModel)]="username" 
-    name="username" 
-    placeholder="Username (min 4 chars)" 
-    required
-    minlength="4"
-    #usernameField="ngModel"
-  />
-  <div *ngIf="usernameField.invalid && (usernameField.dirty || usernameField.touched)" class="validation-error">
-    <div *ngIf="usernameField.errors?.['required']">Username is required.</div>
-    <div *ngIf="usernameField.errors?.['minlength']">Username must be at least 4 characters long.</div>
-  </div>
-
-  <!-- Password Input (Min 8 chars) -->
-  <input 
-    [(ngModel)]="password" 
-    name="password" 
-    type="password" 
-    placeholder="Password (min 8 chars)" 
-    required
-    minlength="8"
-    #passwordField="ngModel"
-  />
-  <div *ngIf="passwordField.invalid && (passwordField.dirty || passwordField.touched)" class="validation-error">
-    <div *ngIf="passwordField.errors?.['required']">Password is required.</div>
-    <div *ngIf="passwordField.errors?.['minlength']">Password must be at least 8 characters long.</div>
-  </div>
-
-  <button type="submit" [disabled]="!registerForm.valid">Register</button>
-</form>
-<p>Already have an account? <a routerLink="/login">Login here</a></p>
-
 <style>
-  input {
-    display: block;
-    margin-bottom: 5px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-  }
-  .error-message {
-    padding: 10px;
-    background-color: #fdd;
-    border: 1px solid red;
-    border-radius: 4px;
-    color: #c00;
-  }
-  .validation-error {
-    color: #e00; /* Darker red for validation errors */
-    font-size: 0.85em;
-    margin-bottom: 10px;
-  }
-  button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  /* CSS inlined for component encapsulation or moved to SCSS */
 </style>

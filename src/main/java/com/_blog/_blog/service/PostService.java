@@ -163,6 +163,7 @@ public class PostService {
             post.getId(),
             post.getTitle(),
             post.getContent(),
+            post.getUser().getId(), // Populate userId
             post.getUser().getUsername(),
             post.getCreatedAt(),
             post.getMediaUrl(),  // NEW ARGUMENT

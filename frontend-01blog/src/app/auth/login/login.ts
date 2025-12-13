@@ -2,12 +2,12 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../services/auth.service'; // Correct service path
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule], 
+    imports: [CommonModule, FormsModule, RouterModule],
     // Using inline template for full component portability and Tailwind styling
     template: `
 <div class="min-h-screen flex items-center justify-center bg-gray-100">
@@ -57,14 +57,20 @@ import { AuthService } from '../../services/auth.service'; // Correct service pa
 export class LoginComponent {
     username = '';
     password = '';
-    loginError: string | null = null; 
+    loginError: string | null = null;
 
     private auth = inject(AuthService);
     private router = inject(Router);
 
+    constructor() {
+        if (this.auth.isAuthenticated()) {
+            this.router.navigate(['/home']);
+        }
+    }
+
     login() {
-        this.loginError = null; 
-        
+        this.loginError = null;
+
         this.auth.login({ username: this.username, password: this.password }).subscribe({
             next: () => {
                 // Token is saved synchronously in AuthService, allowing direct navigation.
@@ -72,13 +78,13 @@ export class LoginComponent {
             },
             error: (err) => {
                 console.error('Login error:', err);
-                
+
                 // Handle HTTP 401 response from the backend
                 if (err.status === 401) {
                     this.loginError = 'Invalid username or password.';
                 } else if (err.error?.message) {
                     this.loginError = err.error.message;
-                } 
+                }
                 else {
                     this.loginError = 'Login failed. Please check your connection.';
                 }
