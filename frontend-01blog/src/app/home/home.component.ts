@@ -7,6 +7,8 @@ import { ReportService } from '../services/report.service';
 import { CommentService, Comment } from '../services/comment.service';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FollowService } from '../services/follow.service';
+import { ToastService } from '../services/toast.service';
+import { ConfirmationService } from '../services/confirmation.service';
 
 @Component({
   selector: 'app-home',
@@ -22,12 +24,15 @@ export class HomeComponent implements OnInit {
   public commentService = inject(CommentService);
   private route = inject(ActivatedRoute);
   private followService = inject(FollowService);
+  private toastService = inject(ToastService);
+  private confirmationService = inject(ConfirmationService);
 
   posts = signal<Post[]>([]);
   loggedIn = signal(false);
   currentUsername = signal('');
   currentUserId = signal<number | null>(null);
 
+  // ... (keeping existing properties)
   // Post Creation Signals
   newPostTitle = signal('');
   newPostContent = signal('');
@@ -35,6 +40,7 @@ export class HomeComponent implements OnInit {
   imagePreviewUrl: string | null = null;
   selectedMediaType: 'image' | 'video' | 'none' = 'none';
   isPosting = signal(false);
+  postCreationError = signal<string | null>(null);
 
   // Edit State
   editingPostId = signal<number | null>(null);
@@ -66,6 +72,8 @@ export class HomeComponent implements OnInit {
       }
     });
   }
+
+  // ... (keeping existing methods)
 
   checkLoginStatus() {
     if (this.authService.isAuthenticated()) {
@@ -101,9 +109,11 @@ export class HomeComponent implements OnInit {
   }
 
   createPost() {
+    this.postCreationError.set(null);
+
     // 1. Validate Content (No empty or whitespace only)
     if (!this.newPostTitle() || !this.newPostContent() || !this.newPostContent().trim()) {
-      alert("Post title and content are required.");
+      this.postCreationError.set("Post title and content are required.");
       return;
     }
 
@@ -111,7 +121,7 @@ export class HomeComponent implements OnInit {
     if (this.selectedFile) {
       const type = this.selectedFile.type;
       if (!type.startsWith('image/') && !type.startsWith('video/') && !type.startsWith('audio/')) {
-        alert("Only image, video, or audio files are allowed.");
+        this.postCreationError.set("Only image, video, or audio files are allowed.");
         return;
       }
     }
@@ -130,20 +140,30 @@ export class HomeComponent implements OnInit {
         this.imagePreviewUrl = null;
         this.loadPosts();
         this.isPosting.set(false);
+        this.toastService.show("Post created successfully.", 'success');
       },
       error: (e: any) => {
         console.error('Create post failed', e);
         this.isPosting.set(false);
+        this.toastService.show("Failed to create post.", 'error');
       }
     });
   }
 
   // --- POST ACTIONS ---
   deletePost(id: number) {
-    if (!confirm('Are you sure?')) return;
-    this.postService.deletePost(id).subscribe(() => {
-      this.posts.update(p => p.filter(post => post.id !== id));
-    });
+    this.confirmationService.confirm('Are you sure you want to delete this post?', 'Delete Post')
+      .subscribe(confirmed => {
+        if (confirmed) {
+          this.postService.deletePost(id).subscribe({
+            next: () => {
+              this.posts.update(p => p.filter(post => post.id !== id));
+              this.toastService.show("Post deleted.", 'success');
+            },
+            error: () => this.toastService.show("Failed to delete post.", 'error')
+          });
+        }
+      });
   }
 
   startEdit(post: Post) {
@@ -163,16 +183,11 @@ export class HomeComponent implements OnInit {
     this.postService.updatePost(id, update).subscribe(() => {
       this.posts.update(list => list.map(p => p.id === id ? { ...p, title: this.editTitle, content: this.editContent } : p));
       this.editingPostId.set(null);
+      this.toastService.show("Post updated.", 'success');
     });
   }
 
   followUser(post: Post) {
-    // Dummy implementation or call service
-    // Ideally fetching user ID from post if available, but post often returns username
-    // We need user ID to follow. Assuming post has userId, or we fetch it.
-    // Current Post model might only have username.
-    // If endpoint needs ID, we need to ensure Post DTO includes userId.
-    // For now, logging to avoid error.
     console.log('Follow clicked on home', post.username);
   }
 
@@ -216,9 +231,12 @@ export class HomeComponent implements OnInit {
 
   submitReport() {
     if (this.reportingPostId) {
-      this.reportService.createReport(this.reportingPostId, this.reportReason, this.reportDetails).subscribe(() => {
-        alert('Report submitted');
-        this.closeReportModal();
+      this.reportService.createReport(this.reportingPostId, this.reportReason, this.reportDetails).subscribe({
+        next: () => {
+          this.toastService.show("Report submitted.", 'success');
+          this.closeReportModal();
+        },
+        error: () => this.toastService.show("Failed to submit report.", 'error')
       });
     }
   }

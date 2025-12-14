@@ -2,6 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminUserService, User } from '../../services/admin-user.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
+import { ConfirmationService } from '../../services/confirmation.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -59,6 +61,8 @@ import { RouterLink } from '@angular/router';
 export class DashboardUsersComponent implements OnInit {
   private adminUserService = inject(AdminUserService);
   private authService = inject(AuthService);
+  private toastService = inject(ToastService);
+  private confirmationService = inject(ConfirmationService);
 
   users = signal<User[]>([]);
   currentUserId: number | null = null;
@@ -73,7 +77,10 @@ export class DashboardUsersComponent implements OnInit {
   loadUsers() {
     this.adminUserService.getAllUsers().subscribe({
       next: (data) => this.users.set(data),
-      error: (err) => console.error("Failed to load users:", err)
+      error: (err) => {
+        console.error("Failed to load users:", err);
+        this.toastService.show("Failed to load users.", 'error');
+      }
     });
   }
 
@@ -103,30 +110,46 @@ export class DashboardUsersComponent implements OnInit {
     if (!this.canPromote(user)) return;
 
     const newRole: 'USER' | 'ADMIN' = user.role === 'ADMIN' ? 'USER' : 'ADMIN';
-    const action$ = newRole === 'ADMIN'
-      ? this.adminUserService.updateUserRole(user.id, newRole)
-      : this.adminUserService.demoteUser(user.id);
+    const action = newRole === 'ADMIN' ? 'Promote' : 'Demote';
 
-    action$.subscribe({
-      next: () => {
-        this.users.update(currentUsers =>
-          currentUsers.map(u => (u.id === user.id ? { ...u, role: newRole } : u))
-        );
-      },
-      error: (err) => alert("Failed to change role: " + (err.error?.message || err.message))
-    });
+    this.confirmationService.confirm(`${action} this user to ${newRole}?`, `${action} User`)
+      .subscribe(confirmed => {
+        if (confirmed) {
+          const action$ = newRole === 'ADMIN'
+            ? this.adminUserService.updateUserRole(user.id, newRole)
+            : this.adminUserService.demoteUser(user.id);
+
+          action$.subscribe({
+            next: () => {
+              this.users.update(currentUsers =>
+                currentUsers.map(u => (u.id === user.id ? { ...u, role: newRole } : u))
+              );
+              this.toastService.show(`User ${action.toLowerCase()}d successfully.`, 'success');
+            },
+            error: (err) => this.toastService.show("Failed to change role: " + (err.error?.message || err.message), 'error')
+          });
+        }
+      });
   }
 
   toggleBan(user: User) {
     if (!this.canBan(user)) return;
 
-    this.adminUserService.toggleBan(user.id).subscribe({
-      next: () => {
-        this.users.update(currentUsers =>
-          currentUsers.map(u => (u.id === user.id ? { ...u, banned: !u.banned } : u))
-        );
-      },
-      error: (err) => alert("Failed to change ban status: " + (err.error?.message || err.message))
-    });
+    const action = user.banned ? 'Unban' : 'Ban';
+
+    this.confirmationService.confirm(`${action} this user?`, `${action} User`)
+      .subscribe(confirmed => {
+        if (confirmed) {
+          this.adminUserService.toggleBan(user.id).subscribe({
+            next: () => {
+              this.users.update(currentUsers =>
+                currentUsers.map(u => (u.id === user.id ? { ...u, banned: !u.banned } : u))
+              );
+              this.toastService.show(`User ${action.toLowerCase()}ned successfully.`, 'success');
+            },
+            error: (err) => this.toastService.show("Failed to change ban status: " + (err.error?.message || err.message), 'error')
+          });
+        }
+      });
   }
 }

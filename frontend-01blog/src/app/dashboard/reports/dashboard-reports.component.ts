@@ -2,6 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReportService, Report } from '../../services/report.service';
 import { PostService } from '../../services/post.service';
+import { ToastService } from '../../services/toast.service';
+import { ConfirmationService } from '../../services/confirmation.service';
 
 @Component({
   selector: 'app-dashboard-reports',
@@ -115,6 +117,8 @@ import { PostService } from '../../services/post.service';
 export class DashboardReportsComponent implements OnInit {
   private reportService = inject(ReportService);
   private postService = inject(PostService);
+  private toastService = inject(ToastService);
+  private confirmationService = inject(ConfirmationService);
 
   reports = signal<Report[]>([]);
 
@@ -130,26 +134,33 @@ export class DashboardReportsComponent implements OnInit {
   }
 
   deletePost(postId: number) {
-    if (!confirm("Are you sure you want to delete the reported post?")) return;
-
-    this.postService.deletePost(postId).subscribe({
-      next: () => {
-        alert("Post deleted.");
-        this.loadReports();
-      },
-      error: (e) => alert("Failed to delete post: " + e.message)
-    });
+    this.confirmationService.confirm('Are you sure you want to delete the reported post?', 'Delete Post')
+      .subscribe(confirmed => {
+        if (confirmed) {
+          this.postService.deletePost(postId).subscribe({
+            next: () => {
+              this.toastService.show("Post deleted.", 'success');
+              this.loadReports();
+            },
+            error: (e) => this.toastService.show("Failed to delete post: " + e.message, 'error')
+          });
+        }
+      });
   }
 
   dismissReport(reportId: number) {
-    if (!confirm("Are you sure you want to dismiss this report?")) return;
-
-    this.reportService.deleteReport(reportId).subscribe({
-      next: () => {
-        // Optimistically remove from list
-        this.reports.update(reports => reports.filter(r => r.id !== reportId));
-      },
-      error: (e) => alert("Failed to dismiss report: " + e.message)
-    });
+    this.confirmationService.confirm('Are you sure you want to dismiss this report?', 'Dismiss Report')
+      .subscribe(confirmed => {
+        if (confirmed) {
+          this.reportService.deleteReport(reportId).subscribe({
+            next: () => {
+              // Optimistically remove from list
+              this.reports.update(reports => reports.filter(r => r.id !== reportId));
+              this.toastService.show("Report dismissed.", 'success');
+            },
+            error: (e) => this.toastService.show("Failed to dismiss report: " + e.message, 'error')
+          });
+        }
+      });
   }
 }

@@ -136,7 +136,8 @@ public class UserService {
                 followingCount,
                 isFollowedByCurrentUser,
                 profileOwner.isBanned(),
-                profileOwner.getAboutMe()
+                profileOwner.getAboutMe(),
+                profileOwner.getAvatarUrl()
         );
     }
 

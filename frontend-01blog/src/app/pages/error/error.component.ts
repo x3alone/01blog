@@ -18,7 +18,7 @@ export class ErrorComponent implements OnInit {
 
     // Custom messages for known codes
     private errorMap: Record<string, string> = {
-        '403': 'You generally do not have permission to view this page.',
+        '403': 'You do not have permission to view this page.',
         '404': 'The page you are looking for does not exist.',
         '500': 'Something went wrong on our end.'
     };

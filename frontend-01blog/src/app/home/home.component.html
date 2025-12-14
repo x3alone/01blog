@@ -30,6 +30,10 @@
           <span (click)="selectedFile = null; imagePreviewUrl = null" class="remove-media">x</span>
         </div>
         }
+        @if (postCreationError()) {
+        <div class="error-msg" style="color: #ef4444; font-size: 0.9rem; margin-top: 5px;">{{ postCreationError() }}
+        </div>
+        }
       </div>
 
       <button (click)="createPost()" [disabled]="isPosting()" class="send-btn">

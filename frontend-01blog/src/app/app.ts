@@ -1,14 +1,16 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, Router, RouterModule } from '@angular/router';
+import { RouterOutlet, RouterLink, Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { HttpClientModule } from '@angular/common/http';
 import { NotificationService, BlogNotification } from './services/notification.service';
+import { ToastComponent } from './components/toast/toast.component';
+import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, HttpClientModule, RouterModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, HttpClientModule, RouterModule, ToastComponent, ConfirmationModalComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

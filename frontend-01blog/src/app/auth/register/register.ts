@@ -50,26 +50,28 @@ import { Router, RouterModule } from '@angular/router';
     </div>
 
     <!-- Optional Fields -->
-    <div class="user-box">
-      <label class="static-label" style="top: -20px; left: 0; color: #ffffffff; font-size: 12px;">Profile Picture (Optional)</label>
-      <div style="display: flex; gap: 10px; margin-top: 10px; align-items: center;">
-          <label class="upload-btn">
-            <input type="file" (change)="onFileSelected($event)" accept="image/*" style="display: none;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                <polyline points="21 15 16 10 5 21"></polyline>
-            </svg>
-            <span>Upload Avatar</span>
-          </label>
-          @if (avatarUrl) {
-            <span style="color: #ffffffff; font-size: 0.8rem;">Uploaded!</span>
-          }
-      </div>
+    <div class="form-row">
+        <div class="user-box static-box">
+          <label>Profile Picture (Optional)</label>
+          <div style="display: flex; gap: 10px; margin-top: 10px; align-items: center;">
+              <label class="upload-btn" style="position: relative; z-index: 10;">
+                <input type="file" (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <span>Upload Avatar</span>
+              </label>
+              @if (avatarUrl) {
+                <span style="color: #ffffffff; font-size: 0.8rem;">Uploaded!</span>
+              }
+          </div>
+        </div>
     </div>
     
     <div class="form-row">
-        <div class="user-box">
+        <div class="user-box static-box">
           <input type="text" [(ngModel)]="aboutMe" name="aboutMe">
           <label>About Me (Optional)</label>
         </div>
@@ -171,11 +173,21 @@ import { Router, RouterModule } from '@angular/router';
       }
 
       .user-box input:focus ~ label,
-      .user-box input:valid ~ label {
+      .user-box input:valid ~ label,
+      .user-box select:focus ~ label,
+      .user-box select:valid ~ label {
         top: -20px;
         left: 0;
         color: #ffffffff;
         font-size: 12px;
+      }
+      
+      /* Force static label for specific containers (Avatar, About Me if needed) */
+      .static-box label {
+          top: -20px;
+          left: 0;
+          color: #ffffffff;
+          font-size: 12px;
       }
 
       /* Date Input Styling Override */
@@ -198,6 +210,8 @@ import { Router, RouterModule } from '@angular/router';
         border: 1px solid rgba(255,255,255,0.3);
         border-radius: 5px;
         transition: 0.3s;
+        pointer-events: auto; /* Fix for clickable input */
+        position: relative; /* Ensure it stacks correctly */
         
         &:hover {
             background: rgba(255,255,255,0.1);
@@ -312,10 +326,7 @@ export class RegisterComponent {
       return;
     }
 
-    if (age < 10) {
-      this.registerError = "You must be at least 10 years old to register.";
-      return;
-    }
+
 
     if (!this.username || !this.password || !this.email || !this.firstName || !this.lastName || !this.dateOfBirth) {
       this.registerError = "All fields are required.";

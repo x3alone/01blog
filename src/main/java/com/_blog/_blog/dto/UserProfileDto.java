@@ -16,13 +16,14 @@ public class UserProfileDto {
 
     // About Me section
     private String aboutMe;
+    private String avatarUrl;
 
     // --- Constructors, Getters, and Setters ---
 
     public UserProfileDto() {
     }
 
-    public UserProfileDto(Long id, String username, String role, long followersCount, long followingCount, boolean isFollowedByCurrentUser, boolean isBanned, String aboutMe) {
+    public UserProfileDto(Long id, String username, String role, long followersCount, long followingCount, boolean isFollowedByCurrentUser, boolean isBanned, String aboutMe, String avatarUrl) {
         this.id = id;
         this.username = username;
         this.role = role;
@@ -31,6 +32,7 @@ public class UserProfileDto {
         this.isFollowedByCurrentUser = isFollowedByCurrentUser;
         this.isBanned = isBanned;
         this.aboutMe = aboutMe;
+        this.avatarUrl = avatarUrl;
     }
 
     public Long getId() {
@@ -86,4 +88,7 @@ public class UserProfileDto {
 
     public String getAboutMe() { return aboutMe; }
     public void setAboutMe(String aboutMe) { this.aboutMe = aboutMe; }
+
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
 }
