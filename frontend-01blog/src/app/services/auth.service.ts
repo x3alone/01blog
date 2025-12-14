@@ -8,14 +8,17 @@ import { Router } from '@angular/router';
 // Define the expected response structure from the backend
 interface AuthenticationResponse {
     jwtToken: string;
-    // Assuming backend returns username for the app component to display
+    id: number;
     username: string;
+    role: string;
+    avatarUrl?: string;
 }
 
 // Define the base URL for the backend API
 const API_BASE_URL = '/api/auth';
 const TOKEN_KEY = '01blog_auth_token';
 const LAST_USER_KEY = '01blog_last_user';
+const AVATAR_KEY = '01blog_user_avatar';
 
 @Injectable({
     providedIn: 'root'
@@ -64,6 +67,16 @@ export class AuthService {
     }
 
     /**
+     * Safely retrieves the Avatar URL from local storage.
+     */
+    public getUserAvatar(): string | null {
+        if (isPlatformBrowser(this.platformId)) {
+            return localStorage.getItem(AVATAR_KEY);
+        }
+        return null;
+    }
+
+    /**
      * Extracts the user's ID from the JWT token.
      */
     public getCurrentUserId(): number | null {
@@ -71,13 +84,6 @@ export class AuthService {
         if (!token) return null;
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
-            // Assuming the JWT subject (sub) contains the username, 
-            // BUT we need the ID. 
-            // **Correction**: The backend `Jwts.builder().setSubject(user.getUsername())` sets username as subject.
-            // **Critical Fix**: The backend sets `username` as subject. It does NOT currently put ID in the token.
-            // I need to update the backend `AuthService.java` to put the ID in the token or rely on a separate "me" endpoint.
-            // OR I can parse the ID if I change the backend to put ID in subject.
-            // For now, let's assume I will update backend to add an "id" claim.
             return payload.id ? Number(payload.id) : null;
         } catch (e) {
             return null;
@@ -108,34 +114,43 @@ export class AuthService {
     login(data: { username: string; password: string }): Observable<string> {
         return this.http.post<AuthenticationResponse>(`${API_BASE_URL}/login`, data)
             .pipe(
-                // Use map to transform the backend response into just the token string
-                map(response => response.jwtToken),
-                tap((token: string) => {
-                    if (token) {
-                        this.setToken(token);
-                        // Save username for display
+                tap((response) => {
+                    if (response.jwtToken) {
+                        this.setToken(response.jwtToken);
                         if (isPlatformBrowser(this.platformId)) {
-                            localStorage.setItem(LAST_USER_KEY, data.username);
+                            localStorage.setItem(LAST_USER_KEY, response.username);
+                            if (response.avatarUrl) {
+                                localStorage.setItem(AVATAR_KEY, response.avatarUrl);
+                            } else {
+                                localStorage.removeItem(AVATAR_KEY);
+                            }
                         }
-                        // Navigate to 'home' on successful login
                         this.router.navigate(['/home']);
-                    } else {
-                        throw new Error("Login successful, but token was missing.");
                     }
-                })
+                }),
+                map(res => res.jwtToken)
             );
     }
 
     /**
      * Handles user registration and auto-login.
      */
-    register(data: { username: string; password: string }): Observable<any> {
+    register(data: {
+        username: string;
+        password: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        dateOfBirth: string; // ISO date string
+        avatarUrl?: string; // Optional
+        nickname?: string; // Optional
+        aboutMe?: string; // Optional
+    }): Observable<any> {
         return this.http.post(`${API_BASE_URL}/register`, data)
             .pipe(
                 // Auto-login after successful registration
                 tap(() => {
-                    // Note: Subscribing here ensures the login call executes immediately after registration succeeds.
-                    this.login(data).subscribe();
+                    this.login({ username: data.username, password: data.password }).subscribe();
                 })
             );
     }
@@ -147,6 +162,7 @@ export class AuthService {
         if (isPlatformBrowser(this.platformId)) {
             localStorage.removeItem(TOKEN_KEY);
             localStorage.removeItem(LAST_USER_KEY);
+            localStorage.removeItem(AVATAR_KEY);
         }
         // Navigate to login after logout
         this.router.navigate(['/login']);

@@ -19,7 +19,7 @@ import { RouterLink } from '@angular/router';
             <p class="sub-text">Role: {{ user.role }}</p>
           </div>
           
-          <div class="actions">
+          <div class="actions" style="display: flex; gap: 10px;">
             
             @if (canPromote(user)) {
             <button 
@@ -36,11 +36,11 @@ import { RouterLink } from '@angular/router';
             <button 
               (click)="toggleBan(user)" 
               class="action-btn ban-toggle-btn"
-              [class.ban-btn]="!user.isBanned"
-              [class.promote-btn]="user.isBanned" 
+              [class.ban-btn]="!user.banned"
+              [class.promote-btn]="user.banned" 
               style="margin-left: 5px;"
             >
-              {{ user.isBanned ? 'Unban' : 'Ban' }}
+              {{ user.banned ? 'Unban' : 'Ban' }}
             </button>
             }
           </div>
@@ -79,21 +79,23 @@ export class DashboardUsersComponent implements OnInit {
 
   canPromote(target: User): boolean {
     if (this.currentUserRole !== 'ADMIN') return false;
-    if (target.id === 1) return false;
+    // Cannot promote/demote self
     if (target.id === this.currentUserId) return false;
-    if (target.role === 'ADMIN') {
-      return this.currentUserId === 1;
-    }
+    // Cannot act on Super Admin (ID 1)
+    if (target.id === 1) return false;
+
+    // Can promote any USER to ADMIN
+    // Can demote any ADMIN (except ID 1) to USER
     return true;
   }
 
   canBan(target: User): boolean {
     if (this.currentUserRole !== 'ADMIN') return false;
-    if (target.id === 1) return false;
+    // Cannot ban self
     if (target.id === this.currentUserId) return false;
-    if (target.role === 'ADMIN') {
-      return this.currentUserId === 1;
-    }
+    // Cannot ban Super Admin
+    if (target.id === 1) return false;
+
     return true;
   }
 
@@ -121,7 +123,7 @@ export class DashboardUsersComponent implements OnInit {
     this.adminUserService.toggleBan(user.id).subscribe({
       next: () => {
         this.users.update(currentUsers =>
-          currentUsers.map(u => (u.id === user.id ? { ...u, isBanned: !u.isBanned } : u))
+          currentUsers.map(u => (u.id === user.id ? { ...u, banned: !u.banned } : u))
         );
       },
       error: (err) => alert("Failed to change ban status: " + (err.error?.message || err.message))

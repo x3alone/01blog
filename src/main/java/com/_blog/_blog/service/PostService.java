@@ -167,7 +167,8 @@ public class PostService {
             post.getUser().getUsername(),
             post.getCreatedAt(),
             post.getMediaUrl(),  // NEW ARGUMENT
-            post.getMediaType()  // NEW ARGUMENT
+            post.getMediaType(),  // NEW ARGUMENT
+            post.getUser().getAvatarUrl() // NEW ARGUMENT
         );
     }
 }

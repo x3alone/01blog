@@ -10,13 +10,7 @@ export const adminGuard: CanActivateFn = (route, state) => {
         return true;
     }
 
-    // Redirect or show error
-    // router.navigate(['/']); // Redirect to home
-    // Or better, let them stay but show a message?
-    // User asked: "make sure even if somehow they got access ... they couldnt see data ... leave a message"
-    // A simple alert or redirect with state is easiest. 
-    // But strict requirement: "leave a message like 'only admins can access dashboard'"
-    alert('Only admins can access dashboard');
-    router.navigate(['/']);
+    // Redirect to unauthorized error page
+    router.navigate(['/error'], { queryParams: { code: '403' } });
     return false;
 };

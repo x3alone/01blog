@@ -10,6 +10,7 @@ export interface Comment {
     createdAt: string;
     mediaUrl?: string;
     mediaType?: string;
+    avatarUrl?: string; // NEW FIELD
 }
 
 export interface CreateCommentRequest {

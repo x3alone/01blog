@@ -22,6 +22,7 @@ export class AppComponent implements OnInit {
   loggedIn = signal(false);
   currentUsername = signal('');
   currentUserId = signal<number | null>(null);
+  currentUserAvatar = signal<string | null>(null);
 
   // Notification Signals
   notifications = signal<BlogNotification[]>([]);
@@ -37,6 +38,7 @@ export class AppComponent implements OnInit {
       this.loggedIn.set(true);
       this.currentUsername.set(this.authService.getUsername() || '');
       this.currentUserId.set(this.authService.getCurrentUserId());
+      this.currentUserAvatar.set(this.authService.getUserAvatar());
 
       // Load Notifications
       this.loadNotifications();
@@ -44,6 +46,7 @@ export class AppComponent implements OnInit {
     } else {
       this.loggedIn.set(false);
       this.currentUserId.set(null);
+      this.currentUserAvatar.set(null);
       this.notifications.set([]);
       this.unreadCount.set(0);
     }

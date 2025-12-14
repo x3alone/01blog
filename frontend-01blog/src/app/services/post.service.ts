@@ -13,6 +13,7 @@ export interface Post {
     mediaUrl: string;
     mediaType: string;
     createdAt: string;
+    avatarUrl?: string; // NEW FIELD
 }
 
 export interface CreatePostRequest {

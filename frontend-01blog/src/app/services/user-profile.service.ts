@@ -11,8 +11,9 @@ export interface UserProfileDto {
   isFollowedByCurrentUser: boolean;
   // You mentioned an 'about' section, but it wasn't in your Java DTO provided.
   // I will add a placeholder field for now.
-  about?: string; 
+  about?: string;
   isBanned?: boolean; // You might need to add this to your Java DTO if you want to show it publically
+  avatarUrl?: string; // Added avatarUrl
 }
 
 @Injectable({

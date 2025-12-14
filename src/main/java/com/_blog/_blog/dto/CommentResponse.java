@@ -9,21 +9,24 @@ public class CommentResponse {
     private LocalDateTime createdAt;
     private String mediaType;
     private String mediaUrl;
+    private String avatarUrl; // NEW FIELD
 
-    public CommentResponse(Long id, String content, String username, LocalDateTime createdAt) {
+    public CommentResponse(Long id, String content, String username, LocalDateTime createdAt, String avatarUrl) {
         this.id = id;
         this.content = content;
         this.username = username;
         this.createdAt = createdAt;
+        this.avatarUrl = avatarUrl;
     }
 
-    public CommentResponse(Long id, String content, String username, LocalDateTime createdAt, String mediaUrl, String mediaType) {
+    public CommentResponse(Long id, String content, String username, LocalDateTime createdAt, String mediaUrl, String mediaType, String avatarUrl) {
         this.id = id;
         this.content = content;
         this.username = username;
         this.createdAt = createdAt;
         this.mediaUrl = mediaUrl;
         this.mediaType = mediaType;
+        this.avatarUrl = avatarUrl;
     }
 
     public Long getId() {
@@ -72,6 +75,14 @@ public class CommentResponse {
 
     public void setMediaUrl(String mediaUrl) {
         this.mediaUrl = mediaUrl;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     

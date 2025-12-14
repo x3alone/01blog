@@ -11,7 +11,7 @@ import { FollowService } from '../services/follow.service';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, DatePipe, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -71,6 +71,9 @@ export class HomeComponent implements OnInit {
     if (this.authService.isAuthenticated()) {
       this.loggedIn.set(true);
       this.currentUsername.set(this.authService.getUsername() || '');
+    } else {
+      this.loggedIn.set(false);
+      this.currentUsername.set('');
     }
   }
 

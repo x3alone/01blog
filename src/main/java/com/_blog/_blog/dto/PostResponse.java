@@ -12,17 +12,19 @@ public class PostResponse {
     private LocalDateTime createdAt;
     private String mediaType; // NEW FIELD
     private String mediaUrl;  // NEW FIELD
+    private String avatarUrl; // NEW FIELD for Author Avatar
 
-    // UPDATED CONSTRUCTOR: Now takes 8 arguments
-    public PostResponse(Long id, String title, String content, Long userId, String username, LocalDateTime createdAt, String mediaUrl, String mediaType) {
+    // UPDATED CONSTRUCTOR: Now takes 9 arguments
+    public PostResponse(Long id, String title, String content, Long userId, String username, LocalDateTime createdAt, String mediaUrl, String mediaType, String avatarUrl) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.userId = userId;
         this.username = username;
         this.createdAt = createdAt;
-        this.mediaUrl = mediaUrl;   // Assigning mediaUrl
-        this.mediaType = mediaType; // Assigning mediaType
+        this.mediaUrl = mediaUrl;   
+        this.mediaType = mediaType; 
+        this.avatarUrl = avatarUrl;
     }
     
     // Getters and Setters
@@ -88,5 +90,13 @@ public class PostResponse {
 
     public void setMediaUrl(String mediaUrl) {
         this.mediaUrl = mediaUrl;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

@@ -37,6 +37,10 @@ export const routes: Routes = [
   },
 
 
-  // Fallback route (redirects any unknown path to home)
-  { path: '**', redirectTo: 'home' }
+  // Error Routes
+  { path: 'error', loadComponent: () => import('./pages/error/error.component').then(m => m.ErrorComponent) },
+  { path: 'unauthorized', redirectTo: 'error?code=403', pathMatch: 'full' },
+
+  // Fallback route (Redirect to 404 Error Page)
+  { path: '**', redirectTo: 'error?code=404' }
 ];

@@ -85,7 +85,8 @@ public class CommentService {
                 savedComment.getUser().getUsername(),
                 savedComment.getCreatedAt(),
                 savedComment.getMediaUrl(),
-                savedComment.getMediaType()
+                savedComment.getMediaType(),
+                savedComment.getUser().getAvatarUrl() // New: Avatar URL
         );
     }
 
@@ -98,7 +99,8 @@ public class CommentService {
                         comment.getUser().getUsername(),
                         comment.getCreatedAt(),
                         comment.getMediaUrl(),
-                        comment.getMediaType()
+                        comment.getMediaType(),
+                        comment.getUser().getAvatarUrl()
                 ))
                 .collect(Collectors.toList());
     }

@@ -47,7 +47,7 @@
       <span class="main-text">{{ user.username }} <small>({{ user.role }})</small></span>
       <div class="actions">
         @if (user.role !== 'ADMIN') {
-        @if (user.isBanned) {
+        @if (user.banned) {
         <button (click)="unbanUser(user.id)" class="action-btn">Unban</button>
         } @else {
         <button (click)="banUser(user.id)" class="action-btn ban-btn">Ban</button>

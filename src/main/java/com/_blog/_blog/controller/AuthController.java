@@ -36,10 +36,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest loginRequest) {
         // 1. Call the service layer to perform authentication and generate the JWT
-        String jwt = authService.login(loginRequest);
-        
-        // 2. Wrap the JWT in a response DTO for the client
-        AuthenticationResponse response = new AuthenticationResponse(jwt);
+        AuthenticationResponse response = authService.login(loginRequest);
         
         // 3. Return the response entity with the JWT and HTTP 200 OK
         return ResponseEntity.ok(response);

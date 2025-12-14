@@ -50,14 +50,14 @@ export class DashboardComponent implements OnInit {
   banUser(userId: number) {
     if (!confirm('Ban this user?')) return;
     this.adminUserService.toggleBan(userId).subscribe(() => {
-      this.users.update(list => list.map(u => u.id === userId ? { ...u, isBanned: true } : u));
+      this.users.update(list => list.map(u => u.id === userId ? { ...u, banned: true } : u));
     });
   }
 
   unbanUser(userId: number) {
     if (!confirm('Unban this user?')) return;
     this.adminUserService.toggleBan(userId).subscribe(() => {
-      this.users.update(list => list.map(u => u.id === userId ? { ...u, isBanned: false } : u));
+      this.users.update(list => list.map(u => u.id === userId ? { ...u, banned: false } : u));
     });
   }
 

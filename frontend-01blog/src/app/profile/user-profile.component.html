@@ -13,7 +13,11 @@
       <div class="profile-content">
         <div class="profile-top">
           <div class="avatar-lg">
+            @if (profile()?.avatarUrl) {
+            <img [src]="profile()?.avatarUrl" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+            } @else {
             {{ profile()?.username?.charAt(0)?.toUpperCase() }}
+            }
           </div>
 
           <div class="action-area">
@@ -35,7 +39,7 @@
         <div class="stats-bar">
           <div class="stat-item">
             <span class="stat-val">{{ posts().length }}</span>
-            <span class="stat-label">Thoghts</span>
+            <span class="stat-label">Thoughts</span>
           </div>
           <div class="stat-item">
             <span class="stat-val">{{ profile()?.followersCount || 0 }}</span>
@@ -50,7 +54,7 @@
     </div>
 
     <!-- POSTS -->
-    <h2 class="section-title">Latest Clouds</h2>
+    <h2 class="section-title">Latest Thoughts</h2>
 
     <div class="users-posts">
       @for (post of posts(); track post.id) {

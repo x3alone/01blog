@@ -6,8 +6,9 @@ import { Observable } from 'rxjs';
 export interface User {
   id: number;
   username: string;
-  role: 'USER' | 'ADMIN';
-  isBanned: boolean;
+  role: string;
+  banned: boolean; // Add banned status
+  avatarUrl?: string; // Add avatarUrl
   // Add other properties if necessary (e.g., createdAt)
 }
 
