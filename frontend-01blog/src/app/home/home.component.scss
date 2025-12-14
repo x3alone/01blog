@@ -15,7 +15,6 @@
 
 /* Discord Input */
 .discord-input-container {
-  background: white;
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 24px;
@@ -23,16 +22,16 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  background: linear-gradient(-45deg, #ffffff, transparent);
 }
 
 .input-wrapper {
-  background: #f0f4f8;
-  /* Light gray-blue bg */
   border-radius: 8px;
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  background: linear-gradient(180deg, #ffffff, transparent);
 }
 
 .discord-title-input {
@@ -109,7 +108,7 @@
 .send-btn {
   align-self: flex-end;
   /* Align post button to right */
-  background: #3b82f6;
+  background: #6da5dc;
   color: white;
   border: none;
   padding: 8px 24px;
@@ -120,7 +119,7 @@
 }
 
 .send-btn:hover {
-  background: #2563eb;
+  background: #5497db;
 }
 
 .send-btn:disabled {
@@ -205,8 +204,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #94a3b8;
-  padding: 6px;
+  color: #ffffff;  padding: 6px;
   border-radius: 6px;
   transition: 0.2s;
 }
@@ -225,7 +223,7 @@
 }
 
 .report-btn:hover {
-  color: #f59e0b;
+  color: rgba(0, 0, 0, 0.2);
 }
 
 
@@ -292,6 +290,7 @@
   /* ... existing styles ... */
   display: flex;
   flex-direction: column;
+  background: linear-gradient(45deg, #ffffff, transparent);
 }
 
 /* Remove Borders from specific icons if any */
@@ -300,6 +299,7 @@
   background: transparent;
   border: none;
   box-shadow: none;
+  color: #b3d9ff;
 }
 
 /* USER PROVIDED UI UPDATES */
@@ -375,9 +375,6 @@ button.comment-toggle-btn {
 
 .comment-body {
   flex: 1;
-  background: #f8fafc;
-  padding: 10px 14px;
-  border-radius: 0 12px 12px 12px;
 }
 
 .comment-meta {
@@ -416,7 +413,6 @@ button.comment-toggle-btn {
 }
 
 .comment-input-wrapper {
-  background: #f1f5f9;
   border-radius: 20px;
   padding: 6px 12px;
   display: flex;
@@ -424,10 +420,11 @@ button.comment-toggle-btn {
   gap: 8px;
   border: 1px solid transparent;
   transition: 0.2s;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
 .comment-input-wrapper:focus-within {
-  background: white;
   border-color: #cbd5e1;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
@@ -455,14 +452,14 @@ button.comment-toggle-btn {
 .comment-send-btn {
   background: transparent;
   border: none;
-  color: #3b82f6;
+  color: #6da5dc;
   cursor: pointer;
   display: flex;
   align-items: center;
 }
 
 .comment-send-btn:hover {
-  color: #2563eb;
+  color: #4b94dd;
   transform: scale(1.1);
 }
 
@@ -578,10 +575,10 @@ button.comment-toggle-btn {
 }
 
 .comments-section {
-  background: #f8fafc;
   margin-top: 10px;
   border-radius: 8px;
   padding: 10px;
+  background: linear-gradient(45deg, #ffffff, transparent);
 }
 
 .comment-row {
@@ -663,7 +660,7 @@ button.comment-toggle-btn {
 }
 
 .confirm-btn {
-  background: #f59e0b;
+  background: rgba(0, 0, 0, 0.2);
   color: white;
   padding: 8px 16px;
   border-radius: 4px;

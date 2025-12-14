@@ -26,7 +26,7 @@
 }
 
 .profile-content {
-  padding: 30px;
+  padding: 70px;
   position: relative;
   margin-top: -60px;
   /* Overlap cover */
@@ -155,10 +155,8 @@
 /* Edit Profile Form */
 .edit-form-container {
   margin-top: 20px;
-  background: rgba(0, 0, 0, 0.2);
   padding: 20px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .form-group {
@@ -265,13 +263,13 @@
 }
 
 .post-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(5px);
+  background: rgba(255, 255, 255, 0.3);  backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   padding: 20px;
   margin-bottom: 20px;
   color: #eee;
+  //background: linear-gradient(-10deg, #ffffff, transparent);
 }
 
 .post-date {
