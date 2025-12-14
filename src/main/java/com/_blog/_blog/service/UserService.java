@@ -135,7 +135,22 @@ public class UserService {
                 followersCount,
                 followingCount,
                 isFollowedByCurrentUser,
-                profileOwner.isBanned()
+                profileOwner.isBanned(),
+                profileOwner.getAboutMe()
         );
+    }
+
+    public User updateProfile(Long userId, String aboutMe, String avatarUrl) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        
+        if (aboutMe != null) {
+            user.setAboutMe(aboutMe);
+        }
+        if (avatarUrl != null) {
+            user.setAvatarUrl(avatarUrl);
+        }
+        
+        return userRepository.save(user);
     }
 }

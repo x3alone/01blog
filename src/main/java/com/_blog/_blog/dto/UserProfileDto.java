@@ -14,12 +14,15 @@ public class UserProfileDto {
     // Relationship status relative to the CURRENTLY logged-in user
     private boolean isFollowedByCurrentUser;
 
+    // About Me section
+    private String aboutMe;
+
     // --- Constructors, Getters, and Setters ---
 
     public UserProfileDto() {
     }
 
-    public UserProfileDto(Long id, String username, String role, long followersCount, long followingCount, boolean isFollowedByCurrentUser, boolean isBanned) {
+    public UserProfileDto(Long id, String username, String role, long followersCount, long followingCount, boolean isFollowedByCurrentUser, boolean isBanned, String aboutMe) {
         this.id = id;
         this.username = username;
         this.role = role;
@@ -27,6 +30,7 @@ public class UserProfileDto {
         this.followingCount = followingCount;
         this.isFollowedByCurrentUser = isFollowedByCurrentUser;
         this.isBanned = isBanned;
+        this.aboutMe = aboutMe;
     }
 
     public Long getId() {
@@ -79,4 +83,7 @@ public class UserProfileDto {
     public void setIsFollowedByCurrentUser(boolean isFollowedByCurrentUser) {
         this.isFollowedByCurrentUser = isFollowedByCurrentUser;
     }
+
+    public String getAboutMe() { return aboutMe; }
+    public void setAboutMe(String aboutMe) { this.aboutMe = aboutMe; }
 }

@@ -5,10 +5,10 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-    selector: 'app-login',
-    standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule],
-    template: `
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
+  template: `
 <div class="login-box">
   <h2>Login</h2>
   <form (ngSubmit)="login()">
@@ -40,7 +40,7 @@ import { AuthService } from '../../services/auth.service';
   </form>
 </div>
 `,
-    styles: [`
+  styles: [`
       :host {
         display: block;
         height: 100vh;
@@ -100,24 +100,27 @@ import { AuthService } from '../../services/auth.service';
       .login-box .user-box input:valid ~ label {
         top: -20px;
         left: 0;
-        color: #03e9f4; /* Cyan accent */
+        color: #ffffffff; /* Cyan accent */
         font-size: 12px;
       }
 
       /* Button Style */
       .login-box form a {
-        position: relative;
-        display: inline-block;
-        padding: 10px 20px;
-        color: #03e9f4;
-        font-size: 16px;
-        text-decoration: none;
-        text-transform: uppercase;
-        overflow: hidden;
-        transition: .5s;
-        margin-top: 40px;
-        letter-spacing: 4px;
-        cursor: pointer;
+            position: relative;
+            display: inline-block;
+            padding: 10px 20px;
+            color: #698cb0;
+            font-size: 16px;
+            text-decoration: none;
+            overflow: hidden;
+            transition: 0.5s;
+            letter-spacing: 4px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.15);
+            box-sizing: border-box;
+            box-shadow: 0 0px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
       }
 
       .login-box a:hover {
@@ -135,7 +138,7 @@ import { AuthService } from '../../services/auth.service';
         left: -100%;
         width: 100%;
         height: 2px;
-        background: linear-gradient(90deg, transparent, #03e9f4);
+        background: linear-gradient(90deg, transparent, #ffffffff);
         animation: btn-anim1 1s linear infinite;
       }
 
@@ -149,7 +152,7 @@ import { AuthService } from '../../services/auth.service';
         right: 0;
         width: 2px;
         height: 100%;
-        background: linear-gradient(180deg, transparent, #03e9f4);
+        background: linear-gradient(180deg, transparent, #ffffffff);
         animation: btn-anim2 1s linear infinite;
         animation-delay: .25s
       }
@@ -164,7 +167,7 @@ import { AuthService } from '../../services/auth.service';
         right: -100%;
         width: 100%;
         height: 2px;
-        background: linear-gradient(270deg, transparent, #03e9f4);
+        background: linear-gradient(270deg, transparent, #ffffffff);
         animation: btn-anim3 1s linear infinite;
         animation-delay: .5s
       }
@@ -179,7 +182,7 @@ import { AuthService } from '../../services/auth.service';
         left: 0;
         width: 2px;
         height: 100%;
-        background: linear-gradient(360deg, transparent, #03e9f4);
+        background: linear-gradient(360deg, transparent, #ffffffff);
         animation: btn-anim4 1s linear infinite;
         animation-delay: .75s
       }
@@ -198,13 +201,17 @@ import { AuthService } from '../../services/auth.service';
       }
       
       .register-link {
-          margin-top: 20px;
-          text-align: center;
-          color: #fff;
-          font-size: 0.9rem;
+              margin-top: 20px;
+              color: #fff;
+              font-size: 0.9rem;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+              height: 60px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
           
-          a {
-              color: #03e9f4;
+            a {
+              color: #ffffffff;
               text-decoration: none;
               font-weight: bold;
               
@@ -216,42 +223,47 @@ import { AuthService } from '../../services/auth.service';
     `]
 })
 export class LoginComponent {
-    username = '';
-    password = '';
-    loginError: string | null = null;
+  username = '';
+  password = '';
+  loginError: string | null = null;
 
-    private auth = inject(AuthService);
-    private router = inject(Router);
+  private auth = inject(AuthService);
+  private router = inject(Router);
 
-    constructor() {
-        if (this.auth.isAuthenticated()) {
-            this.router.navigate(['/home']);
+  constructor() {
+    if (this.auth.isAuthenticated()) {
+      this.router.navigate(['/home']);
+    }
+  }
+
+  login() {
+    this.loginError = null;
+
+    if (!this.username || !this.password) {
+      this.loginError = "Username and password are required.";
+      return;
+    }
+
+    this.auth.login({ username: this.username, password: this.password }).subscribe({
+      next: () => {
+        this.router.navigate(['/home']);
+      },
+      error: (err) => {
+        console.error('Login error:', err);
+
+        // Handle HTTP 401/403 response with specific messages
+        if (err.error?.message && (err.error.message.toLowerCase().includes('locked') || err.error.message.toLowerCase().includes('banned'))) {
+          this.loginError = "Your account has been banned by an admin.";
         }
-    }
-
-    login() {
-        this.loginError = null;
-
-        this.auth.login({ username: this.username, password: this.password }).subscribe({
-            next: () => {
-                this.router.navigate(['/home']);
-            },
-            error: (err) => {
-                console.error('Login error:', err);
-
-                // Handle HTTP 401/403 response with specific messages
-                if (err.error?.message && (err.error.message.toLowerCase().includes('locked') || err.error.message.toLowerCase().includes('banned'))) {
-                    this.loginError = "Your account has been banned by an admin.";
-                }
-                else if (err.status === 401) {
-                    this.loginError = 'Invalid username or password.';
-                } else if (err.error?.message) {
-                    this.loginError = err.error.message;
-                }
-                else {
-                    this.loginError = 'Login failed. Please check your connection.';
-                }
-            }
-        });
-    }
+        else if (err.status === 401) {
+          this.loginError = 'Invalid username or password.';
+        } else if (err.error?.message) {
+          this.loginError = err.error.message;
+        }
+        else {
+          this.loginError = 'Login failed. Please check your connection.';
+        }
+      }
+    });
+  }
 }

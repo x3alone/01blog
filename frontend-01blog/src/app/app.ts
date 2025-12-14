@@ -30,7 +30,9 @@ export class AppComponent implements OnInit {
   showNotifications = signal(false);
 
   ngOnInit() {
-    this.checkLoginStatus();
+    this.authService.authState$.subscribe(() => {
+      this.checkLoginStatus();
+    });
   }
 
   checkLoginStatus() {

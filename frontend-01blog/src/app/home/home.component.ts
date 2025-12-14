@@ -101,7 +101,21 @@ export class HomeComponent implements OnInit {
   }
 
   createPost() {
-    if (!this.newPostTitle() || !this.newPostContent()) return;
+    // 1. Validate Content (No empty or whitespace only)
+    if (!this.newPostTitle() || !this.newPostContent() || !this.newPostContent().trim()) {
+      alert("Post title and content are required.");
+      return;
+    }
+
+    // 2. Validate File Type (Media only)
+    if (this.selectedFile) {
+      const type = this.selectedFile.type;
+      if (!type.startsWith('image/') && !type.startsWith('video/') && !type.startsWith('audio/')) {
+        alert("Only image, video, or audio files are allowed.");
+        return;
+      }
+    }
+
     this.isPosting.set(true);
 
     this.postService.createPost(

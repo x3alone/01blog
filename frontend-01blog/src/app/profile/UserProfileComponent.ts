@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms'; // Import FormsModule
 import { ActivatedRoute } from '@angular/router';
 import { UserProfileService, UserProfileDto } from '../services/user-profile.service';
 import { AuthService } from '../services/auth.service';
@@ -8,7 +9,7 @@ import { PostService } from '../services/post.service'; // Import PostService
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, DatePipe, FormsModule],
   templateUrl: './user-profile.component.html', // Pointing to the separate HTML file
   styleUrl: './user-profile.component.scss'     // Pointing to the separate SCSS file
 })
@@ -22,6 +23,9 @@ export class UserProfileComponent implements OnInit {
   posts = signal<any[]>([]); // Store user posts here
   isLoading = signal(true);
   isOwnProfile = signal(false);
+
+  isEditing = signal(false);
+  editForm = signal({ aboutMe: '', avatarUrl: '' });
 
   // Helper signals for template
   currentUser = signal<string>('');
@@ -103,6 +107,57 @@ export class UserProfileComponent implements OnInit {
           isFollowedByCurrentUser: true,
           followersCount: curr.followersCount + 1
         } : null);
+      });
+    }
+  }
+
+
+  startEdit() {
+    const p = this.profile();
+    if (p) {
+      this.editForm.set({
+        aboutMe: p.aboutMe || '',
+        avatarUrl: p.avatarUrl || ''
+      });
+      this.isEditing.set(true);
+    }
+  }
+
+  cancelEdit() {
+    this.isEditing.set(false);
+  }
+
+  saveEdit() {
+    this.profileService.updateProfile(this.editForm()).subscribe({
+      next: (updatedUser: any) => { // Backend returns User
+        const newAvatarUrl = this.editForm().avatarUrl;
+
+        this.profile.update(curr => curr ? {
+          ...curr,
+          aboutMe: this.editForm().aboutMe,
+          avatarUrl: newAvatarUrl
+        } : null);
+
+        // Update local persistence if this is the own profile
+        if (this.isOwnProfile()) {
+          this.authService.updateCurrentUser(newAvatarUrl);
+        }
+
+        this.isEditing.set(false);
+      },
+      error: (err) => console.error('Failed to update profile', err)
+    });
+  }
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.profileService.uploadAvatar(file).subscribe({
+        next: (res: any) => {
+          const url = res.secure_url || res.url;
+          this.editForm.update(curr => ({ ...curr, avatarUrl: url }));
+        },
+        error: (err) => console.error('Avatar upload failed', err)
       });
     }
   }

@@ -13,10 +13,29 @@
       <div class="profile-content">
         <div class="profile-top">
           <div class="avatar-lg">
+            @if (isEditing()) {
+            <div class="edit-avatar-overlay">
+              <label class="avatar-upload-label">
+                <input type="file" (change)="onFileSelected($event)" accept="image/*" class="avatar-input-hidden">
+                <div class="avatar-wrapper">
+                  <img [src]="editForm().avatarUrl || profile()?.avatarUrl" class="avatar-img-edit">
+                  <div class="overlay-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z">
+                      </path>
+                      <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                  </div>
+                </div>
+              </label>
+            </div>
+            } @else {
             @if (profile()?.avatarUrl) {
             <img [src]="profile()?.avatarUrl" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
             } @else {
             {{ profile()?.username?.charAt(0)?.toUpperCase() }}
+            }
             }
           </div>
 
@@ -31,10 +50,31 @@
 
         <h1 class="username-title">
           {{ profile()?.username }}
-          @if (profile()?.role === 'ADMIN') { <span class="admin-tag"
-            style="font-size: 0.5em; background: #f59e0b; color: white; padding: 2px 6px; border-radius: 4px; vertical-align: middle;">Admin</span>
+          @if (profile()?.role === 'ADMIN') { <span class="admin-tag">Admin</span>
           }
         </h1>
+
+        @if (isEditing()) {
+        <div class="edit-form-container">
+          <div class="form-group">
+            <label>About Me</label>
+            <textarea [(ngModel)]="editForm().aboutMe" placeholder="Tell us about yourself..."
+              class="about-input"></textarea>
+          </div>
+
+          <div class="edit-actions">
+            <button (click)="saveEdit()" class="save-btn">Save Change</button>
+            <button (click)="cancelEdit()" class="cancel-btn">Cancel</button>
+          </div>
+        </div>
+        } @else {
+        @if (profile()?.aboutMe) {
+        <p class="about-me">{{ profile()?.aboutMe }}</p>
+        }
+        @if (isOwnProfile()) {
+        <button (click)="startEdit()" class="edit-profile-btn">Edit Profile</button>
+        }
+        }
 
         <div class="stats-bar">
           <div class="stat-item">

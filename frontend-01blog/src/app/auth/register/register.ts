@@ -51,15 +51,24 @@ import { Router, RouterModule } from '@angular/router';
 
     <!-- Optional Fields -->
     <div class="user-box">
-      <input type="text" [(ngModel)]="avatarUrl" name="avatarUrl">
-      <label>Avatar URL (Optional)</label>
+      <label class="static-label" style="top: -20px; left: 0; color: #ffffffff; font-size: 12px;">Profile Picture (Optional)</label>
+      <div style="display: flex; gap: 10px; margin-top: 10px; align-items: center;">
+          <label class="upload-btn">
+            <input type="file" (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            <span>Upload Avatar</span>
+          </label>
+          @if (avatarUrl) {
+            <span style="color: #ffffffff; font-size: 0.8rem;">Uploaded!</span>
+          }
+      </div>
     </div>
     
     <div class="form-row">
-        <div class="user-box">
-          <input type="text" [(ngModel)]="nickname" name="nickname">
-          <label>Nickname (Optional)</label>
-        </div>
         <div class="user-box">
           <input type="text" [(ngModel)]="aboutMe" name="aboutMe">
           <label>About Me (Optional)</label>
@@ -79,7 +88,7 @@ import { Router, RouterModule } from '@angular/router';
       Register
     </a>
     
-    <div class="login-link">
+    <div class="register-link">
         Already have an account? <a routerLink="/login">Login</a>
     </div>
   </form>
@@ -125,6 +134,7 @@ import { Router, RouterModule } from '@angular/router';
 
       .user-box {
         position: relative;
+        margin-bottom: 30px; /* Ensure spacing even without input margin */
       }
 
       .user-box input {
@@ -132,7 +142,10 @@ import { Router, RouterModule } from '@angular/router';
         padding: 10px 0;
         font-size: 16px;
         color: #fff;
-        margin-bottom: 30px;
+        margin-bottom: 0; /* Handled by container now, or keep separate? */
+        /* Let's keep margin on input effectively 0 if container has it, 
+           BUT existing CSS had margin-bottom: 30px on input. 
+           If I move it to container, it fixes the issue for non-input boxes. */
         border: none;
         border-bottom: 1px solid #fff;
         outline: none;
@@ -153,7 +166,7 @@ import { Router, RouterModule } from '@angular/router';
       .user-box label.static-label {
           top: -20px;
           left: 0;
-          color: #03e9f4;
+          color: #ffffffff;
           font-size: 12px;
       }
 
@@ -161,7 +174,7 @@ import { Router, RouterModule } from '@angular/router';
       .user-box input:valid ~ label {
         top: -20px;
         left: 0;
-        color: #03e9f4;
+        color: #ffffffff;
         font-size: 12px;
       }
 
@@ -175,34 +188,58 @@ import { Router, RouterModule } from '@angular/router';
         filter: invert(1);
         cursor: pointer;
       }
+      
+      .upload-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        padding: 5px 10px;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 5px;
+        transition: 0.3s;
+        
+        &:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: #ffffffff;
+        }
+        
+        span {
+            color: #fff;
+            font-size: 0.9rem;
+        }
+      }
 
       .register-box form a {
-        position: relative;
-        display: inline-block;
-        padding: 10px 20px;
-        color: #03e9f4;
-        font-size: 16px;
-        text-decoration: none;
-        text-transform: uppercase;
-        overflow: hidden;
-        transition: .5s;
-        margin-top: 20px;
-        letter-spacing: 4px;
-        cursor: pointer;
-        width: 100%; /* Full width button */
-        text-align: center;
+            position: relative;
+            display: inline-block;
+            padding: 10px 20px;
+            color: #698cb0;
+            font-size: 16px;
+            text-decoration: none;
+            overflow: hidden;
+            transition: 0.5s;
+            letter-spacing: 4px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.15);
+            box-sizing: border-box;
+            box-shadow: 0 0px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            text-align: center;
       }
 
       .register-box a:hover {
             background: rgba(59, 130, 246, 0.1);
-    color: #3b82f6;
+            color: #3b82f6;
       }
 
       .register-box a span { position: absolute; display: block; }
-      .register-box a span:nth-child(1) { top: 0; left: -100%; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #03e9f4); animation: btn-anim1 1s linear infinite; }
-      .register-box a span:nth-child(2) { top: -100%; right: 0; width: 2px; height: 100%; background: linear-gradient(180deg, transparent, #03e9f4); animation: btn-anim2 1s linear infinite; animation-delay: .25s }
-      .register-box a span:nth-child(3) { bottom: 0; right: -100%; width: 100%; height: 2px; background: linear-gradient(270deg, transparent, #03e9f4); animation: btn-anim3 1s linear infinite; animation-delay: .5s }
-      .register-box a span:nth-child(4) { bottom: -100%; left: 0; width: 2px; height: 100%; background: linear-gradient(360deg, transparent, #03e9f4); animation: btn-anim4 1s linear infinite; animation-delay: .75s }
+      .register-box a span:nth-child(1) { top: 0; left: -100%; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #ffffffff); animation: btn-anim1 1s linear infinite; }
+      .register-box a span:nth-child(2) { top: -100%; right: 0; width: 2px; height: 100%; background: linear-gradient(180deg, transparent, #ffffffff); animation: btn-anim2 1s linear infinite; animation-delay: .25s }
+      .register-box a span:nth-child(3) { bottom: 0; right: -100%; width: 100%; height: 2px; background: linear-gradient(270deg, transparent, #ffffffff); animation: btn-anim3 1s linear infinite; animation-delay: .5s }
+      .register-box a span:nth-child(4) { bottom: -100%; left: 0; width: 2px; height: 100%; background: linear-gradient(360deg, transparent, #ffffffff); animation: btn-anim4 1s linear infinite; animation-delay: .75s }
 
       @keyframes btn-anim1 { 0% { left: -100%; } 50%,100% { left: 100%; } }
       @keyframes btn-anim2 { 0% { top: -100%; } 50%,100% { top: 100%; } }
@@ -217,14 +254,18 @@ import { Router, RouterModule } from '@angular/router';
           text-shadow: 0 1px 2px rgba(0,0,0,0.2);
       }
       
-      .login-link {
+      .register-link {
           margin-top: 20px;
-          text-align: center;
           color: #fff;
           font-size: 0.9rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+          height: 60px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           
           a {
-              color: #03e9f4;
+              color: #ffffffff;
               text-decoration: none;
               font-weight: bold;
               &:hover { text-decoration: underline; }
@@ -240,7 +281,7 @@ export class RegisterComponent {
   lastName = '';
   dateOfBirth = '';
   avatarUrl = '';
-  nickname = '';
+  // nickname removed
   aboutMe = '';
 
   registerError: string | null = null;
@@ -257,6 +298,30 @@ export class RegisterComponent {
   register() {
     this.registerError = null;
 
+    // Age Validation
+    const dob = new Date(this.dateOfBirth);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    if (age < 10) {
+      this.registerError = "You must be at least 10 years old to register.";
+      return;
+    }
+
+    if (age < 10) {
+      this.registerError = "You must be at least 10 years old to register.";
+      return;
+    }
+
+    if (!this.username || !this.password || !this.email || !this.firstName || !this.lastName || !this.dateOfBirth) {
+      this.registerError = "All fields are required.";
+      return;
+    }
+
     const data = {
       username: this.username,
       password: this.password,
@@ -265,7 +330,6 @@ export class RegisterComponent {
       lastName: this.lastName,
       dateOfBirth: this.dateOfBirth,
       avatarUrl: this.avatarUrl,
-      nickname: this.nickname,
       aboutMe: this.aboutMe
     };
 
@@ -285,5 +349,19 @@ export class RegisterComponent {
         }
       }
     });
+  }
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.auth.uploadAvatar(file).subscribe({
+        next: (res: any) => {
+          this.avatarUrl = res.secure_url || res.url;
+        },
+        error: (err: any) => {
+          console.error('Upload failed', err);
+          this.registerError = "Failed to upload avatar.";
+        }
+      });
+    }
   }
 }

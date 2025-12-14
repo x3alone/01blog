@@ -48,6 +48,10 @@ export class DashboardComponent implements OnInit {
   }
 
   banUser(userId: number) {
+    if (userId === 1) {
+      alert("Cannot ban the Super Admin.");
+      return;
+    }
     if (!confirm('Ban this user?')) return;
     this.adminUserService.toggleBan(userId).subscribe(() => {
       this.users.update(list => list.map(u => u.id === userId ? { ...u, banned: true } : u));
@@ -58,6 +62,24 @@ export class DashboardComponent implements OnInit {
     if (!confirm('Unban this user?')) return;
     this.adminUserService.toggleBan(userId).subscribe(() => {
       this.users.update(list => list.map(u => u.id === userId ? { ...u, banned: false } : u));
+    });
+  }
+
+  promoteUser(userId: number) {
+    if (!confirm('Promote this user to ADMIN?')) return;
+    this.adminUserService.updateUserRole(userId, 'ADMIN').subscribe(() => {
+      this.users.update(list => list.map(u => u.id === userId ? { ...u, role: 'ADMIN' } : u));
+    });
+  }
+
+  demoteUser(userId: number) {
+    if (userId === 1) {
+      alert("Cannot demote the Super Admin.");
+      return;
+    }
+    if (!confirm('Demote this user to USER?')) return;
+    this.adminUserService.demoteUser(userId).subscribe(() => {
+      this.users.update(list => list.map(u => u.id === userId ? { ...u, role: 'USER' } : u));
     });
   }
 

@@ -52,7 +52,13 @@
         } @else {
         <button (click)="banUser(user.id)" class="action-btn ban-btn">Ban</button>
         }
+        <button (click)="promoteUser(user.id)" class="action-btn"
+          style="margin-left: 5px; background-color: #10b981;">Promote</button>
+        } @else {
+        <button (click)="demoteUser(user.id)" class="action-btn"
+          style="margin-left: 5px; background-color: #f59e0b;">Demote</button>
         }
+
       </div>
     </div>
     }

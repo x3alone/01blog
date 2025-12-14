@@ -11,7 +11,7 @@ export interface UserProfileDto {
   isFollowedByCurrentUser: boolean;
   // You mentioned an 'about' section, but it wasn't in your Java DTO provided.
   // I will add a placeholder field for now.
-  about?: string;
+  aboutMe?: string;
   isBanned?: boolean; // You might need to add this to your Java DTO if you want to show it publically
   avatarUrl?: string; // Added avatarUrl
 }
@@ -33,5 +33,15 @@ export class UserProfileService {
 
   unfollowUser(userId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/follows/${userId}`);
+  }
+
+  updateProfile(data: { aboutMe?: string, avatarUrl?: string }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/profile`, data);
+  }
+
+  uploadAvatar(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/users/avatar`, formData);
   }
 }

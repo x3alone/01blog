@@ -1,7 +1,7 @@
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
@@ -28,20 +28,19 @@ export class AuthService {
     private platformId = inject(PLATFORM_ID);
     private router = inject(Router);
 
+    // Auth State Subject
+    private authState = new BehaviorSubject<boolean>(this.isAuthenticated());
+    public authState$ = this.authState.asObservable();
+
     constructor() { }
 
-    /**
-     * Safely stores the JWT in local storage.
-     */
     private setToken(token: string): void {
         if (isPlatformBrowser(this.platformId)) {
             localStorage.setItem(TOKEN_KEY, token);
+            this.authState.next(true); // Notify subscribers
         }
     }
 
-    /**
-     * Safely retrieves the JWT from local storage.
-     */
     public getToken(): string | null {
         if (isPlatformBrowser(this.platformId)) {
             return localStorage.getItem(TOKEN_KEY);
@@ -49,16 +48,10 @@ export class AuthService {
         return null;
     }
 
-    /**
-     * Checks if a token exists.
-     */
     public isAuthenticated(): boolean {
         return !!this.getToken();
     }
 
-    /**
-     * Retrieves the username from local storage for display purposes.
-     */
     public getUsername(): string | null {
         if (isPlatformBrowser(this.platformId)) {
             return localStorage.getItem(LAST_USER_KEY);
@@ -66,9 +59,6 @@ export class AuthService {
         return null;
     }
 
-    /**
-     * Safely retrieves the Avatar URL from local storage.
-     */
     public getUserAvatar(): string | null {
         if (isPlatformBrowser(this.platformId)) {
             return localStorage.getItem(AVATAR_KEY);
@@ -76,9 +66,6 @@ export class AuthService {
         return null;
     }
 
-    /**
-     * Extracts the user's ID from the JWT token.
-     */
     public getCurrentUserId(): number | null {
         const token = this.getToken();
         if (!token) return null;
@@ -90,9 +77,6 @@ export class AuthService {
         }
     }
 
-    /** 
-     * Extract role from token
-     */
     public getUserRole(): string | null {
         const token = this.getToken();
         if (!token) return null;
@@ -108,14 +92,22 @@ export class AuthService {
         return this.getUserRole() === 'ADMIN';
     }
 
-    /**
-     * Handles user login and token storage.
-     */
+    logout(): void {
+        if (isPlatformBrowser(this.platformId)) {
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(LAST_USER_KEY);
+            localStorage.removeItem(AVATAR_KEY);
+            this.authState.next(false); // Notify subscribers
+        }
+        this.router.navigate(['/login']);
+    }
+
     login(data: { username: string; password: string }): Observable<string> {
         return this.http.post<AuthenticationResponse>(`${API_BASE_URL}/login`, data)
             .pipe(
                 tap((response) => {
                     if (response.jwtToken) {
+                        // setToken now handles state update
                         this.setToken(response.jwtToken);
                         if (isPlatformBrowser(this.platformId)) {
                             localStorage.setItem(LAST_USER_KEY, response.username);
@@ -131,10 +123,6 @@ export class AuthService {
                 map(res => res.jwtToken)
             );
     }
-
-    /**
-     * Handles user registration and auto-login.
-     */
     register(data: {
         username: string;
         password: string;
@@ -143,7 +131,6 @@ export class AuthService {
         lastName: string;
         dateOfBirth: string; // ISO date string
         avatarUrl?: string; // Optional
-        nickname?: string; // Optional
         aboutMe?: string; // Optional
     }): Observable<any> {
         return this.http.post(`${API_BASE_URL}/register`, data)
@@ -155,16 +142,23 @@ export class AuthService {
             );
     }
 
-    /**
-     * Clears authentication data and navigates to login.
-     */
-    logout(): void {
-        if (isPlatformBrowser(this.platformId)) {
-            localStorage.removeItem(TOKEN_KEY);
-            localStorage.removeItem(LAST_USER_KEY);
-            localStorage.removeItem(AVATAR_KEY);
-        }
-        // Navigate to login after logout
-        this.router.navigate(['/login']);
+    uploadAvatar(file: File): Observable<any> {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.http.post(`${API_BASE_URL}/upload`, formData);
     }
+
+    updateCurrentUser(avatarUrl: string) {
+        if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem(AVATAR_KEY, avatarUrl);
+            // We might want to notify subscribers if we had a dedicated user$ observable
+            // But authState$ is boolean. 
+            // However, AppComponent checks local storage on init/login. 
+            // We should ideally expose a signal or subject for avatar updates or force a check.
+            // Since AppComponent.checkLoginStatus reads from localStorage:
+            this.authState.next(true); // Trigger re-check in AppComponent
+        }
+    }
+
+    // ... rest of the file
 }
