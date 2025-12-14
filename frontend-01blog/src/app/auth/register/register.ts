@@ -22,6 +22,9 @@ import { Router, RouterModule } from '@angular/router';
         <div class="user-box">
           <input type="password" [(ngModel)]="password" name="password" required="">
           <label>Password</label>
+          @if (passwordError) {
+            <p class="error-text">{{ passwordError }}</p>
+          }
         </div>
     </div>
 
@@ -42,6 +45,9 @@ import { Router, RouterModule } from '@angular/router';
         <div class="user-box">
           <input type="email" [(ngModel)]="email" name="email" required="">
           <label>Email</label>
+          @if (emailError) {
+            <p class="error-text">{{ emailError }}</p>
+          }
         </div>
         <div class="user-box date-box">
           <input type="date" [(ngModel)]="dateOfBirth" name="dateOfBirth" required="">
@@ -61,10 +67,10 @@ import { Router, RouterModule } from '@angular/router';
                     <circle cx="8.5" cy="8.5" r="1.5"></circle>
                     <polyline points="21 15 16 10 5 21"></polyline>
                 </svg>
-                <span>Upload Avatar</span>
+                <span style="cursor: pointer;">Upload Avatar</span>
               </label>
               @if (avatarUrl) {
-                <span style="color: #ffffffff; font-size: 0.8rem;">Uploaded!</span>
+                <span style="color: #4ade80; font-size: 0.8rem; font-weight: bold;">Uploaded!</span>
               }
           </div>
         </div>
@@ -77,9 +83,9 @@ import { Router, RouterModule } from '@angular/router';
         </div>
     </div>
 
-    <!-- Error Message -->
+    <!-- General Error Message (e.g. Server Errors) -->
     @if (registerError) {
-        <div class="error-msg">{{ registerError }}</div>
+        <p class="error-text main-error">{{ registerError }}</p>
     }
 
     <a href="javascript:void(0)" (click)="register()">
@@ -104,11 +110,11 @@ import { Router, RouterModule } from '@angular/router';
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 20px; /* Add padding for overflow */
+        padding: 20px;
       }
 
       .register-box {
-        width: 600px; /* Wider for register */
+        width: 600px;
         padding: 40px;
         background: rgba(255, 255, 255, 0.15);
         box-sizing: border-box;
@@ -136,7 +142,7 @@ import { Router, RouterModule } from '@angular/router';
 
       .user-box {
         position: relative;
-        margin-bottom: 30px; /* Ensure spacing even without input margin */
+        margin-bottom: 30px;
       }
 
       .user-box input {
@@ -144,10 +150,7 @@ import { Router, RouterModule } from '@angular/router';
         padding: 10px 0;
         font-size: 16px;
         color: #fff;
-        margin-bottom: 0; /* Handled by container now, or keep separate? */
-        /* Let's keep margin on input effectively 0 if container has it, 
-           BUT existing CSS had margin-bottom: 30px on input. 
-           If I move it to container, it fixes the issue for non-input boxes. */
+        margin-bottom: 5px; /* Space for error message */
         border: none;
         border-bottom: 1px solid #fff;
         outline: none;
@@ -182,7 +185,6 @@ import { Router, RouterModule } from '@angular/router';
         font-size: 12px;
       }
       
-      /* Force static label for specific containers (Avatar, About Me if needed) */
       .static-box label {
           top: -20px;
           left: 0;
@@ -190,12 +192,10 @@ import { Router, RouterModule } from '@angular/router';
           font-size: 12px;
       }
 
-      /* Date Input Styling Override */
       input[type="date"] {
         color: #fff;
         font-family: inherit;
       }
-      /* Calendar picker icon filter to white */
       input[type="date"]::-webkit-calendar-picker-indicator {
         filter: invert(1);
         cursor: pointer;
@@ -206,16 +206,21 @@ import { Router, RouterModule } from '@angular/router';
         align-items: center;
         gap: 10px;
         cursor: pointer;
-        padding: 5px 10px;
-        border: 1px solid rgba(255,255,255,0.3);
+        padding: 8px 12px;
+        border: 1px solid rgba(255,255,255,0.5);
         border-radius: 5px;
         transition: 0.3s;
-        pointer-events: auto; /* Fix for clickable input */
-        position: relative; /* Ensure it stacks correctly */
+        pointer-events: auto;
+        position: relative;
+        z-index: 100 !important; /* Force high z-index */
+        background: rgba(255,255,255,0.05); /* Slight fill to help hit target */
+        
+        /* Fix for pointer-events being overridden by parent label rule */
+        pointer-events: auto !important;
         
         &:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: #ffffffff;
+            background: rgba(255,255,255,0.2);
+            border-color: #fff;
         }
         
         span {
@@ -260,12 +265,17 @@ import { Router, RouterModule } from '@angular/router';
       @keyframes btn-anim3 { 0% { right: -100%; } 50%,100% { right: 100%; } }
       @keyframes btn-anim4 { 0% { bottom: -100%; } 50%,100% { bottom: 100%; } }
 
-      .error-msg {
-          color: #ffffffff;
-          text-align: center;
-          margin-top: 10px;
+      .error-text {
+          color: #ff6b6b; /* Red text */
+          font-size: 0.8rem;
+          margin: 2px 0 0 0;
           font-weight: 500;
-          text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+          text-align: left;
+      }
+      .main-error {
+        text-align: center;
+        margin-top: 10px;
+        font-size: 1rem;
       }
       
       .register-link {
@@ -295,10 +305,11 @@ export class RegisterComponent {
   lastName = '';
   dateOfBirth = '';
   avatarUrl = '';
-  // nickname removed
   aboutMe = '';
 
   registerError: string | null = null;
+  passwordError: string | null = null;
+  emailError: string | null = null;
 
   private auth = inject(AuthService);
   private router = inject(Router);
@@ -311,8 +322,14 @@ export class RegisterComponent {
 
   register() {
     this.registerError = null;
+    this.passwordError = null;
+    this.emailError = null;
 
     // Age Validation
+    if (!this.dateOfBirth) {
+      this.registerError = "Date of Birth is required.";
+      return;
+    }
     const dob = new Date(this.dateOfBirth);
     const today = new Date();
     let age = today.getFullYear() - dob.getFullYear();
@@ -326,9 +343,23 @@ export class RegisterComponent {
       return;
     }
 
+    // Password Validation: >= 8 chars
+    if (this.password.length < 8) {
+      this.passwordError = "Password must be at least 8 characters long.";
+    }
 
+    // Email Regex Validation: 3 chars @ 2 chars . 2 chars
+    // Regex: ^.{3,}@.{2,}\..{2,}$
+    const emailRegex = /^.{3,}@.{2,}\..{2,}$/;
+    if (!emailRegex.test(this.email)) {
+      this.emailError = "Invalid email format (e.g. user@domain.com).";
+    }
 
-    if (!this.username || !this.password || !this.email || !this.firstName || !this.lastName || !this.dateOfBirth) {
+    if (this.passwordError || this.emailError) {
+      return; // Stop if validation fails
+    }
+
+    if (!this.username || !this.password || !this.email || !this.firstName || !this.lastName) {
       this.registerError = "All fields are required.";
       return;
     }
@@ -346,7 +377,7 @@ export class RegisterComponent {
 
     this.auth.register(data).subscribe({
       next: () => {
-        this.router.navigate(['/home']); // Auto-login handles navigation logic ideally, but fallback here
+        this.router.navigate(['/home']);
       },
       error: (err) => {
         console.error('Registration error:', err);
@@ -364,6 +395,7 @@ export class RegisterComponent {
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
     if (file) {
+      this.registerError = null; // Clear previous errors
       this.auth.uploadAvatar(file).subscribe({
         next: (res: any) => {
           this.avatarUrl = res.secure_url || res.url;

@@ -79,10 +79,90 @@ export class HomeComponent implements OnInit {
     if (this.authService.isAuthenticated()) {
       this.loggedIn.set(true);
       this.currentUsername.set(this.authService.getUsername() || '');
+      this.currentUserId.set(this.authService.getCurrentUserId());
     } else {
       this.loggedIn.set(false);
       this.currentUsername.set('');
+      this.currentUserId.set(null);
     }
+  }
+
+  canDelete(post: Post): boolean {
+    const uid = this.currentUserId();
+    if (!uid) return false;
+    return post.userId === uid || this.authService.getUserRole() === 'ADMIN';
+  }
+
+  canEdit(post: Post): boolean {
+    const uid = this.currentUserId();
+    if (!uid) return false;
+    return post.userId === uid;
+  }
+
+  startEdit(post: Post) {
+    this.editingPostId.set(post.id);
+    this.editTitle = post.title;
+    this.editContent = post.content;
+  }
+
+  cancelEdit() {
+    this.editingPostId.set(null);
+    this.editTitle = '';
+    this.editContent = '';
+  }
+
+  saveEdit(postId: number) {
+    if (!this.editTitle.trim() || !this.editContent.trim()) {
+      this.toastService.show("Title and content cannot be empty", "error");
+      return;
+    }
+
+    this.postService.updatePost(postId, { title: this.editTitle, content: this.editContent }).subscribe({
+      next: (updated) => {
+        this.posts.update(posts => posts.map(p => p.id === postId ? updated : p));
+        this.cancelEdit();
+        this.toastService.show("Post updated", "success");
+      },
+      error: (e) => this.toastService.show("Failed to update post", "error")
+    });
+  }
+
+  deletePost(postId: number) {
+    this.confirmationService.confirm("Are you sure you want to delete this post?", "Delete Post").subscribe(confirmed => {
+      if (confirmed) {
+        this.postService.deletePost(postId).subscribe({
+          next: () => {
+            this.posts.update(posts => posts.filter(p => p.id !== postId));
+            this.toastService.show("Post deleted", "success");
+          },
+          error: (e) => this.toastService.show("Failed to delete post", "error")
+        });
+      }
+    });
+  }
+
+  openReportModal(post: Post) {
+    this.reportingPostId = post.id;
+    this.reportModalOpen.set(true);
+  }
+
+  closeReportModal() {
+    this.reportModalOpen.set(false);
+    this.reportingPostId = null;
+    this.reportReason = 'Inappropriate Content';
+    this.reportDetails = '';
+  }
+
+  submitReport() {
+    if (!this.reportingPostId) return;
+
+    this.reportService.createReport(this.reportingPostId, this.reportReason, this.reportDetails).subscribe({
+      next: () => {
+        this.closeReportModal();
+        this.toastService.show("Report submitted", "success");
+      },
+      error: (e) => this.toastService.show("Failed to submit report", "error")
+    });
   }
 
   loadPosts() {
@@ -108,12 +188,29 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  // Spam Protection
+  lastPostTime = 0;
+  lastCommentTime = 0;
+
+  // ... (keeping existing methods)
+
   createPost() {
     this.postCreationError.set(null);
 
+    // 0. Cooldown Check (10 seconds)
+    const now = Date.now();
+    if (now - this.lastPostTime < 10000) {
+      this.postCreationError.set("Please wait 10s.");
+      return;
+    }
+
     // 1. Validate Content (No empty or whitespace only)
-    if (!this.newPostTitle() || !this.newPostContent() || !this.newPostContent().trim()) {
-      this.postCreationError.set("Post title and content are required.");
+    if (!this.newPostTitle().trim()) {
+      this.postCreationError.set("Title is required");
+      return;
+    }
+    if (!this.newPostContent().trim()) {
+      this.postCreationError.set("Post content is required.");
       return;
     }
 
@@ -134,6 +231,7 @@ export class HomeComponent implements OnInit {
       this.selectedFile || null
     ).subscribe({
       next: () => {
+        this.lastPostTime = Date.now(); // Update cooldown timestamp
         this.newPostTitle.set('');
         this.newPostContent.set('');
         this.selectedFile = null;
@@ -150,125 +248,30 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // --- POST ACTIONS ---
-  deletePost(id: number) {
-    this.confirmationService.confirm('Are you sure you want to delete this post?', 'Delete Post')
-      .subscribe(confirmed => {
-        if (confirmed) {
-          this.postService.deletePost(id).subscribe({
-            next: () => {
-              this.posts.update(p => p.filter(post => post.id !== id));
-              this.toastService.show("Post deleted.", 'success');
-            },
-            error: () => this.toastService.show("Failed to delete post.", 'error')
-          });
-        }
-      });
-  }
-
-  startEdit(post: Post) {
-    this.editingPostId.set(post.id);
-    this.editTitle = post.title;
-    this.editContent = post.content;
-  }
-
-  cancelEdit() {
-    this.editingPostId.set(null);
-  }
-
-  saveEdit(id: number) {
-    if (!id) return;
-
-    const update: UpdatePostRequest = { title: this.editTitle, content: this.editContent };
-    this.postService.updatePost(id, update).subscribe(() => {
-      this.posts.update(list => list.map(p => p.id === id ? { ...p, title: this.editTitle, content: this.editContent } : p));
-      this.editingPostId.set(null);
-      this.toastService.show("Post updated.", 'success');
-    });
-  }
-
-  followUser(post: Post) {
-    console.log('Follow clicked on home', post.username);
-  }
-
-  // --- PERMISSIONS ---
-  canDelete(post: Post): boolean {
-    const currentId = this.authService.getCurrentUserId();
-    if (!currentId) return false;
-    const isAdmin = this.authService.isAdmin(); // Assuming AuthService has isAdmin() or check role
-    return post.userId === currentId || isAdmin;
-  }
-
-  canEdit(post: Post): boolean {
-    const currentId = this.authService.getCurrentUserId();
-    return currentId !== null && post.userId === currentId;
-  }
-
-  canDeleteComment(comment: Comment): boolean {
-    const role = this.authService.getUserRole();
-    const currentUsername = this.currentUsername();
-    // Admin or Owner can delete
-    return role === 'ADMIN' || (currentUsername !== '' && comment.username === currentUsername);
-  }
-
-  canEditComment(comment: Comment): boolean {
-    const currentUsername = this.currentUsername();
-    // Only Owner can edit
-    return currentUsername !== '' && comment.username === currentUsername;
-  }
-
-  // --- REPORTS ---
-  openReportModal(post: Post) {
-    this.reportingPostId = post.id;
-    this.reportModalOpen.set(true);
-  }
-
-  closeReportModal() {
-    this.reportModalOpen.set(false);
-    this.reportingPostId = null;
-    this.reportDetails = '';
-  }
-
-  submitReport() {
-    if (this.reportingPostId) {
-      this.reportService.createReport(this.reportingPostId, this.reportReason, this.reportDetails).subscribe({
-        next: () => {
-          this.toastService.show("Report submitted.", 'success');
-          this.closeReportModal();
-        },
-        error: () => this.toastService.show("Failed to submit report.", 'error')
-      });
+  toggleComments(postId: number) {
+    const expanded = this.expandedComments();
+    if (expanded.has(postId)) {
+      expanded.delete(postId);
+      this.expandedComments.set(new Set(expanded));
+    } else {
+      expanded.add(postId);
+      this.expandedComments.set(new Set(expanded));
+      this.loadComments(postId);
     }
   }
 
-  // --- COMMENTS ---
   isCommentsExpanded(postId: number): boolean {
     return this.expandedComments().has(postId);
   }
 
-  toggleComments(postId: number) {
-    const set = this.expandedComments();
-    if (set.has(postId)) {
-      set.delete(postId);
-    } else {
-      set.add(postId);
-      if (!this.postComments().has(postId)) {
-        this.loadComments(postId);
-      }
-    }
-    // trigger signal update
-    this.expandedComments.set(new Set(set));
-  }
-
   loadComments(postId: number) {
     this.commentService.getComments(postId).subscribe({
-      next: (data: Comment[]) => {
+      next: (comments) => {
         this.postComments.update(map => {
-          map.set(postId, data);
+          map.set(postId, comments);
           return new Map(map);
         });
-      },
-      error: (e: any) => console.error(e)
+      }
     });
   }
 
@@ -276,9 +279,10 @@ export class HomeComponent implements OnInit {
     return this.postComments().get(postId) || [];
   }
 
-  updateCommentInput(postId: number, event: any) {
+  updateCommentInput(postId: number, event: Event) {
+    const val = (event.target as HTMLInputElement).value;
     this.newCommentInputs.update(map => {
-      map.set(postId, event.target.value);
+      map.set(postId, val);
       return new Map(map);
     });
   }
@@ -293,14 +297,28 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  canDeleteComment(comment: Comment): boolean {
+    const uid = this.currentUserId();
+    if (!uid) return false;
+    return comment.userId === uid || this.authService.getUserRole() === 'ADMIN';
+  }
+
   addComment(postId: number) {
     const content = this.newCommentInputs().get(postId);
     if (!content) return;
+
+    // Cooldown Check
+    const now = Date.now();
+    if (now - this.lastCommentTime < 10000) {
+      this.toastService.show("Please wait 10s.", 'error');
+      return;
+    }
 
     const file = this.commentFiles().get(postId) || null;
 
     this.commentService.addComment(postId, content, file).subscribe({
       next: (newComment: Comment) => {
+        this.lastCommentTime = Date.now(); // Update timestamp
         this.postComments.update(map => {
           const list = map.get(postId) || [];
           list.push(newComment);

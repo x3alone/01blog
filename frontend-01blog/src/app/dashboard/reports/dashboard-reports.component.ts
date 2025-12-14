@@ -29,9 +29,24 @@ import { ConfirmationService } from '../../services/confirmation.service';
             <p class="reporter-info">Reported by: {{ report.reporterUsername }}</p>
             
             <div class="reported-post-box">
-              <h4>Post: {{ report.reportedPostTitle }}</h4>
-              <p>By: {{ report.reportedPostAuthorUsername }}</p>
-              <p class="post-snippet">{{ report.reportedPostContent | slice:0:100 }}...</p>
+              <div class="mini-post-header">
+                <span class="mini-label">Reported Post</span>
+                <span class="post-author">@{{ report.reportedPostAuthorUsername }}</span>
+              </div>
+              
+              <h4 class="post-title">{{ report.reportedPostTitle }}</h4>
+              <p class="post-snippet">{{ report.reportedPostContent | slice:0:150 }}{{ report.reportedPostContent.length > 150 ? '...' : '' }}</p>
+              
+              @if (report.reportedPostMediaType === 'image' && report.reportedPostMediaUrl) {
+                <div class="media-preview">
+                  <img [src]="report.reportedPostMediaUrl" alt="Reported Media">
+                </div>
+              }
+              @if (report.reportedPostMediaType === 'video' && report.reportedPostMediaUrl) {
+                <div class="media-preview">
+                  <video [src]="report.reportedPostMediaUrl" controls></video>
+                </div>
+              }
             </div>
 
             <div class="action-buttons">
@@ -79,13 +94,37 @@ import { ConfirmationService } from '../../services/confirmation.service';
 
     .reported-post-box {
       background: #0f172a;
-      padding: 10px;
+      padding: 15px;
       border-radius: 6px;
       margin-bottom: 15px;
+      border: 1px solid #334155;
     }
-    .reported-post-box h4 { margin: 0 0 5px; color: #fff; }
-    .reported-post-box p { font-size: 0.9rem; color: #cbd5e1; margin: 0; }
-    .post-snippet { color: #94a3b8; margin-top: 5px !important; }
+    .mini-post-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .mini-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; }
+    .post-author { font-size: 0.85rem; color: #38bdf8; font-weight: 500; }
+    
+    .post-title { margin: 0 0 5px; color: #f1f5f9; font-size: 1rem; }
+    .post-snippet { color: #cbd5e1; margin: 0 0 10px !important; line-height: 1.4; font-size: 0.9rem; }
+    
+    .media-preview {
+      width: 100%;
+      height: 150px;
+      background: #000;
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .media-preview img, .media-preview video {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
 
     .action-buttons { display: flex; gap: 10px; }
 

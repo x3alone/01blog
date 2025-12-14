@@ -23,24 +23,28 @@ import { RouterLink } from '@angular/router';
           
           <div class="actions" style="display: flex; gap: 10px;">
             
-            @if (canPromote(user)) {
+            @if (isAdmin()) {
             <button 
               (click)="toggleRole(user)" 
               class="action-btn"
               [class.promote-btn]="user.role !== 'ADMIN'"
               [class.demote-btn]="user.role === 'ADMIN'"
+              [disabled]="user.id === currentUserId"
+              [style.opacity]="user.id === currentUserId ? '0.5' : '1'"
+              [style.cursor]="user.id === currentUserId ? 'not-allowed' : 'pointer'"
             >
               {{ user.role === 'ADMIN' ? 'Demote' : 'Promote' }}
             </button>
-            }
-
-            @if (canBan(user)) {
+            
             <button 
               (click)="toggleBan(user)" 
               class="action-btn ban-toggle-btn"
               [class.ban-btn]="!user.banned"
               [class.promote-btn]="user.banned" 
               style="margin-left: 5px;"
+              [disabled]="user.id === currentUserId"
+              [style.opacity]="user.id === currentUserId ? '0.5' : '1'"
+              [style.cursor]="user.id === currentUserId ? 'not-allowed' : 'pointer'"
             >
               {{ user.banned ? 'Unban' : 'Ban' }}
             </button>
@@ -84,30 +88,17 @@ export class DashboardUsersComponent implements OnInit {
     });
   }
 
-  canPromote(target: User): boolean {
-    if (this.currentUserRole !== 'ADMIN') return false;
-    // Cannot promote/demote self
-    if (target.id === this.currentUserId) return false;
-    // Cannot act on Super Admin (ID 1)
-    if (target.id === 1) return false;
-
-    // Can promote any USER to ADMIN
-    // Can demote any ADMIN (except ID 1) to USER
-    return true;
+  isAdmin(): boolean {
+    return this.currentUserRole === 'ADMIN';
   }
 
-  canBan(target: User): boolean {
-    if (this.currentUserRole !== 'ADMIN') return false;
-    // Cannot ban self
-    if (target.id === this.currentUserId) return false;
-    // Cannot ban Super Admin
-    if (target.id === 1) return false;
-
-    return true;
+  isSelfOrHeigher(target: User): boolean {
+    // Self or Super Admin (ID 1)
+    return target.id === this.currentUserId || target.id === 1;
   }
 
   toggleRole(user: User) {
-    if (!this.canPromote(user)) return;
+    if (user.id === this.currentUserId) return;
 
     const newRole: 'USER' | 'ADMIN' = user.role === 'ADMIN' ? 'USER' : 'ADMIN';
     const action = newRole === 'ADMIN' ? 'Promote' : 'Demote';
@@ -133,7 +124,7 @@ export class DashboardUsersComponent implements OnInit {
   }
 
   toggleBan(user: User) {
-    if (!this.canBan(user)) return;
+    if (user.id === this.currentUserId) return;
 
     const action = user.banned ? 'Unban' : 'Ban';
 

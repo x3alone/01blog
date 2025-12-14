@@ -23,7 +23,7 @@ import { AuthService } from '../../services/auth.service';
     
     <!-- Error Message -->
     @if (loginError) {
-        <div class="error-msg">{{ loginError }}</div>
+        <p class="error-text">{{ loginError }}</p>
     }
 
     <a href="javascript:void(0)" (click)="login()">
@@ -192,8 +192,8 @@ import { AuthService } from '../../services/auth.service';
         50%,100% { bottom: 100%; }
       }
 
-      .error-msg {
-          color: #ffffffff;
+      .error-text {
+          color: #ff6b6b; /* Red text */
           text-align: center;
           margin-top: 10px;
           font-weight: 500;
@@ -251,13 +251,17 @@ export class LoginComponent {
       error: (err) => {
         console.error('Login error:', err);
 
-        // Handle HTTP 401/403 response with specific messages
-        if (err.error?.message && (err.error.message.toLowerCase().includes('locked') || err.error.message.toLowerCase().includes('banned'))) {
-          this.loginError = "Your account has been banned by an admin.";
+        // Granular Error Handling
+        if (err.status === 403 || (err.error?.message && err.error.message.toLowerCase().includes('banned'))) {
+          this.loginError = "You have been banned by an admin.";
+        }
+        else if (err.status === 404 || (err.error?.message && err.error.message.toLowerCase().includes('user not found'))) {
+          this.loginError = "User doesn't exist.";
         }
         else if (err.status === 401) {
-          this.loginError = 'Invalid username or password.';
-        } else if (err.error?.message) {
+          this.loginError = "Wrong password.";
+        }
+        else if (err.error?.message) {
           this.loginError = err.error.message;
         }
         else {

@@ -15,6 +15,8 @@ export interface Report {
     reportedPostTitle: string;
     reportedPostContent: string;
     reportedPostAuthorUsername: string;
+    reportedPostMediaType?: 'image' | 'video' | 'none';
+    reportedPostMediaUrl?: string;
 }
 
 @Injectable({
