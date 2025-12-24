@@ -52,6 +52,7 @@
   font-weight: 800;
   font-size: 1.25rem;
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
@@ -72,7 +73,7 @@
   height: 40px;
   border-radius: 10px;
   transition: all 0.2s ease;
-  cursor: default;
+  cursor: pointer;
   border: none;
   background: transparent;
 }
@@ -192,7 +193,8 @@
 }
 
 .notif-list {
-  max-height: 300px;
+  /* Limit to approx 5 items (5 * ~50px = 250px) */
+  max-height: 250px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -204,6 +206,25 @@
   border-radius: 8px;
   font-size: 0.85rem;
   color: #555;
+
+  /* Scrollbar Styling */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
   background: #f8fafc;
 }
 

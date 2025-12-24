@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
@@ -73,54 +73,11 @@ export class AppComponent implements OnInit {
   }
 
   processNotifications(data: BlogNotification[]) {
-    const groups: any[] = [];
-    const map = new Map<string, BlogNotification[]>();
-
-    // Group by Type + RelatedId
-    data.forEach(n => {
-      const key = `${n.type}-${n.relatedId}`;
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)?.push(n);
-    });
-
-    map.forEach((list, key) => {
-      const latest = list[0];
-      const count = list.length;
-
-      if (count === 1) {
-        groups.push(latest);
-      } else {
-        // Create a summary notification
-        let message = '';
-        const actorName = latest.actor ? latest.actor.username : 'Someone';
-
-        if (latest.type === 'COMMENT') {
-          message = `${actorName} and ${count - 1} others commented on your post.`;
-        } else if (latest.type === 'FOLLOW') {
-          message = `${actorName} and ${count - 1} others started following you.`;
-        } else if (latest.type === 'LIKE') {
-          message = `${actorName} and ${count - 1} others liked your post.`;
-        } else {
-          message = `${count} new notifications regarding ${latest.type.toLowerCase()}.`;
-        }
-
-        groups.push({
-          ...latest,
-          message: message, // Override message
-          isGroup: true,
-          count: count
-        });
-      }
-    });
-
     // Sort by createdAt desc
-    groups.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    // Take max 5 groups if needed, user said "max 5 notification line"
-    // But maybe they meant max 5 lines visible, scroll for more.
-    // "so by max i get 5 notification line in that toggle drop drown i have"
-    // I will limit the display to 5 items for now.
-    this.notifications.set(groups.slice(0, 5));
+    // Update notifications signal with all notifications (no grouping, no limit)
+    this.notifications.set(data);
   }
 
   loadUnreadCount() {
@@ -141,6 +98,20 @@ export class AppComponent implements OnInit {
         },
         error: (e) => console.error('Failed to mark read', e)
       });
+    }
+  }
+
+  // Listen for clicks to close dropdown
+  private eRef = inject(ElementRef);
+
+  @HostListener('document:click', ['$event'])
+  clickout(event: Event) {
+    if (this.showNotifications()) {
+      const target = event.target as HTMLElement;
+      // Close if click is outside .notif-wrapper (which contains both button and dropdown)
+      if (!target.closest('.notif-wrapper')) {
+        this.showNotifications.set(false);
+      }
     }
   }
 

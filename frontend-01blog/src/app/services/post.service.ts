@@ -13,7 +13,9 @@ export interface Post {
     mediaUrl: string;
     mediaType: string;
     createdAt: string;
+
     avatarUrl?: string; // NEW FIELD
+    hidden?: boolean;
 }
 
 export interface CreatePostRequest {
@@ -71,9 +73,17 @@ export class PostService {
     }
 
     // NEW: Update Post Method
-    updatePost(id: number, request: UpdatePostRequest): Observable<Post> {
-        const headers = this.getAuthHeaders();
-        return this.http.put<Post>(`${this.API_URL}/${id}`, request, headers).pipe(
+    updatePost(id: number, title: string, content: string, file?: File, removeMedia?: boolean): Observable<Post> {
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('content', content);
+        if (file) {
+            formData.append('file', file);
+        }
+        if (removeMedia) {
+            formData.append('removeMedia', 'true');
+        }
+        return this.http.put<Post>(`${this.API_URL}/${id}`, formData, this.getAuthHeaders()).pipe(
             catchError(err => {
                 console.error(`Error updating post ${id}:`, err);
                 // The backend will return 403 Forbidden if the user is not the author/admin
@@ -91,6 +101,15 @@ export class PostService {
                 console.error(`Error deleting post ${id}:`, err);
                 // The backend will return 403 Forbidden if the user is not the author/admin
                 return throwError(() => new Error(err.error?.message || `Failed to delete post. Status: ${err.status}`));
+            })
+        );
+    }
+
+    toggleHide(id: number): Observable<void> {
+        return this.http.put<void>(`${this.API_URL}/${id}/hide`, {}, this.getAuthHeaders()).pipe(
+            catchError(err => {
+                console.error(`Error toggling hide for post ${id}:`, err);
+                return throwError(() => new Error('Failed to toggle visibility'));
             })
         );
     }

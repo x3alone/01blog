@@ -117,21 +117,70 @@ public class PostService {
 
         postRepository.delete(post);
     }
-    
-    // Existing updatePost method...
     @Transactional
-    public PostResponse updatePost(Long id, UpdatePostRequest request) {
-       // 1. Find the post... (Keep your existing update logic)
-       Post post = postRepository.findById(id)
+    public void toggleHide(Long id) {
+        Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
-       String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-       if (!post.getUser().getUsername().equals(currentUsername)) {
-          throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to edit this post");
-       }
-       post.setTitle(request.getTitle());
-       post.setContent(request.getContent());
-       Post updatedPost = postRepository.save(post);
-       return mapToDto(updatedPost);
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin) {
+             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can hide posts");
+        }
+        
+        post.setHidden(!post.isHidden());
+        postRepository.save(post);
+    }
+
+    // Existing updatePost method...
+    // Updated updatePost method to handle media
+    @Transactional
+    public PostResponse updatePostWithMedia(Long id, String title, String content, MultipartFile file, boolean removeMedia) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+        
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!post.getUser().getUsername().equals(currentUsername)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to edit this post");
+        }
+
+        // 1. Handle Media Removal or Replacement
+        if (removeMedia || (file != null && !file.isEmpty())) {
+            // If there's existing media, delete it from Cloudinary
+            if (post.getPublicId() != null && !post.getPublicId().isEmpty()) {
+                try {
+                    mediaService.deleteFile(post.getPublicId());
+                } catch (IOException e) {
+                    System.err.println("Warning: Failed to delete old media: " + e.getMessage());
+                }
+                // Clear fields
+                post.setMediaUrl(null);
+                post.setPublicId(null);
+                post.setMediaType(null);
+            }
+        }
+
+        // 2. Handle New File Upload
+        if (file != null && !file.isEmpty()) {
+            try {
+                String customName = "user" + post.getUser().getId() + "_post" + post.getId() + "_" + System.currentTimeMillis();
+                Map uploadResult = mediaService.uploadFile(file, "01blog/posts", customName);
+                
+                post.setMediaUrl((String) uploadResult.get("secure_url"));
+                post.setPublicId((String) uploadResult.get("public_id"));
+                post.setMediaType((String) uploadResult.get("resource_type"));
+            } catch (IOException e) {
+                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload new media");
+            }
+        }
+
+        // 3. Update Text Content
+        post.setTitle(title);
+        post.setContent(content);
+
+        Post updatedPost = postRepository.save(post);
+        return mapToDto(updatedPost);
     }
     
 
@@ -148,8 +197,12 @@ public class PostService {
      */
     @Transactional(readOnly = true)
     public List<PostResponse> getAllPosts() {
-        // This method is now publicly accessible via SecurityConfig
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        String currentUsername = (auth != null) ? auth.getName() : null;
+
         return postRepository.findAllByOrderByCreatedAtDesc().stream()
+                .filter(post -> !post.isHidden() || isAdmin || post.getUser().getUsername().equals(currentUsername))
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
@@ -168,7 +221,8 @@ public class PostService {
             post.getCreatedAt(),
             post.getMediaUrl(),  // NEW ARGUMENT
             post.getMediaType(),  // NEW ARGUMENT
-            post.getUser().getAvatarUrl() // NEW ARGUMENT
+            post.getUser().getAvatarUrl(), // NEW ARGUMENT
+            post.isHidden() // NEW ARGUMENT
         );
     }
 }

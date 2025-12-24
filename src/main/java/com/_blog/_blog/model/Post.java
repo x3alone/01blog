@@ -123,4 +123,15 @@ public class Post {
     public void setReports(java.util.List<Report> reports) {
         this.reports = reports;
     }
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean hidden = false;
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
 }

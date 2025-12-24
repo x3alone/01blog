@@ -58,6 +58,26 @@
   min-height: 48px;
 }
 
+.hidden-badge {
+  background: #ef4444;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.hidden-post {
+  opacity: 0.7;
+  border: 1px dashed #ef4444;
+}
+
+.post-actions-top {
+  display: flex;
+  gap: 5px;
+}
+
 .input-actions {
   display: flex;
   align-items: center;
@@ -92,6 +112,7 @@
   background: rgba(0, 0, 0, 0.05);
   padding: 5px;
   border-radius: 4px;
+  max-width: max-content;
 }
 
 .media-preview-bar img {
@@ -140,11 +161,11 @@
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.post-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-  background: white;
-}
+// .post-card:hover {
+//   transform: translateY(-2px);
+//   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+//   background: white;
+// }
 
 .post-header {
   display: flex;
@@ -192,7 +213,7 @@
 
 .post-date {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #19202a;
 }
 
 .post-actions {
@@ -204,13 +225,13 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #ffffff;  padding: 6px;
+  color: #ffffff;
+  padding: 6px;
   border-radius: 6px;
   transition: 0.2s;
 }
 
 .action-icon-btn:hover {
-  background: #f1f5f9;
   color: #333;
 }
 
@@ -239,6 +260,33 @@
   flex-direction: column;
   gap: 16px;
   margin-bottom: 20px;
+  /* Limit to approx 5 items */
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 5px;
+  /* Prevent scrollbar overlap */
+}
+
+.comment-media-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 5px;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 5px;
+  border-radius: 4px;
+  max-width: max-content;
+}
+
+img {
+  height: 60px;
+  border-radius: 4px;
+}
+
+span.remove-preview {
+  cursor: pointer;
+  color: red;
+  font-weight: bold;
 }
 
 .comment-item {
@@ -358,6 +406,87 @@ button.comment-toggle-btn {
   min-height: 48px;
 }
 
+.edit-media-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 5px;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 5px;
+  border-radius: 4px;
+}
+
+img.preview-img {
+  height: 60px;
+  border-radius: 4px;
+}
+
+.media-preview-container {
+  display: flex;
+  direction: rtl;
+}
+
+button.remove-media-btn {
+  cursor: pointer;
+  color: red;
+  font-weight: bold;
+  border: transparent;
+  padding: 10px;
+  background: transparent;
+}
+
+label.replace-media-btn {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.flex.gap-4 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: auto;
+  padding: 0 10px;
+}
+
+button.px-6.py-2.bg-gray-600.hover\:bg-gray-500.text-white.font-semibold.rounded-lg.shadow-md.transition.duration-300 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: auto;
+  padding: 0 10px;
+}
+
+button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rounded-lg.shadow-md.transition.duration-300 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: auto;
+  padding: 0 10px;
+}
 
 .comment-avatar {
   width: 32px;
@@ -553,6 +682,37 @@ button.comment-toggle-btn {
   margin-top: 10px;
 }
 
+.fixed-height-media img,
+.fixed-height-media video {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  /* Maintain aspect ratio inside fixed box */
+}
+
+.pdf-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #fff;
+  gap: 10px;
+}
+
+.pdf-link {
+  color: #60a5fa;
+  text-decoration: underline;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px 16px;
+  border-radius: 4px;
+}
+
+.pdf-link:hover {
+  color: #93c5fd;
+}
 
 /* COMMENTS */
 .post-footer {

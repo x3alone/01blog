@@ -83,7 +83,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll() 
                 
                 // 3. Allow public GET requests to posts (viewing the feed) and comments
-                .requestMatchers(HttpMethod.GET, "/api/posts", "/api/posts/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll() // Allow public profile viewing
 

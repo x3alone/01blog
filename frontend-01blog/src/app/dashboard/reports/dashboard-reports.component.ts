@@ -50,11 +50,11 @@ import { ConfirmationService } from '../../services/confirmation.service';
             </div>
 
             <div class="action-buttons">
-              <button (click)="deletePost(report.reportedPostId)" class="delete-btn">
-                Delete Post
+              <button (click)="deletePost(report)" class="delete-btn" [disabled]="isProcessing(report.id)">
+                @if (isProcessing(report.id)) { ... } @else { Delete Post }
               </button>
-              <button (click)="dismissReport(report.id)" class="dismiss-btn">
-                Dismiss
+              <button (click)="dismissReport(report.id)" class="dismiss-btn" [disabled]="isProcessing(report.id)">
+               @if (isProcessing(report.id)) { ... } @else { Dismiss }
               </button>
             </div>
           </div>
@@ -165,6 +165,8 @@ export class DashboardReportsComponent implements OnInit {
     this.loadReports();
   }
 
+  processingReports = signal<Set<number>>(new Set());
+
   loadReports() {
     this.reportService.getAllReports().subscribe({
       next: (data) => this.reports.set(data),
@@ -172,32 +174,82 @@ export class DashboardReportsComponent implements OnInit {
     });
   }
 
-  deletePost(postId: number) {
+  isProcessing(reportId: number): boolean {
+    return this.processingReports().has(reportId);
+  }
+
+  deletePost(report: Report) {
+    if (this.isProcessing(report.id)) return;
+
     this.confirmationService.confirm('Are you sure you want to delete the reported post?', 'Delete Post')
       .subscribe(confirmed => {
         if (confirmed) {
-          this.postService.deletePost(postId).subscribe({
+          this.processingReports.update(set => {
+            const newSet = new Set(set);
+            newSet.add(report.id);
+            return newSet;
+          });
+
+          this.postService.deletePost(report.reportedPostId).subscribe({
             next: () => {
               this.toastService.show("Post deleted.", 'success');
               this.loadReports();
+              this.processingReports.update(set => {
+                const newSet = new Set(set);
+                newSet.delete(report.id);
+                return newSet;
+              });
             },
-            error: (e) => this.toastService.show("Failed to delete post: " + e.message, 'error')
+            error: (e) => {
+              this.toastService.show("Failed to delete post: " + e.message, 'error');
+              this.processingReports.update(set => {
+                const newSet = new Set(set);
+                newSet.delete(report.id);
+                return newSet;
+              });
+            }
           });
         }
       });
   }
 
   dismissReport(reportId: number) {
+    if (this.isProcessing(reportId)) return;
+
     this.confirmationService.confirm('Are you sure you want to dismiss this report?', 'Dismiss Report')
       .subscribe(confirmed => {
         if (confirmed) {
+          this.processingReports.update(set => {
+            const newSet = new Set(set);
+            newSet.add(reportId);
+            return newSet;
+          });
+
           this.reportService.deleteReport(reportId).subscribe({
             next: () => {
               // Optimistically remove from list
               this.reports.update(reports => reports.filter(r => r.id !== reportId));
               this.toastService.show("Report dismissed.", 'success');
+              this.processingReports.update(set => {
+                const newSet = new Set(set);
+                newSet.delete(reportId);
+                return newSet;
+              });
             },
-            error: (e) => this.toastService.show("Failed to dismiss report: " + e.message, 'error')
+            error: (e) => {
+              // If it's already gone (404), just remove it from UI
+              if (e.status === 404) {
+                this.reports.update(reports => reports.filter(r => r.id !== reportId));
+                this.toastService.show("Report already dismissed.", 'info');
+              } else {
+                this.toastService.show("Failed to dismiss report: " + e.message, 'error');
+              }
+              this.processingReports.update(set => {
+                const newSet = new Set(set);
+                newSet.delete(reportId);
+                return newSet;
+              });
+            }
           });
         }
       });

@@ -13,9 +13,10 @@ public class PostResponse {
     private String mediaType; // NEW FIELD
     private String mediaUrl;  // NEW FIELD
     private String avatarUrl; // NEW FIELD for Author Avatar
+    private boolean hidden;
 
-    // UPDATED CONSTRUCTOR: Now takes 9 arguments
-    public PostResponse(Long id, String title, String content, Long userId, String username, LocalDateTime createdAt, String mediaUrl, String mediaType, String avatarUrl) {
+    // UPDATED CONSTRUCTOR: Now takes 10 arguments
+    public PostResponse(Long id, String title, String content, Long userId, String username, LocalDateTime createdAt, String mediaUrl, String mediaType, String avatarUrl, boolean hidden) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -25,6 +26,7 @@ public class PostResponse {
         this.mediaUrl = mediaUrl;   
         this.mediaType = mediaType; 
         this.avatarUrl = avatarUrl;
+        this.hidden = hidden;
     }
     
     // Getters and Setters
@@ -98,5 +100,13 @@ public class PostResponse {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 }

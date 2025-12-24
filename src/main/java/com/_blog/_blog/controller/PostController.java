@@ -44,11 +44,27 @@ public class PostController {
         return new ResponseEntity<>(newPost, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, 
-                                                   @Valid @RequestBody UpdatePostRequest request) {
-        PostResponse updatedPost = postService.updatePost(id, request);
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostResponse> updatePost(
+            @PathVariable Long id,
+            @RequestParam("title") String title,
+            @RequestParam("content") String content,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "removeMedia", required = false, defaultValue = "false") boolean removeMedia
+    ) {
+        // Manually build/pass params to service
+        // (Alternatively, could update PostService to take these raw params or a new DTO)
+        // For simplicity/consistency with createPost, passing to new/updated service method
+        
+        PostResponse updatedPost = postService.updatePostWithMedia(id, title, content, file, removeMedia);
+
         return ResponseEntity.ok(updatedPost);
+    }
+
+    @PutMapping("/{id}/hide")
+    public ResponseEntity<Void> toggleHide(@PathVariable Long id) {
+        postService.toggleHide(id);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")

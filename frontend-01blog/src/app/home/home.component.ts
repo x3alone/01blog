@@ -46,6 +46,9 @@ export class HomeComponent implements OnInit {
   editingPostId = signal<number | null>(null);
   editTitle = '';
   editContent = '';
+  editFile: File | null = null;
+  editFilePreview: string | null = null;
+  removeMediaFlag = false;
 
   // Report State
   reportModalOpen = signal(false);
@@ -59,6 +62,8 @@ export class HomeComponent implements OnInit {
   postComments = signal<Map<number, Comment[]>>(new Map());
   newCommentInputs = signal<Map<number, string>>(new Map());
   commentFiles = signal<Map<number, File>>(new Map());
+  commentPreviews = signal<Map<number, string | null>>(new Map());
+  isCommenting = signal<Map<number, boolean>>(new Map());
 
   ngOnInit() {
     this.checkLoginStatus();
@@ -103,12 +108,38 @@ export class HomeComponent implements OnInit {
     this.editingPostId.set(post.id);
     this.editTitle = post.title;
     this.editContent = post.content;
+    this.editFile = null;
+    this.editFilePreview = null; // Reset new file preview
+    this.removeMediaFlag = false;
   }
 
   cancelEdit() {
     this.editingPostId.set(null);
     this.editTitle = '';
     this.editContent = '';
+    this.editFile = null;
+    this.editFilePreview = null;
+    this.removeMediaFlag = false;
+  }
+
+  onEditFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.editFile = file;
+      this.removeMediaFlag = false; // logic: if uploading new, we are replacing, so technically removing old is handled by backend replace logic
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.editFilePreview = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  flagRemoveMedia() {
+    this.removeMediaFlag = true;
+    this.editFile = null;
+    this.editFilePreview = null;
   }
 
   saveEdit(postId: number) {
@@ -117,13 +148,29 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    this.postService.updatePost(postId, { title: this.editTitle, content: this.editContent }).subscribe({
-      next: (updated) => {
-        this.posts.update(posts => posts.map(p => p.id === postId ? updated : p));
+    this.postService.updatePost(postId, this.editTitle, this.editContent, this.editFile || undefined, this.removeMediaFlag).subscribe({
+      next: (updatedPost) => {
+        this.posts.update(posts => posts.map(p => p.id === postId ? updatedPost : p));
         this.cancelEdit();
         this.toastService.show("Post updated", "success");
       },
       error: (e) => this.toastService.show("Failed to update post", "error")
+    });
+  }
+
+  isAdmin(): boolean {
+    return this.authService.getUserRole() === 'ADMIN';
+  }
+
+  toggleHide(post: Post) {
+    this.postService.toggleHide(post.id).subscribe({
+      next: () => {
+        const newStatus = !post.hidden;
+        this.posts.update(posts => posts.map(p => p.id === post.id ? { ...p, hidden: newStatus } : p));
+        const msg = newStatus ? "Post is now hidden" : "Post is now visible";
+        this.toastService.show(msg, "success");
+      },
+      error: () => this.toastService.show("Failed to toggle visibility", "error")
     });
   }
 
@@ -294,7 +341,31 @@ export class HomeComponent implements OnInit {
         map.set(postId, file);
         return new Map(map);
       });
+      // Generate Preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.commentPreviews.update(map => {
+          map.set(postId, e.target?.result as string);
+          return new Map(map);
+        });
+      };
+      reader.readAsDataURL(file);
     }
+  }
+
+  clearCommentFile(postId: number) {
+    this.commentFiles.update(map => {
+      map.delete(postId);
+      return new Map(map);
+    });
+    this.commentPreviews.update(map => {
+      map.delete(postId);
+      return new Map(map);
+    });
+  }
+
+  getCommentPreview(postId: number): string | null {
+    return this.commentPreviews().get(postId) || null;
   }
 
   canDeleteComment(comment: Comment): boolean {
@@ -307,12 +378,8 @@ export class HomeComponent implements OnInit {
     const content = this.newCommentInputs().get(postId);
     if (!content) return;
 
-    // Cooldown Check
-    const now = Date.now();
-    if (now - this.lastCommentTime < 10000) {
-      this.toastService.show("Please wait 10s.", 'error');
-      return;
-    }
+    // Loading State Start
+    this.isCommenting.update(map => { map.set(postId, true); return new Map(map); });
 
     const file = this.commentFiles().get(postId) || null;
 
@@ -325,11 +392,21 @@ export class HomeComponent implements OnInit {
           map.set(postId, list);
           return new Map(map);
         });
-        // Clear input
+        // Clear input and files
+        this.newCommentInputs.update(map => { map.set(postId, ''); return new Map(map); });
         this.newCommentInputs.update(map => { map.set(postId, ''); return new Map(map); });
         this.commentFiles.update(map => { map.delete(postId); return new Map(map); });
+        this.commentPreviews.update(map => { map.delete(postId); return new Map(map); });
+
+        // Loading State End
+        this.isCommenting.update(map => { map.set(postId, false); return new Map(map); });
       },
-      error: (e: any) => console.error('Failed to add comment', e)
+      error: (e: any) => {
+        console.error('Failed to add comment', e);
+        this.toastService.show("Failed to add comment", "error");
+        // Loading State End
+        this.isCommenting.update(map => { map.set(postId, false); return new Map(map); });
+      }
     });
   }
 
@@ -351,5 +428,9 @@ export class HomeComponent implements OnInit {
   // Map helper methods for template
   getNewCommentInput(postId: number) {
     return this.newCommentInputs().get(postId) || '';
+  }
+
+  isPostCommenting(postId: number): boolean {
+    return this.isCommenting().get(postId) || false;
   }
 }
