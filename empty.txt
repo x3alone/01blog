@@ -51,15 +51,19 @@ CLOUDINARY_URL=cloudinary://632548746385176:GSt_Y30ps-6kFdimHOOoVKcpE60@dibe3wgh
 -add delete user in dashboard 
 -add postid routing (the name of tap will be the title of post) so i can see only one post if i click on a post, thus lower the size of posts to realistic size that shows both image and video forms 
 
+fix pdf reader on posts
+
 posts fixed size media, and in the edit i should be also able to edit the uploaded media whether remove it or remplace it with another one that i can upload 
 add scroll bar in notification and remove that stacking of following and notifs but keep the 5 notif line
 try to  remove extra colors from dash board even white on posts and remove hover action on posts,
 try to lower or darken the background color  maybe lower radius if the posts form  1e1e1e color (  1e1e1e black ish)
+try to  remove extra colors from dash board even white  on posts and remove hover action on posts,  try to make the posts (glassmorphism ui 1e1e1e ) 
+
+
 
 >add scroll to comments  and fix its size 
 >remove logo and displace home to right top 
  
-  try to  remove extra colors from dash board even white  on posts and remove hover action on posts,  try to make the posts (glassmorphism ui 1e1e1e ) 
 
   
 

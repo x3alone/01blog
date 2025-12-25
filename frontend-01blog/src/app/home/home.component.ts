@@ -57,6 +57,9 @@ export class HomeComponent implements OnInit {
   reportDetails = '';
   reportOptions = ['Inappropriate Content', 'Spam', 'Harassment', 'Misinformation', 'Other'];
 
+  // View State (Expanded/Collapsed)
+  expandedPosts = signal<Set<number>>(new Set());
+
   // Comment State
   expandedComments = signal<Set<number>>(new Set());
   postComments = signal<Map<number, Comment[]>>(new Map());
@@ -293,6 +296,22 @@ export class HomeComponent implements OnInit {
         this.toastService.show("Failed to create post.", 'error');
       }
     });
+  }
+
+  togglePostExpand(postId: number) {
+    const expanded = this.expandedPosts();
+    if (expanded.has(postId)) {
+      expanded.delete(postId);
+      this.expandedPosts.set(new Set(expanded));
+      // Also collapse comments if post is collapsed? Maybe.
+    } else {
+      expanded.add(postId);
+      this.expandedPosts.set(new Set(expanded));
+    }
+  }
+
+  isPostExpanded(postId: number): boolean {
+    return this.expandedPosts().has(postId);
   }
 
   toggleComments(postId: number) {

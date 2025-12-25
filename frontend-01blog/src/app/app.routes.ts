@@ -24,6 +24,7 @@ export const routes: Routes = [
 
   // Authenticated Routes - Protected access
   { path: 'post/new', component: MakePostFormComponent, canActivate: [authGuard] }, // Route for creating a new post
+  { path: 'post/:id', loadComponent: () => import('./posts/post-detail/post-detail.component').then(m => m.PostDetailComponent) },
   { path: 'user/:id', component: UserProfileComponent },
   {
     path: 'dashboard',

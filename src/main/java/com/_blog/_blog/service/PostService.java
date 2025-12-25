@@ -196,6 +196,22 @@ public class PostService {
      * Retrieves all posts, ordered by creation date (newest first).
      */
     @Transactional(readOnly = true)
+    public PostResponse getPostById(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        String currentUsername = (auth != null) ? auth.getName() : null;
+
+        if (post.isHidden() && !isAdmin && !post.getUser().getUsername().equals(currentUsername)) {
+             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This post is hidden.");
+        }
+
+        return mapToDto(post);
+    }
+
+    @Transactional(readOnly = true)
     public List<PostResponse> getAllPosts() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));

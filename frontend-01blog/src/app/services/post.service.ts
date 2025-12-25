@@ -58,6 +58,15 @@ export class PostService {
         );
     }
 
+    getPostById(id: number): Observable<Post> {
+        return this.http.get<Post>(`${this.API_URL}/${id}`).pipe(
+            catchError(err => {
+                console.error(`Error fetching post ${id}:`, err);
+                return throwError(() => new Error('Failed to load post.'));
+            })
+        );
+    }
+
     createPost(title: string, content: string, file: File | null): Observable<Post> {
         const headers = this.getAuthHeaders();
         //this for text + media uploads
