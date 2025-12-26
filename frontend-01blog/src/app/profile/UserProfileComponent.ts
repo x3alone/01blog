@@ -59,12 +59,9 @@ export class UserProfileComponent implements OnInit {
   }
 
   loadUserPosts(userId: number) {
-    // Temporary: Fetch all posts and filter (Backend should ideally have getPostsByUser)
-    this.postService.getAllPosts().subscribe({
-      next: (allPosts) => {
-        // Filter posts where userId matches
-        const userPosts = allPosts.filter(p => p.userId === userId);
-        this.posts.set(userPosts);
+    this.postService.getPostsByUserId(userId, 0, 100).subscribe({
+      next: (page: any) => { // using any to avoid import issues or strict typing on Page interface here if not imported
+        this.posts.set(page.content);
       },
       error: (err) => console.error('Failed to load posts', err)
     });

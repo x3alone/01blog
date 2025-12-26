@@ -50,7 +50,7 @@
       }
 
       @for (post of posts(); track post.id) {
-      <div class="post-card fade-in">
+      <div class="post-card scroll-animate">
 
         <!-- POST HEADER -->
         <div class="post-header">
@@ -310,6 +310,10 @@
 
       </div> <!-- Close post-card -->
       }
+      <!-- Sentinel for Infinite Scroll -->
+      <div #sentinel class="infinite-scroll-sentinel" style="height: 20px; margin: 20px 0;">
+        @if (isLoading()) { <div style="text-align:center; color:#888;">Loading more...</div> }
+      </div>
     </div> <!-- Close feed-list -->
   </main>
 </div>

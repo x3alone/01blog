@@ -65,3 +65,17 @@ try to lower or darken the background color  maybe lower radius if the posts for
 
   checks and test 
  > test report a post and delete it from the author or admin and then go  to dashboard to check if the post is deleted or not 
+
+
+
+
+.profile-card[_ngcontent-ng-c3556646560] {
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    margin-bottom: 40px;
+}

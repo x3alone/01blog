@@ -19,6 +19,10 @@ import java.io.IOException; // IMPORTANT: Need this import
 import java.util.List;
 import java.util.Map; // IMPORTANT: Need this import
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @Service
 public class PostService {
@@ -195,16 +199,56 @@ public class PostService {
  /**
      * Retrieves all posts, ordered by creation date (newest first).
      */
+    // Updated getAllPosts to support pagination
     @Transactional(readOnly = true)
-    public List<PostResponse> getAllPosts() {
+    public Page<PostResponse> getAllPosts(int page, int size) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        String currentUsername = (auth != null) ? auth.getName() : null;
+        String currentUsername = (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) ? auth.getName() : null;
 
-        return postRepository.findAllByOrderByCreatedAtDesc().stream()
-                .filter(post -> !post.isHidden() || isAdmin || post.getUser().getUsername().equals(currentUsername))
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postsPage;
+
+        if (isAdmin) {
+            postsPage = postRepository.findAll(pageable);
+        } else if (currentUsername != null) {
+            // Logged in user: See public posts OR their own hidden posts
+            // We need to use a query that handles this OR condition cleanly
+            // The derived query findByHiddenFalseOrUserUsername... should work if naming is correct
+            // But verify sort precedence. passing pageable with sort is safest.
+            postsPage = postRepository.findByHiddenFalseOrUserUsernameOrderByCreatedAtDesc(currentUsername, pageable);
+        } else {
+            // Guest: Only not hidden
+            postsPage = postRepository.findByHiddenFalseOrderByCreatedAtDesc(pageable);
+        }
+
+        return postsPage.map(this::mapToDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostResponse> getPostsByUserId(Long userId, int page, int size) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        String currentUsername = (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) ? auth.getName() : null;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postsPage;
+
+        boolean isOwner = false;
+        if (currentUsername != null) {
+             User currentUser = userRepository.findByUsername(currentUsername).orElse(null);
+             if (currentUser != null && currentUser.getId().equals(userId)) {
+                 isOwner = true;
+             }
+        }
+
+        if (isAdmin || isOwner) {
+            postsPage = postRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+        } else {
+            postsPage = postRepository.findByUserIdAndHiddenFalseOrderByCreatedAtDesc(userId, pageable);
+        }
+
+        return postsPage.map(this::mapToDto);
     }
 
     /**

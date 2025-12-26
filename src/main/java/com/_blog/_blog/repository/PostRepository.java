@@ -7,6 +7,18 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    // Custom method to find all posts, ordered by creation date descending (newest first)
-    List<Post> findAllByOrderByCreatedAtDesc();
+    // For Admins (or global view) - though findAll(Pageable) works, we want explicit ordering if not passed in Pageable, 
+    // but Pageable usually handles sort. We can just use findAll(Pageable) for admins.
+
+    // For Guests (only public posts)
+    org.springframework.data.domain.Page<Post> findByHiddenFalseOrderByCreatedAtDesc(org.springframework.data.domain.Pageable pageable);
+
+    // For Logged-in Users (public posts + their own hidden posts)
+    org.springframework.data.domain.Page<Post> findByHiddenFalseOrUserUsernameOrderByCreatedAtDesc(String username, org.springframework.data.domain.Pageable pageable);
+
+    // Find by User ID (for profile) - All posts (for owner/admin)
+    org.springframework.data.domain.Page<Post> findByUserIdOrderByCreatedAtDesc(Long userId, org.springframework.data.domain.Pageable pageable);
+
+    // Find by User ID - Public only (for visitors)
+    org.springframework.data.domain.Page<Post> findByUserIdAndHiddenFalseOrderByCreatedAtDesc(Long userId, org.springframework.data.domain.Pageable pageable);
 }

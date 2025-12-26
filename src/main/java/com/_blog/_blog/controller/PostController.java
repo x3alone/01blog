@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -74,8 +75,21 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts() {
-        List<PostResponse> posts = postService.getAllPosts();
+    public ResponseEntity<Page<PostResponse>> getAllPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<PostResponse> posts = postService.getAllPosts(page, size);
+        return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<PostResponse>> getPostsByUserId(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<PostResponse> posts = postService.getPostsByUserId(userId, page, size);
         return ResponseEntity.ok(posts);
     }
 }

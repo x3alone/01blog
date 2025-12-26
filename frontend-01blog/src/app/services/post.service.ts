@@ -29,6 +29,19 @@ export interface UpdatePostRequest {
     content: string;
 }
 
+export interface Page<T> {
+    content: T[];
+    pageable: any;
+    last: boolean;
+    totalPages: number;
+    totalElements: number;
+    size: number;
+    number: number;
+    first: boolean;
+    numberOfElements: number;
+    empty: boolean;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -49,11 +62,20 @@ export class PostService {
 
     // --- API Implementation ---
 
-    getAllPosts(): Observable<Post[]> {
-        return this.http.get<Post[]>(this.API_URL).pipe(
+    getAllPosts(page: number, size: number): Observable<Page<Post>> {
+        return this.http.get<Page<Post>>(`${this.API_URL}?page=${page}&size=${size}`).pipe(
             catchError(err => {
                 console.error('Error fetching posts:', err);
                 return throwError(() => new Error('Failed to load posts from server.'));
+            })
+        );
+    }
+
+    getPostsByUserId(userId: number, page: number, size: number): Observable<Page<Post>> {
+        return this.http.get<Page<Post>>(`${this.API_URL}/user/${userId}?page=${page}&size=${size}`).pipe(
+            catchError(err => {
+                console.error(`Error fetching posts for user ${userId}:`, err);
+                return throwError(() => new Error('Failed to load user posts from server.'));
             })
         );
     }

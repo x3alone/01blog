@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { PostService, Post, UpdatePostRequest } from '../services/post.service';
+import { Component, OnInit, inject, signal, AfterViewInit, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
+import { CommonModule, DatePipe, isPlatformBrowser } from '@angular/common';
+import { PostService, Post, UpdatePostRequest, Page } from '../services/post.service';
 import { AuthService } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { ReportService } from '../services/report.service';
@@ -17,7 +17,7 @@ import { ConfirmationService } from '../services/confirmation.service';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit {
   private postService = inject(PostService);
   private authService = inject(AuthService);
   private reportService = inject(ReportService);
@@ -26,8 +26,16 @@ export class HomeComponent implements OnInit {
   private followService = inject(FollowService);
   private toastService = inject(ToastService);
   private confirmationService = inject(ConfirmationService);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = signal(false);
+
+  @ViewChild('sentinel') sentinel!: ElementRef;
 
   posts = signal<Post[]>([]);
+  currentPage = 0;
+  pageSize = 10;
+  hasMore = signal(true);
+  isLoading = signal(false);
   loggedIn = signal(false);
   currentUsername = signal('');
   currentUserId = signal<number | null>(null);
@@ -69,11 +77,12 @@ export class HomeComponent implements OnInit {
     this.checkLoginStatus();
 
     // Always load posts on init
-    this.loadPosts();
+    // Load posts
+    this.loadPosts(true);
 
     this.route.queryParams.subscribe(params => {
       if (params['refresh']) {
-        this.loadPosts();
+        this.loadPosts(true);
       }
     });
   }
@@ -212,14 +221,80 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  loadPosts() {
-    this.postService.getAllPosts().subscribe({
-      next: (data) => {
-        // Sort newest first
-        this.posts.set(data.sort((a, b) => b.id - a.id));
+  loadPosts(reset = false) {
+    if (this.isLoading() || (!reset && !this.hasMore())) return;
+
+    this.isLoading.set(true);
+    if (reset) {
+      this.currentPage = 0;
+      this.hasMore.set(true);
+      // Optional: Clear posts immediately or wait for response? 
+      // If we clear, user sees flicker. If we don't, we replace.
+    }
+
+    this.postService.getAllPosts(this.currentPage, this.pageSize).subscribe({
+      next: (page: Page<Post>) => {
+        if (reset) {
+          this.posts.set(page.content); // Use set to replace
+        } else {
+          this.posts.update(current => [...current, ...page.content]); // Append
+        }
+
+        // Check if last page
+        this.hasMore.set(!page.last);
+        this.currentPage++;
+        this.isLoading.set(false);
+
+        // Re-attach observers after DOM update
+        if (this.isBrowser()) {
+          setTimeout(() => {
+            this.setupScrollObserver();
+          }, 100);
+        }
       },
-      error: (e: any) => console.error('Failed to load posts', e)
+      error: (e: any) => {
+        console.error('Failed to load posts', e);
+        this.isLoading.set(false);
+      }
     });
+  }
+
+  ngAfterViewInit() {
+    this.isBrowser.set(isPlatformBrowser(this.platformId));
+    if (this.isBrowser()) {
+      this.setupSentinel();
+      this.setupScrollObserver();
+    }
+  }
+
+  setupSentinel() {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && this.hasMore() && !this.isLoading()) {
+        this.loadPosts(false);
+      }
+    }, { rootMargin: '100px' });
+
+    if (this.sentinel) {
+      observer.observe(this.sentinel.nativeElement);
+    }
+  }
+
+  setupScrollObserver() {
+    if (!this.isBrowser()) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        } else {
+          // Keep the "re-animate on scroll down" logic requested by user
+          // "if i scroll down ... animation" usually implies re-triggering when re-entering viewport
+          entry.target.classList.remove('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.scroll-animate').forEach(el => observer.observe(el));
   }
 
   // --- POST CREATION ---
@@ -283,7 +358,7 @@ export class HomeComponent implements OnInit {
         this.newPostContent.set('');
         this.selectedFile = null;
         this.imagePreviewUrl = null;
-        this.loadPosts();
+        this.loadPosts(true);
         this.isPosting.set(false);
         this.toastService.show("Post created successfully.", 'success');
       },
