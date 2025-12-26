@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NotificationService, BlogNotification } from './services/notification.service';
 import { ToastComponent } from './components/toast/toast.component';
 import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
+import { ThemeService } from './services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ import { ConfirmationModalComponent } from './components/confirmation-modal/conf
 export class AppComponent implements OnInit {
   title = '01blog';
   public authService = inject(AuthService);
+  public themeService = inject(ThemeService);
   private router = inject(Router);
   private notificationService = inject(NotificationService);
 

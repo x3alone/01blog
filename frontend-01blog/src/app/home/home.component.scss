@@ -12,9 +12,10 @@
   /* Center it */
   padding: 20px;
 }
+
 .post-media.fixed-height-media {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 /* Discord Input */
@@ -26,7 +27,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: linear-gradient(-45deg, #ffffff, transparent);
+  background: linear-gradient(-45deg, #ffffff52, transparent);
 }
 
 .input-wrapper {
@@ -35,7 +36,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  background: linear-gradient(180deg, #ffffff, transparent);
+  background: linear-gradient(180deg, #ffffffba, transparent);
 }
 
 .discord-title-input {
@@ -133,7 +134,7 @@
 .send-btn {
   align-self: flex-end;
   /* Align post button to right */
-  background: #6da5dc;
+  background: #333;
   color: white;
   border: none;
   padding: 8px 24px;
@@ -144,7 +145,7 @@
 }
 
 .send-btn:hover {
-  background: #5497db;
+  background: transparent;
 }
 
 .send-btn:disabled {
@@ -240,7 +241,7 @@
 }
 
 .edit-btn:hover {
-  color: #3b82f6;
+  color: #333;
 }
 
 .delete-btn:hover {
@@ -329,7 +330,9 @@ span.remove-preview {
 .post-content {
   font-size: 1rem;
   line-height: 1.6;
-  color: #334155;
+  color: #414141;
+  font-weight: 600;
+  font-family: cursive;
   margin-bottom: 20px;
   /* Space before media */
   text-align: left;
@@ -341,7 +344,7 @@ span.remove-preview {
   /* ... existing styles ... */
   display: flex;
   flex-direction: column;
-  background: linear-gradient(45deg, #cee7ff, transparent);
+  background: linear-gradient(45deg, #ffffff63, transparent);
 }
 
 /* Remove Borders from specific icons if any */
@@ -350,7 +353,7 @@ span.remove-preview {
   background: transparent;
   border: none;
   box-shadow: none;
-  color: #b3d9ff;
+  color: #ffffff;
 }
 
 /* USER PROVIDED UI UPDATES */
@@ -359,7 +362,8 @@ button.comment-toggle-btn {
   /* Added display flex to ensure alignment */
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: #ffffff;
+  font-weight: bolder;
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -747,10 +751,10 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
 }
 
 .comments-section {
-  margin-top: 10px;
-  border-radius: 8px;
-  padding: 10px;
-  background: linear-gradient(45deg, #cee7ff, transparent);
+    margin-top: 10px;
+    border-radius: 8px;
+    padding: 10px;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1803921569), transparent);
 }
 
 .comment-row {
@@ -805,7 +809,125 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 1000;
+}
+
+/* DARK MODE OVERRIDES */
+:host-context(.dark-mode) {
+
+  /* Post Card */
+  .post-card {
+    background: linear-gradient(31deg, #1e1e1e, rgba(0, 0, 0, 0.05));
+    border: 1px solid #333;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+
+    .post-title {
+      color: #ffffff;
+    }
+
+    .post-content {
+      color: #ffffff;
+    }
+
+    .author-name {
+      color: #dadada;
+
+      &:hover {
+        color: #fff;
+      }
+    }
+
+    .post-date {
+      color: #727272;
+    }
+
+    .post-footer {
+      border-top: 1px solid #4a4a4a;
+    }
+  }
+
+  /* Comments */
+  .comments-section {
+    background: linear-gradient(31deg, #1e1e1e, rgba(0, 0, 0, 0.05));
+    border-top: 1px solid #404040;
+  }
+
+  .comment-row {
+    border-bottom: 1px solid #404040;
+  }
+
+  .comment-user {
+    color: #dadada;
+  }
+
+  .comment-text {
+    color: #e2e8f0;
+  }
+
+  .comment-input-wrapper {
+    border-color: #565656;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+
+    .comment-field {
+      color: white;
+    }
+
+    &:focus-within {
+      border-color: #777;
+    }
+  }
+
+  /* Input Container (Discord Style) */
+  .discord-input-container {
+    background: rgba(30, 30, 30, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    .discord-title-input {
+      color: white;
+
+      &::placeholder {
+        color: #888;
+      }
+    }
+
+    .discord-textarea {
+      color: white;
+
+      &::placeholder {
+        color: #888;
+      }
+    }
+  }
+
+  .input-wrapper {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  /* Buttons */
+  .action-icon-btn,
+  .comment-toggle-btn {
+    color: #bbb;
+
+    &:hover {
+      background: #252525;
+      color: #fff;
+    }
+  }
+
+  .send-btn:hover {
+    background: #252525;
+  }
+
+  /* Edit Form */
+  .edit-post-form {
+    background: #2d2d2d;
+    border-color: #444;
+
+    input,
+    textarea {
+      color: white;
+    }
+  }
 }
 
 .modal-card {
@@ -848,14 +970,15 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
   border: none;
   cursor: pointer;
 }
+
 /* Scroll Animation */
 .scroll-animate {
-    opacity: 0;
-    transform: translateY(60px) scale(0.8);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  opacity: 0;
+  transform: translateY(60px) scale(0.8);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
 .scroll-animate.visible {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }

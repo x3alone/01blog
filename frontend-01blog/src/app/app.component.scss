@@ -1,25 +1,15 @@
 /* GLOBAL BACKGROUND */
 .sky-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -100;
-  background-color: #6da5dc;
-  /* USER REQUIREMENT: Blue Sky */
-  background-image: linear-gradient(180deg, #6da5dc 0%, #a6c0fe 100%);
+  display: none;
 }
 
 /* GLOBAL BACKGROUND (Clouds) */
 .app-container {
   min-height: 100vh;
-  background-color: #6da5dc;
-  /* Blue Sky */
-  background-image:
-    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.4) 0%, transparent 20%),
-    radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.3) 0%, transparent 25%),
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 40%);
+  /* glassmorphism bright gradient */
+  background: linear-gradient(300deg, #2582ff, #c8542b, #50694e, #cdc933);
+  background-size: 240% 240%;
+  animation: gradient-animation 15s ease infinite;
   background-attachment: fixed;
   font-family: 'Inter', sans-serif;
   color: #1e293b;
@@ -68,7 +58,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: #ffffff;
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -81,7 +71,7 @@
 .nav-item:hover,
 .nav-item.active {
   background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  color: #000000;
 }
 
 /* User Specific Styles for Bell */
@@ -114,7 +104,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: #edf4ff;
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -249,4 +239,78 @@
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* DARK MODE */
+.app-container.dark-mode {
+  background-color: #1e1e1e;
+  /* Moving Dark Gradient */
+  background: linear-gradient(300deg, #0f0f0f, #1e1e1e, #252525, #0a0a0a);
+  background-size: 240% 240%;
+  animation: gradient-animation 15s ease infinite;
+  color: #e2e8f0;
+
+  ::ng-deep .sky-background {
+    display: none;
+    /* Hide global sky if active */
+  }
+
+  .app-top-nav {
+    background: rgba(30, 30, 30, 0.7);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-item {
+    color: #cbd5e1;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+  }
+
+  .text-link {
+    color: #cbd5e1;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  .notif-item {
+    background: #2d2d2d;
+    color: #e2e8f0;
+
+    &.unread {
+      background: #3d3d3d;
+      border-left-color: #3b82f6;
+    }
+  }
+
+  .notification-dropdown {
+    background: #1e1e1e;
+    border: 1px solid #333;
+
+    h3 {
+      color: #fff;
+    }
+
+    .empty-notif {
+      color: #999;
+    }
+  }
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
