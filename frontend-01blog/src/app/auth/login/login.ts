@@ -42,12 +42,10 @@ import { AuthService } from '../../services/auth.service';
 `,
   styles: [`
       :host {
-        display: block;
-        height: 100vh;
-        width: 100vw;
         display: flex; /* Center the box */
         justify-content: center;
         align-items: center;
+        margin-top: 15%;
       }
 
       .login-box {

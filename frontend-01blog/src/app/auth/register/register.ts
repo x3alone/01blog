@@ -103,9 +103,7 @@ import { Router, RouterModule } from '@angular/router';
   `,
   styles: [`
       :host {
-        display: block;
-        min-height: 100vh;
-        width: 100vw;
+        min-height: 90vh;
         display: flex;
         justify-content: center;
         align-items: center;

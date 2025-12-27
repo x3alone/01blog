@@ -15,7 +15,7 @@ TRUNCATE posts, users RESTART IDENTITY CASCADE;
 DELETE FROM users
 
 w4r749aij855rq3qxpgjafmb6pkzpfabuqz7m9tjvfytsvsu
-
+supa base restrect all access and reclick it to allow pull or poll 
 db 
 psql -U postgres
 \c postgres; -- Connect to a default database

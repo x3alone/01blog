@@ -67,7 +67,9 @@
   border: none;
   background: transparent;
 }
-
+a.nav-item.profile-link:hover {
+    color: white;
+}
 .nav-item:hover,
 .nav-item.active {
   background: rgba(59, 130, 246, 0.1);
@@ -170,11 +172,11 @@
     right: -10px;
     width: 300px;
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
     padding: 15px;
     z-index: 1001;
     animation: _ngcontent-ng-c289296288_slideDown 0.2s ease-out;
-    background: rgba(255, 255, 255, 0.2);
+    background: #d9d9d9bf;
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);

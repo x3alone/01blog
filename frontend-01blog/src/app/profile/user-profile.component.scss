@@ -78,12 +78,8 @@
 }
 
 .avatar-img-edit {
-  width: 100%;
-  height: 100%;
   object-fit: cover;
-  border-radius: 50%;
   opacity: 0.6;
-  /* Dimmed to show icon */
 }
 
 .overlay-icon {
@@ -135,7 +131,10 @@
   align-items: center;
   gap: 10px;
 }
-
+.media-container {
+    display: flex;
+    justify-content: center;
+}
 .admin-tag {
   font-size: 0.9rem;
   background: rgba(255, 255, 255, 0.2);

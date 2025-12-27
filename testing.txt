@@ -1,0 +1,6 @@
+fix banned users cant be promoted to admins 
+fix error codes in login because all of them  show " 403 You have been banned by an admin." 
+--u can checkthem one by one if username exists and password incorrect return "passwrod not correct"
+--if username does not exist return "username does not exist"
+--if user has banned boolean true  return "you have been banned by an admin"
+register check if the user exists if it does return "username already exists"
