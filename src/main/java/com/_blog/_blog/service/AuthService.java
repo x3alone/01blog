@@ -49,7 +49,7 @@ public class AuthService {
      */
     public void register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists"); 
+            throw new com._blog._blog.exception.UserAlreadyExistsException("username already exists"); 
         }
 
         String role = (userRepository.count() == 0) ? "ADMIN" : "USER"; 
@@ -75,22 +75,36 @@ public class AuthService {
     /**
      * Handles user login (manual authentication) and generates a JWT token upon success.
      */
+    /**
+     * Handles user login (manual authentication) and generates a JWT token upon success.
+     */
     public AuthenticationResponse login(LoginRequest request) {
-        // 1. Authenticate using AuthenticationManager
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
-
-        // 2. Retrieve User
+        // 1. Check if username exists FIRST
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
-        
-        // 3. Check if user is banned
-        if (user.isBanned()) {
-             throw new BadCredentialsException("Account is locked by admin.");
+                .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("username does not exist"));
+
+        // 2. Check if password matches
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("password not correct");
         }
 
-        // 4. Build the JWT token
+        // 3. Check if user is banned
+        if (user.isBanned()) {
+             throw new org.springframework.security.authentication.LockedException("you have been banned by an admin");
+        }
+
+        // 4. Authenticate using AuthenticationManager (Still needed to set security context if used later, 
+        //    but we've already validated credentials manually. Calling this validates again which is fine)
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
+        } catch (BadCredentialsException e) {
+            // Should not happen if matches() passed, but safe fallback
+             throw new BadCredentialsException("password not correct");
+        }
+
+        // 5. Build the JWT token
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + jwtExpirationMs);
 
@@ -103,7 +117,7 @@ public class AuthService {
                 .signWith(key, SignatureAlgorithm.HS512) 
                 .compact();
         
-        // 5. Return Response DTO
+        // 6. Return Response DTO
         return new AuthenticationResponse(
             jwtToken,
             user.getId(),

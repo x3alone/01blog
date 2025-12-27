@@ -377,9 +377,9 @@ export class RegisterComponent {
         this.router.navigate(['/home']);
       },
       error: (err) => {
-        console.error('Registration error:', err);
+        // console.error('Registration error:', err); // Suppressed expected errors
         if (err.status === 409) {
-          this.registerError = 'Username is already taken. Please choose another.';
+          this.registerError = 'username already exists';
         } else if (err.error?.message) {
           this.registerError = err.error.message;
         }

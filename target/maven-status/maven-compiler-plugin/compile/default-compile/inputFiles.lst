@@ -4,6 +4,7 @@
 /mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/dto/AuthResponse.java
 /mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/controller/ReportController.java
 /mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/dto/PostResponse.java
+/mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/exception/UserAlreadyExistsException.java
 /mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/repository/CommentRepository.java
 /mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/service/UserDetailsServiceImpl.java
 /mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/config/JwtAuthFilter.java
@@ -37,6 +38,7 @@
 /mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/dto/AuthenticationResponse.java
 /mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/dto/UpdatePostRequest.java
 /mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/controller/AuthController.java
+/mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/exception/GlobalExceptionHandler.java
 /mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/config/CloudinaryConfig.java
 /mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/Application.java
 /mnt/d/workspace/01blog/src/main/java/com/_blog/_blog/model/User.java

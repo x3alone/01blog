@@ -25,6 +25,7 @@ com/_blog/_blog/controller/UserController.class
 com/_blog/_blog/model/User.class
 com/_blog/_blog/dto/AuthResponse.class
 com/_blog/_blog/dto/PostResponse.class
+com/_blog/_blog/exception/UserAlreadyExistsException.class
 com/_blog/_blog/service/CommentService.class
 com/_blog/_blog/dto/CreateCommentRequest.class
 com/_blog/_blog/service/UserService.class
@@ -37,6 +38,7 @@ com/_blog/_blog/model/Post.class
 com/_blog/_blog/model/Notification.class
 com/_blog/_blog/repository/UserRepository.class
 com/_blog/_blog/controller/NotificationController.class
+com/_blog/_blog/exception/GlobalExceptionHandler.class
 com/_blog/_blog/dto/LoginRequest.class
 com/_blog/_blog/model/Comment.class
 com/_blog/_blog/repository/CommentRepository.class

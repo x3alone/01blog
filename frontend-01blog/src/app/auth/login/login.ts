@@ -247,17 +247,18 @@ export class LoginComponent {
         this.router.navigate(['/home']);
       },
       error: (err) => {
-        console.error('Login error:', err);
+        // console.error('Login error:', err); // Suppressed expected errors
 
         // Granular Error Handling
-        if (err.status === 403 || (err.error?.message && err.error.message.toLowerCase().includes('banned'))) {
+
+        if (err.status === 403) {
           this.loginError = "You have been banned by an admin.";
         }
-        else if (err.status === 404 || (err.error?.message && err.error.message.toLowerCase().includes('user not found'))) {
-          this.loginError = "User doesn't exist.";
+        else if (err.status === 404) {
+          this.loginError = "username does not exist";
         }
         else if (err.status === 401) {
-          this.loginError = "Wrong password.";
+          this.loginError = "password not correct";
         }
         else if (err.error?.message) {
           this.loginError = err.error.message;

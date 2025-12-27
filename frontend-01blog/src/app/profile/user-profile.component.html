@@ -45,14 +45,7 @@
           {{ profile()?.username }}
           @if (profile()?.role === 'ADMIN') { <span class="admin-tag">Admin</span>
         }
-        <div class="action-area">
-          @if (currentUser() && currentUser() !== profile()?.username) {
-          <button (click)="toggleFollow()" class="follow-btn" [class.unfollow]="isFollowing()">
-            {{ isFollowing() ? 'Unfollow' : 'Follow' }}
-          </button>
-          }
-        </div>
-        </h1>
+      </h1>
 
         @if (isEditing()) {
         <div class="edit-form-container">
@@ -61,38 +54,45 @@
             <textarea [(ngModel)]="editForm().aboutMe" placeholder="Tell us about yourself..."
               class="about-input"></textarea>
           </div>
-
+          
           <div class="edit-actions">
             <button (click)="saveEdit()" class="save-btn">Save Change</button>
             <button (click)="cancelEdit()" class="cancel-btn">Cancel</button>
           </div>
         </div>
-        } @else {
+      } @else {
         @if (profile()?.aboutMe) {
-        <p class="about-me">{{ profile()?.aboutMe }}</p>
+          <p class="about-me">{{ profile()?.aboutMe }}</p>
         }
         @if (isOwnProfile()) {
-        <button (click)="startEdit()" class="edit-profile-btn">Edit Profile</button>
+          <button (click)="startEdit()" class="edit-profile-btn">Edit Profile</button>
         }
-        }
-
-        <div class="stats-bar">
-          <div class="stat-item">
-            <span class="stat-val">{{ posts().length }}</span>
-            <span class="stat-label">Thoughts</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-val">{{ profile()?.followersCount || 0 }}</span>
-            <span class="stat-label">Followers</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-val">{{ profile()?.followingCount || 0 }}</span>
-            <span class="stat-label">Following</span>
-          </div>
+      }
+      
+      <div class="stats-bar">
+        <div class="stat-item">
+          <span class="stat-val">{{ posts().length }}</span>
+          <span class="stat-label">Thoughts</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val">{{ profile()?.followersCount || 0 }}</span>
+          <span class="stat-label">Followers</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val">{{ profile()?.followingCount || 0 }}</span>
+          <span class="stat-label">Following</span>
+        </div>
+        <div class="action-area">
+          @if (currentUser() && currentUser() !== profile()?.username) {
+          <button (click)="toggleFollow()" class="follow-btn" [class.unfollow]="isFollowing()">
+            {{ isFollowing() ? 'Unfollow' : 'Follow' }}
+          </button>
+          }
         </div>
       </div>
     </div>
-
+  </div>
+  
     <!-- POSTS -->
     <h2 class="section-title">Latest Thoughts</h2>
 

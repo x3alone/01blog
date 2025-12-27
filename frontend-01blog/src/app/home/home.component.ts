@@ -477,7 +477,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         this.isCommenting.update(map => { map.set(postId, false); return new Map(map); });
       },
       error: (e: any) => {
-        console.error('Failed to add comment', e);
+        // console.error('Failed to add comment', e);
         this.toastService.show("Failed to add comment", "error");
         // Loading State End
         this.isCommenting.update(map => { map.set(postId, false); return new Map(map); });
@@ -496,7 +496,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
           return new Map(map);
         });
       },
-      error: (e: any) => console.error(e)
+      error: (e: any) => this.toastService.show("Failed to delete comment", "error")
+
     });
   }
 

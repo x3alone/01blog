@@ -60,6 +60,11 @@ public class UserService {
             if ("ADMIN".equals(targetUser.getRole())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admins cannot " + action + " other Admins.");
             }
+
+            // Cannot promote banned users
+            if ("promote".equals(action) && targetUser.isBanned()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot promote a banned user.");
+            }
         }
     }
 
