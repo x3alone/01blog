@@ -27,7 +27,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: linear-gradient(-45deg, #ffffff52, transparent);
+  background: linear-gradient(-45deg, rgba(255, 255, 255, 0.3215686275), transparent);
 }
 
 .input-wrapper {
@@ -36,7 +36,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  background: linear-gradient(180deg, #ffffffba, transparent);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent);
 }
 
 .discord-title-input {
@@ -567,14 +567,14 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
 }
 
 .comment-upload-btn {
-  color: #94a3b8;
+  color: #ffffff;
   cursor: pointer;
   display: flex;
   align-items: center;
 }
 
 .comment-upload-btn:hover {
-  color: #3b82f6;
+  color: #333;
 }
 
 .comment-field {
@@ -589,14 +589,14 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
 .comment-send-btn {
   background: transparent;
   border: none;
-  color: #6da5dc;
+  color: #ffffff;
   cursor: pointer;
   display: flex;
   align-items: center;
 }
 
 .comment-send-btn:hover {
-  color: #4b94dd;
+  color: #333;
   transform: scale(1.1);
 }
 
@@ -932,10 +932,17 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
 }
 
 .modal-card {
-  background: #fff;
   padding: 25px;
   border-radius: 12px;
   width: 400px;
+  background: rgb(255 255 255 / 18%);
+  border: 1px solid rgb(255 255 255 / 12%);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 49%), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .modal-select,

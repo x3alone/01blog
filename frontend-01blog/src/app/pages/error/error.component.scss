@@ -21,15 +21,16 @@
     animation: fadeIn 0.5s ease-out;
 
     .error-code {
-        font-size: 8rem;
-        font-weight: 800;
-        line-height: 1;
-        background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 1rem;
-        font-family: 'Inter', sans-serif;
+    font-size: 8rem;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, #000000 0%, rgba(0, 0, 0, 0.05) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+    font-family: "Inter", sans-serif;
+    -webkit-text-stroke: 2px #0000004a;
     }
 
     .error-message {

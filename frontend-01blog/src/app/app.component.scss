@@ -89,7 +89,7 @@
 }
 
 .text-link.emphasize {
-  color: #64748b;
+  color: #333;
   /* Indigo-400 */
   font-weight: 600;
 }
@@ -151,18 +151,35 @@
   text-align: center;
 }
 
-.notification-dropdown {
-  position: absolute;
-  top: 50px;
-  right: -10px;
-  width: 300px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  padding: 15px;
-  z-index: 1001;
-  animation: slideDown 0.2s ease-out;
+// .notification-dropdown {
+//   position: absolute;
+//   top: 50px;
+//   right: -10px;
+//   width: 300px;
+//   background: white;
+//   border-radius: 12px;
+//   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+//   padding: 15px;
+//   z-index: 1001;
+//   animation: slideDown 0.2s ease-out;
+// }
+
+.notification-dropdown{
+    position: absolute;
+    top: 50px;
+    right: -10px;
+    width: 300px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 15px;
+    z-index: 1001;
+    animation: _ngcontent-ng-c289296288_slideDown 0.2s ease-out;
+    background: rgba(255, 255, 255, 0.2);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
+
 
 @keyframes slideDown {
   from {
@@ -192,14 +209,17 @@
 }
 
 .notif-item {
+  font-size: 0.85rem;
+  color: rgb(85, 85, 85);
+  backdrop-filter: blur(12px);
   padding: 10px;
   border-radius: 8px;
-  font-size: 0.85rem;
-  color: #555;
+  background: rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 
   /* Scrollbar Styling */
   &::-webkit-scrollbar {
-    width: 6px;
+    width: 0px;
   }
 
   &::-webkit-scrollbar-track {
@@ -207,15 +227,14 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
+    background: transparent;
+    border-radius: 1px;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+    background: transparent;
   }
 
-  background: #f8fafc;
 }
 
 .notif-item.unread {

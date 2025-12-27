@@ -58,7 +58,6 @@ import { Router, RouterModule } from '@angular/router';
     <!-- Optional Fields -->
     <div class="form-row">
         <div class="user-box static-box">
-          <label>Profile Picture (Optional)</label>
           <div style="display: flex; gap: 10px; margin-top: 10px; align-items: center;">
               <label class="upload-btn" style="position: relative; z-index: 10;">
                 <input type="file" (change)="onFileSelected($event)" accept="image/*" style="display: none;">
@@ -233,7 +232,7 @@ import { Router, RouterModule } from '@angular/router';
             position: relative;
             display: inline-block;
             padding: 10px 20px;
-            color: #698cb0;
+            color: #333;
             font-size: 16px;
             text-decoration: none;
             overflow: hidden;

@@ -18,7 +18,7 @@ import { ToastService } from '../../services/toast.service';
     styles: [`
     .toast-container {
       position: fixed;
-      top: 20px;
+      bottom: 20px;
       right: 20px;
       z-index: 9999;
       display: flex;

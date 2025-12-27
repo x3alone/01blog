@@ -109,7 +109,7 @@ import { AuthService } from '../../services/auth.service';
             position: relative;
             display: inline-block;
             padding: 10px 20px;
-            color: #698cb0;
+            color: #333;
             font-size: 16px;
             text-decoration: none;
             overflow: hidden;
