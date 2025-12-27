@@ -45,7 +45,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   newPostTitle = signal('');
   newPostContent = signal('');
   selectedFile: File | null = null;
-  imagePreviewUrl: string | null = null;
+  imagePreviewUrl = signal<string | null>(null); // Signal for instant preview
   selectedMediaType: 'image' | 'video' | 'none' = 'none';
   isPosting = signal(false);
   postCreationError = signal<string | null>(null);
@@ -305,7 +305,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.selectedMediaType = file.type.startsWith('video') ? 'video' : 'image';
 
       const reader = new FileReader();
-      reader.onload = (e: any) => this.imagePreviewUrl = e.target.result;
+      reader.onload = (e: any) => this.imagePreviewUrl.set(e.target.result);
       reader.readAsDataURL(file);
     }
   }
@@ -357,7 +357,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         this.newPostTitle.set('');
         this.newPostContent.set('');
         this.selectedFile = null;
-        this.imagePreviewUrl = null;
+        this.imagePreviewUrl.set(null);
         this.loadPosts(true);
         this.isPosting.set(false);
         this.toastService.show("Post created successfully.", 'success');

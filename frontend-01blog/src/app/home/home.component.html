@@ -24,14 +24,15 @@
         </div>
 
         <!-- Preview -->
-        @if (imagePreviewUrl) {
+        @if (imagePreviewUrl()) {
         <div class="media-preview-bar">
-          <img [src]="imagePreviewUrl">
-          <span (click)="selectedFile = null; imagePreviewUrl = null" class="remove-media">x</span>
+          <img [src]="imagePreviewUrl()">
+          <span (click)="selectedFile = null; imagePreviewUrl.set(null)" class="remove-media">x</span>
         </div>
         }
         @if (postCreationError()) {
-        <div class="error-msg" style="color: #ffffff94; font-size: 0.9rem; margin-top: 5px; font-weight: bolder;">{{ postCreationError() }}
+        <div class="error-msg" style="color: #ffffff94; font-size: 0.9rem; margin-top: 5px; font-weight: bolder;">{{
+          postCreationError() }}
         </div>
         }
       </div>
