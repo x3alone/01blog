@@ -86,7 +86,8 @@ public class CommentService {
                 savedComment.getCreatedAt(),
                 savedComment.getMediaUrl(),
                 savedComment.getMediaType(),
-                savedComment.getUser().getAvatarUrl() // New: Avatar URL
+                savedComment.getUser().getAvatarUrl(), // New: Avatar URL
+                savedComment.getUser().getId() // NEW: User ID
         );
     }
 
@@ -100,7 +101,8 @@ public class CommentService {
                         comment.getCreatedAt(),
                         comment.getMediaUrl(),
                         comment.getMediaType(),
-                        comment.getUser().getAvatarUrl()
+                        comment.getUser().getAvatarUrl(),
+                        comment.getUser().getId() // NEW: User ID
                 ))
                 .collect(Collectors.toList());
     }
@@ -109,9 +111,12 @@ public class CommentService {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
 
-        if (!comment.getUser().getUsername().equals(username)) {
-            // Check if user is admin - simplified check for now, ideally pass Authentication or check roles
-            // For now, strictly enforce ownership or rely on controller to check admin role
+        // Check if user is owner OR admin
+        // We can get Authentication to check roles
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!comment.getUser().getUsername().equals(username) && !isAdmin) {
              throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to delete this comment");
         }
 

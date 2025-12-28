@@ -16,6 +16,8 @@ export interface Post {
 
     avatarUrl?: string; // NEW FIELD
     hidden?: boolean;
+    likeCount: number;
+    likedByCurrentUser: boolean;
 }
 
 export interface CreatePostRequest {
@@ -134,5 +136,9 @@ export class PostService {
                 return throwError(() => new Error('Failed to toggle visibility'));
             })
         );
+    }
+
+    toggleLike(id: number): Observable<void> {
+        return this.http.post<void>(`${this.API_URL}/${id}/like`, {}, this.getAuthHeaders());
     }
 }

@@ -12,11 +12,13 @@ public class PostResponse {
     private LocalDateTime createdAt;
     private String mediaType; // NEW FIELD
     private String mediaUrl;  // NEW FIELD
-    private String avatarUrl; // NEW FIELD for Author Avatar
+    private String avatarUrl; 
     private boolean hidden;
+    private long likeCount; // NEW FIELD
+    private boolean likedByCurrentUser; // NEW FIELD
 
-    // UPDATED CONSTRUCTOR: Now takes 10 arguments
-    public PostResponse(Long id, String title, String content, Long userId, String username, LocalDateTime createdAt, String mediaUrl, String mediaType, String avatarUrl, boolean hidden) {
+    // UPDATED CONSTRUCTOR: Now takes 12 arguments
+    public PostResponse(Long id, String title, String content, Long userId, String username, LocalDateTime createdAt, String mediaUrl, String mediaType, String avatarUrl, boolean hidden, long likeCount, boolean likedByCurrentUser) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -27,7 +29,12 @@ public class PostResponse {
         this.mediaType = mediaType; 
         this.avatarUrl = avatarUrl;
         this.hidden = hidden;
+        this.likeCount = likeCount;
+        this.likedByCurrentUser = likedByCurrentUser;
     }
+
+    public long getLikeCount() { return likeCount; }
+    public boolean isLikedByCurrentUser() { return likedByCurrentUser; }
     
     // Getters and Setters
     public Long getId() {

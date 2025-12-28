@@ -11,7 +11,7 @@ export interface Comment {
     mediaUrl?: string;
     mediaType?: string;
     avatarUrl?: string;
-    userId: number;
+    userId: number; // Confirmed needed
 }
 
 export interface CreateCommentRequest {

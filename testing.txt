@@ -4,3 +4,11 @@ fix error codes in login because all of them  show " 403 You have been banned by
 --if username does not exist return "username does not exist"
 --if user has banned boolean true  return "you have been banned by an admin"
 register check if the user exists if it does return "username already exists"
+
+
+ outsiders shouldnt see like svg  
+ comments arent deletable by  their authors 
+ likes dont appear in notifications
+
+ replace delete post with normal svg like i have on home component on class="list-item report-item" actions and hide svg  to the dashboard list-item report-item action so admins hide posts
+speaking about reports can u inhance the class="list-item report-item" and add media preview on right part of card svgs of button actions on top corner and order the meta date make it to the right of the card and 

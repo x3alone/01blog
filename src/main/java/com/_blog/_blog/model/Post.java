@@ -2,6 +2,8 @@ package com._blog._blog.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "posts")
@@ -115,6 +117,23 @@ public class Post {
     // Bidirectional OneToMany with Report
     @OneToMany(mappedBy = "reportedPost", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<Report> reports = new java.util.ArrayList<>();
+
+    // Likes Relationship
+    @ManyToMany
+    @JoinTable(
+        name = "post_likes",
+        joinColumns = @JoinColumn(name = "post_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> likes = new HashSet<>();
+
+    public Set<User> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Set<User> likes) {
+        this.likes = likes;
+    }
 
     public java.util.List<Report> getReports() {
         return reports;

@@ -30,12 +30,22 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final MediaService mediaService;
+    private final NotificationService notificationService;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, MediaService mediaService) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, MediaService mediaService, NotificationService notificationService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.mediaService = mediaService;
+        this.notificationService = notificationService;
     }
+
+    // ... (rest of methods unchanged until toggleLike) ...
+    // Note: I will use a larger replacement chunk or carefully target toggleLike + Constructor if they are far apart.
+    // Since I can't easily jump around, I will do constructor first, then toggleLike in separate call if needed. 
+    // Wait, replacing constructor and field definition first.
+
+
+
 
     // RENAMED and IMPLEMENTED method to match PostController
     @Transactional
@@ -254,19 +264,65 @@ public class PostService {
     /**
      * Helper method to map Post entity to PostResponse DTO.
      */
-    // UPDATED mapToDto method
+    @Transactional
+    public void toggleLike(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+        
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+        
+        if (post.getLikes().contains(user)) {
+            post.getLikes().remove(user);
+        } else {
+            post.getLikes().add(user);
+            // Send Notification
+            if (!post.getUser().getId().equals(user.getId())) {
+                 notificationService.createNotification(
+                    post.getUser(),
+                    user,
+                    user.getUsername() + " liked your post.",
+                    "LIKE",
+                    post.getId()
+                 );
+            }
+        }
+        postRepository.save(post);
+    }
+
+    /**
+     * Helper method to map Post entity to PostResponse DTO.
+     */
     private PostResponse mapToDto(Post post) {
+        String currentUsername = null;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
+             currentUsername = auth.getName();
+        }
+
+        boolean likedByCurrentUser = false;
+        if (currentUsername != null) {
+            // Check if current user is in the likes set.
+            // Note: This relies on User equals/hashCode being based on ID or ID check.
+            // Ideally we check by ID match.
+            String finalCurrentUsername = currentUsername;
+            likedByCurrentUser = post.getLikes().stream().anyMatch(u -> u.getUsername().equals(finalCurrentUsername));
+        }
+
         return new PostResponse(
             post.getId(),
             post.getTitle(),
             post.getContent(),
-            post.getUser().getId(), // Populate userId
+            post.getUser().getId(),
             post.getUser().getUsername(),
             post.getCreatedAt(),
-            post.getMediaUrl(),  // NEW ARGUMENT
-            post.getMediaType(),  // NEW ARGUMENT
-            post.getUser().getAvatarUrl(), // NEW ARGUMENT
-            post.isHidden() // NEW ARGUMENT
+            post.getMediaUrl(),
+            post.getMediaType(),
+            post.getUser().getAvatarUrl(),
+            post.isHidden(),
+            (long) post.getLikes().size(),
+            likedByCurrentUser
         );
     }
 }

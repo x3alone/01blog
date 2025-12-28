@@ -336,7 +336,7 @@ span.remove-preview {
   margin-bottom: 20px;
   /* Space before media */
   text-align: left;
-  
+
   /* Keep text left aligned for readability, but verify container centering */
 }
 
@@ -466,7 +466,8 @@ button.px-6.py-2.bg-gray-600.hover\:bg-gray-500.text-white.font-semibold.rounded
   cursor: pointer;
   border: none;
   background: transparent;
-  width: rgb(0, 0, 0)
+  width: rgb(0, 0, 0);
+
   padding: 0 10px;
 }
 
@@ -726,6 +727,7 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
   margin-top: 15px;
   padding-top: 10px;
   border-top: 1px solid #f1f5f9;
+  display: flex;
 }
 
 .comment-toggle {
@@ -742,10 +744,10 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
 }
 
 .comments-section {
-    margin-top: 10px;
-    border-radius: 8px;
-    padding: 10px;
-    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1803921569), transparent);
+  margin-top: 10px;
+  border-radius: 8px;
+  padding: 10px;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1803921569), transparent);
 }
 
 .comment-row {

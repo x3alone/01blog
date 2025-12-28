@@ -183,6 +183,31 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
   }
 
+  toggleLike(post: Post) {
+    // Optimistic Update
+    const wasLiked = post.likedByCurrentUser;
+    const newLikeStatus = !wasLiked;
+    const newCount = wasLiked ? post.likeCount - 1 : post.likeCount + 1;
+
+    this.posts.update(posts => posts.map(p =>
+      p.id === post.id
+        ? { ...p, likedByCurrentUser: newLikeStatus, likeCount: newCount }
+        : p
+    ));
+
+    this.postService.toggleLike(post.id).subscribe({
+      error: () => {
+        // Revert on failure
+        this.posts.update(posts => posts.map(p =>
+          p.id === post.id
+            ? { ...p, likedByCurrentUser: wasLiked, likeCount: post.likeCount }
+            : p
+        ));
+        this.toastService.show("Failed to update like", "error");
+      }
+    });
+  }
+
   deletePost(postId: number) {
     this.confirmationService.confirm("Are you sure you want to delete this post?", "Delete Post").subscribe(confirmed => {
       if (confirmed) {

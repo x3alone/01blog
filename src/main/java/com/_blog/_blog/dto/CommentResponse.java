@@ -9,17 +9,19 @@ public class CommentResponse {
     private LocalDateTime createdAt;
     private String mediaType;
     private String mediaUrl;
-    private String avatarUrl; // NEW FIELD
+    private String avatarUrl; 
+    private Long userId; // NEW FIELD
 
-    public CommentResponse(Long id, String content, String username, LocalDateTime createdAt, String avatarUrl) {
+    public CommentResponse(Long id, String content, String username, LocalDateTime createdAt, String avatarUrl, Long userId) {
         this.id = id;
         this.content = content;
         this.username = username;
         this.createdAt = createdAt;
         this.avatarUrl = avatarUrl;
+        this.userId = userId;
     }
 
-    public CommentResponse(Long id, String content, String username, LocalDateTime createdAt, String mediaUrl, String mediaType, String avatarUrl) {
+    public CommentResponse(Long id, String content, String username, LocalDateTime createdAt, String mediaUrl, String mediaType, String avatarUrl, Long userId) {
         this.id = id;
         this.content = content;
         this.username = username;
@@ -27,7 +29,11 @@ public class CommentResponse {
         this.mediaUrl = mediaUrl;
         this.mediaType = mediaType;
         this.avatarUrl = avatarUrl;
+        this.userId = userId;
     }
+
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 
     public Long getId() {
         return id;

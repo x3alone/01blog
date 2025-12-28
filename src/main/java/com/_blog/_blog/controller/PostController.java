@@ -68,6 +68,12 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{id}/like")
+    public ResponseEntity<Void> toggleLike(@PathVariable Long id) {
+        postService.toggleLike(id);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id) {
         postService.deletePost(id);
