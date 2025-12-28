@@ -12,3 +12,24 @@ register check if the user exists if it does return "username already exists"
 
  replace delete post with normal svg like i have on home component on class="list-item report-item" actions and hide svg  to the dashboard list-item report-item action so admins hide posts
 speaking about reports can u inhance the class="list-item report-item" and add media preview on right part of card svgs of button actions on top corner and order the meta date make it to the right of the card and 
+
+
+Are reports on profiles/posts saved with reasons and timestamps?
+
+~Is the password stored using a hashing algorithm (e.g., BCrypt)?
+
+Are all actions (post/report/follow)confirmed with visual feedback?(add follow/unfollow, posted, removed, reported,seccsefully)
+Is there a user-friendly UI for reporting users with a reason?
+Can the admin view all users, posts, and submitted reports?
+
+Are admin actions confirmed before they take effect? (add confirem action to hide action)
+Are invalid routes or actions handled with proper error messages?
+Is the browser console free of errors?
+Do users receive notifications when followed profiles publish posts?
+
+
+
+
+
+
+
