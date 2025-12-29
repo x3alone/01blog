@@ -63,6 +63,15 @@
   min-height: 48px;
 }
 
+.char-counter {
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+
 .hidden-badge {
   background: #ef4444;
   color: white;
@@ -664,6 +673,8 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
   margin: 0 0 10px 0;
   font-size: 1.25rem;
   color: #0f172a;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .post-content {
@@ -671,6 +682,8 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
   line-height: 1.6;
   margin-bottom: 15px;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .post-media video,
@@ -748,6 +761,8 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
   border-radius: 8px;
   padding: 10px;
   background: linear-gradient(45deg, rgba(255, 255, 255, 0.1803921569), transparent);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .comment-row {
@@ -785,6 +800,8 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
   margin-top: 8px;
   font-size: 0.9rem;
   outline: none;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .comment-input:focus {
@@ -855,6 +872,8 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
 
   .comment-text {
     color: #e2e8f0;
+    overflow-wrap: anywhere;
+  word-break: break-word;
   }
 
   .comment-input-wrapper {
@@ -915,6 +934,8 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
   .edit-post-form {
     background: #2d2d2d;
     border-color: #444;
+    overflow-wrap: anywhere;
+  word-break: break-word;
 
     input,
     textarea {

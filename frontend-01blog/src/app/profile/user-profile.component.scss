@@ -209,6 +209,7 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 0.8rem;
+  margin-top: 10px;
 }
 
 .edit-profile-btn:hover,
@@ -268,6 +269,8 @@
   padding: 20px;
   margin-bottom: 20px;
   color: #eee;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   //background: linear-gradient(-10deg, #ffffff, transparent);
 }
 

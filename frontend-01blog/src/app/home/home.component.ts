@@ -184,6 +184,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   toggleLike(post: Post) {
+    if (this.likingPosts.has(post.id)) return; // Debounce
+
+    this.likingPosts.add(post.id);
+
     // Optimistic Update
     const wasLiked = post.likedByCurrentUser;
     const newLikeStatus = !wasLiked;
@@ -196,8 +200,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
     ));
 
     this.postService.toggleLike(post.id).subscribe({
+      next: () => {
+        this.likingPosts.delete(post.id);
+      },
       error: () => {
         // Revert on failure
+        this.likingPosts.delete(post.id);
         this.posts.update(posts => posts.map(p =>
           p.id === post.id
             ? { ...p, likedByCurrentUser: wasLiked, likeCount: post.likeCount }
@@ -335,11 +343,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // Spam Protection
+  // Spam Protection & Validation
   lastPostTime = 0;
   lastCommentTime = 0;
+  likingPosts = new Set<number>(); // Track posts currently being liked to prevent spam
 
-  // ... (keeping existing methods)
+  readonly MAX_TITLE_LENGTH = 100;
+  readonly MAX_CONTENT_LENGTH = 3000;
+  readonly MAX_COMMENT_LENGTH = 1000;
+
+  // ... (keeping existing logic)
 
   createPost() {
     this.postCreationError.set(null);
@@ -351,13 +364,26 @@ export class HomeComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // 1. Validate Content (No empty or whitespace only)
-    if (!this.newPostTitle().trim()) {
+    // 1. Validate Content
+    const title = this.newPostTitle().trim();
+    const content = this.newPostContent().trim();
+
+    if (!title) {
       this.postCreationError.set("Title is required");
       return;
     }
-    if (!this.newPostContent().trim()) {
+    if (title.length > this.MAX_TITLE_LENGTH) {
+      this.postCreationError.set(`Title is too long! (${title.length}/${this.MAX_TITLE_LENGTH})`);
+      return;
+    }
+
+    if (!content) {
       this.postCreationError.set("Post content is required.");
+      return;
+    }
+
+    if (content.length > this.MAX_CONTENT_LENGTH) {
+      this.postCreationError.set(`Content is too long! (${content.length}/${this.MAX_CONTENT_LENGTH})`);
       return;
     }
 
@@ -478,6 +504,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const content = this.newCommentInputs().get(postId);
     if (!content) return;
 
+    if (content.length > this.MAX_COMMENT_LENGTH) {
+      this.toastService.show(`Comment too long! (${content.length}/${this.MAX_COMMENT_LENGTH})`, 'error');
+      return;
+    }
+
     // Loading State Start
     this.isCommenting.update(map => { map.set(postId, true); return new Map(map); });
 
@@ -494,7 +525,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
         });
         // Clear input and files
         this.newCommentInputs.update(map => { map.set(postId, ''); return new Map(map); });
-        this.newCommentInputs.update(map => { map.set(postId, ''); return new Map(map); });
         this.commentFiles.update(map => { map.delete(postId); return new Map(map); });
         this.commentPreviews.update(map => { map.delete(postId); return new Map(map); });
 
@@ -509,6 +539,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  // ...
 
   // --- COMMENT ACTIONS ---
   deleteComment(postId: number, commentId: number) {

@@ -154,7 +154,8 @@
       <div class="item-content">
         <div class="header-row">
           <span class="report-badge"
-            style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">{{
+            style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); overflow-wrap: anywhere;
+  word-break: break-word;">{{
             report.reason }}</span>
           <span class="sub-text">on Post #{{ report.reportedPostId }} • by @{{ report.reporterUsername }}</span>
           <p class="sub-text">• Reason Details: {{ report.details }}</p>
@@ -163,7 +164,7 @@
         <p class="main-text mt-2"
         style="color: white;">Reported Post: {{ report.reportedPostTitle }}</p>
         <div class="reported-content mt-2 p-3 bg-gray-100 rounded text-sm text-gray-700"
-          style="color: #333;">
+          style="color: #ffffff;">
           {{ report.reportedPostContent | slice:0:150 }}{{ report.reportedPostContent.length > 150 ? '...' : '' }}
         </div>
 
@@ -236,7 +237,7 @@
 
         <p class="main-text mt-2">{{ post.title }}</p>
 
-        <div class="post-snippet mt-1 text-sm text-gray-400">
+        <div class="post-snippet">
           {{ post.content | slice:0:100 }}{{ post.content.length > 100 ? '...' : '' }}
         </div>
       </div>

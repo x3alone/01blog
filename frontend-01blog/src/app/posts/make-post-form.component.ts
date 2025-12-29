@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
       <form (ngSubmit)="submitPost()">
         <div class="space-y-4">
           <div>
-            <label for="title" class="block text-sm font-medium text-gray-400 mb-1">Title</label>
+            <label for="title" class="block text-sm font-medium text-white mb-1">Title</label>
             <input
               id="title"
               type="text"
@@ -25,7 +25,7 @@ import { Router } from '@angular/router';
             />
           </div>
           <div>
-            <label for="content" class="block text-sm font-medium text-gray-400 mb-1">Content</label>
+            <label for="content" class="block text-sm font-medium text-white mb-1">Content</label>
             <textarea
               id="content"
               [(ngModel)]="content"

@@ -12,15 +12,20 @@
 
         <!-- Main Content Area with integrated Upload -->
         <div class="discord-textarea-wrapper">
-          <textarea [(ngModel)]="newPostContent" placeholder="What's on your mind?" class="discord-textarea"
-            rows="2"></textarea>
+          <textarea [(ngModel)]="newPostContent" placeholder="What's on your mind?" class="discord-textarea" rows="2"
+            maxlength="3000"></textarea>
 
-          <div class="input-actions">
-            <label class="upload-btn">
-              <span class="plus-icon">+</span>
-              <input type="file" (change)="onFileSelected($event)" accept="image/*,video/*" hidden>
-            </label>
+          <!-- Character Counter -->
+          <div class="char-counter" [style.color]="newPostContent().length > 3000 ? '#ef4444' : '#94a3b8'">
+            {{ newPostContent().length > 3000 ? (3000 - newPostContent().length) : newPostContent().length }} / 3000
           </div>
+
+        </div>
+        <div class="input-actions">
+          <label class="upload-btn">
+            <span class="plus-icon">+</span>
+            <input type="file" (change)="onFileSelected($event)" accept="image/*,video/*" hidden>
+          </label>
         </div>
 
         <!-- Preview -->
@@ -174,7 +179,8 @@
         } @else {
         <h3 class="post-title">{{ post.title }}</h3>
         <div class="post-content-wrapper">
-          <p class="post-content line-clamp-3">{{ post.content }}</p>
+          <p class="post-content line-clamp-3" style="overflow-wrap: anywhere; word-break: break-word;">{{ post.content
+            }}</p>
         </div>
 
         @if (post.mediaUrl) {
@@ -240,7 +246,8 @@
                   <span class="comment-author">{{ comment.username }}</span>
                   <span class="comment-date">{{ comment.createdAt | date:'short' }}</span>
                 </div>
-                <p class="comment-text">{{ comment.content }}</p>
+                <p class="comment-text" style="overflow-wrap: anywhere; word-break: break-word;">{{ comment.content }}
+                </p>
                 @if (comment.mediaUrl) {
                 <img [src]="comment.mediaUrl" class="comment-media-img">
                 }
