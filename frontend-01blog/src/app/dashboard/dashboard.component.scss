@@ -137,7 +137,7 @@
   gap: 20px;
   align-items: start;
   padding-right: 50px;
-
+  /* Space for absolute positioned actions at top-right */
 }
 
 /* User item uses simpler flex or simple grid, keeping it flex for now but cleaner */
@@ -170,6 +170,12 @@
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   background: #eee;
+  cursor: zoom-in;
+  transition: transform 0.2s;
+}
+
+.media-thumb:hover {
+  transform: scale(1.05);
 }
 
 .item-meta {
@@ -187,6 +193,27 @@
   color: #333;
   font-size: 1rem;
 }
+
+/* User Name Highlights */
+.admin-name {
+  color: #4f46e5;
+  /* Indigo */
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.banned-name {
+  color: #ef4444;
+  /* Red */
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.user-name {
+  color: #333;
+}
+
 
 .sub-text {
   font-size: 0.85rem;
@@ -237,8 +264,7 @@
   right: 15px;
   display: flex;
   gap: 8px;
-  display: flex;
-  flex-direction: column;
+  flex-direction: column; 
 }
 
 /* BUTTONS */
@@ -336,6 +362,53 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* LIGHTBOX */
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9); // Dark background
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lightbox-media {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.lightbox-close:hover {
+  color: #ef4444;
 }
 
 /* RESPONSIVE */

@@ -182,6 +182,24 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  /* --- LIGHTBOX --- */
+  selectedMediaUrl: string | null = null;
+  selectedMediaType: 'image' | 'video' | 'none' | string | null = null; // matching types loosely
+  isLightboxOpen = false;
+
+  openLightbox(url: string, type: string) {
+    if (!url) return;
+    this.selectedMediaUrl = url;
+    this.selectedMediaType = type;
+    this.isLightboxOpen = true;
+  }
+
+  closeLightbox() {
+    this.isLightboxOpen = false;
+    this.selectedMediaUrl = null;
+    this.selectedMediaType = null;
+  }
+
   /* --- POST MANAGEMENT --- */
   togglePostVisibility(post: Post) {
     this.postService.toggleHide(post.id).subscribe({
