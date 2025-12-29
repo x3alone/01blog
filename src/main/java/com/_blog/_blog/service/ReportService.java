@@ -70,7 +70,9 @@ public class ReportService {
                         report.getReportedPost().getId(),
                         report.getReportedPost().getTitle(),
                         report.getReportedPost().getContent(),
-                        report.getReportedPost().getUser().getUsername()
+                        report.getReportedPost().getUser().getUsername(),
+                        report.getReportedPost().getMediaUrl(),
+                        report.getReportedPost().getMediaType()
                 ))
                 .collect(java.util.stream.Collectors.toList());
     }

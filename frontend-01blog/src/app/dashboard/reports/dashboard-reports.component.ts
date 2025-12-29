@@ -108,7 +108,7 @@ import { ConfirmationService } from '../../services/confirmation.service';
     .post-author { font-size: 0.85rem; color: #38bdf8; font-weight: 500; }
     
     .post-title { margin: 0 0 5px; color: #f1f5f9; font-size: 1rem; }
-    .post-snippet { color: #cbd5e1; margin: 0 0 10px !important; line-height: 1.4; font-size: 0.9rem; }
+    .post-snippet { color: #eee; margin: 0 0 10px !important; line-height: 1.4; font-size: 0.9rem; }
     
     .media-preview {
       width: 100%;

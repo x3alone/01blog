@@ -17,10 +17,13 @@ public class ReportResponse {
     private String reportedPostTitle;
     private String reportedPostContent;
     private String reportedPostAuthorUsername;
+    private String reportedPostMediaUrl;
+    private String reportedPostMediaType;
 
     public ReportResponse(Long id, String reason, String details, LocalDateTime timestamp, 
                           Long reporterId, String reporterUsername, 
-                          Long reportedPostId, String reportedPostTitle, String reportedPostContent, String reportedPostAuthorUsername) {
+                          Long reportedPostId, String reportedPostTitle, String reportedPostContent, String reportedPostAuthorUsername,
+                          String reportedPostMediaUrl, String reportedPostMediaType) {
         this.id = id;
         this.reason = reason;
         this.details = details;
@@ -31,6 +34,8 @@ public class ReportResponse {
         this.reportedPostTitle = reportedPostTitle;
         this.reportedPostContent = reportedPostContent;
         this.reportedPostAuthorUsername = reportedPostAuthorUsername;
+        this.reportedPostMediaUrl = reportedPostMediaUrl;
+        this.reportedPostMediaType = reportedPostMediaType;
     }
 
     // Getters
@@ -44,4 +49,6 @@ public class ReportResponse {
     public String getReportedPostTitle() { return reportedPostTitle; }
     public String getReportedPostContent() { return reportedPostContent; }
     public String getReportedPostAuthorUsername() { return reportedPostAuthorUsername; }
+    public String getReportedPostMediaUrl() { return reportedPostMediaUrl; }
+    public String getReportedPostMediaType() { return reportedPostMediaType; }
 }
