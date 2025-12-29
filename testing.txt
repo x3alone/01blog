@@ -28,8 +28,11 @@ Is the browser console free of errors?
 Do users receive notifications when followed profiles publish posts?
 
 
+im havine issues with requerment of that dashboard inhance the class="list-item report-item" add media preview on right part of card button actions on top corner and order the meta date make it to the right of the card 
+because i had this as requerments 
+Can the admin view all users, posts, and submitted reports?
+add svg hide button to dashboard card 
+list-item report-item
 
-
-
-
+when spamming like it goes to 500 internal server error in console 
 

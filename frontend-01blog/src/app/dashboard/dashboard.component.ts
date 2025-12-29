@@ -2,14 +2,14 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminUserService, User } from '../services/admin-user.service';
 import { ReportService, Report } from '../services/report.service';
-import { PostService } from '../services/post.service';
+import { PostService, Post } from '../services/post.service';
 import { ToastService } from '../services/toast.service';
 import { ConfirmationService } from '../services/confirmation.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule], // Removed RouterOutlet as we are using a single view now
+  imports: [CommonModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -22,9 +22,10 @@ export class DashboardComponent implements OnInit {
 
   users = signal<User[]>([]);
   reports = signal<Report[]>([]);
+  posts = signal<Post[]>([]);
   isLoading = signal(false);
 
-  // 'hub' | 'users' | 'reports'
+  // 'hub' | 'users' | 'reports' | 'posts'
   currentView = 'hub';
 
   ngOnInit() {
@@ -33,28 +34,54 @@ export class DashboardComponent implements OnInit {
 
   setView(view: string) {
     this.currentView = view;
+    if (view !== 'hub') {
+      this.loadData();
+    }
   }
 
   loadData() {
     this.isLoading.set(true);
-    // Load Users
-    this.adminUserService.getAllUsers().subscribe({
-      next: (data) => this.users.set(data),
-      error: (e) => {
-        console.error('Failed to load users', e);
-        this.toastService.show('Failed to load users', 'error');
-      }
-    });
 
-    // Load Reports
-    this.reportService.getAllReports().subscribe({
-      next: (data) => this.reports.set(data),
-      error: (e) => {
-        console.error('Failed to load reports', e);
-        this.toastService.show('Failed to load reports', 'error');
-      },
-      complete: () => this.isLoading.set(false)
-    });
+    if (this.currentView === 'users') {
+      this.adminUserService.getAllUsers().subscribe({
+        next: (data) => {
+          this.users.set(data);
+          this.isLoading.set(false);
+        },
+        error: (e) => {
+          console.error('Failed to load users', e);
+          this.toastService.show('Failed to load users', 'error');
+          this.isLoading.set(false);
+        }
+      });
+    } else if (this.currentView === 'reports') {
+      this.reportService.getAllReports().subscribe({
+        next: (data) => {
+          this.reports.set(data);
+          this.isLoading.set(false);
+        },
+        error: (e) => {
+          console.error('Failed to load reports', e);
+          this.toastService.show('Failed to load reports', 'error');
+          this.isLoading.set(false);
+        }
+      });
+    } else if (this.currentView === 'posts') {
+      // Fetch all posts (page 0, size 100 for admin overview for now)
+      this.postService.getAllPosts(0, 50).subscribe({
+        next: (page) => {
+          this.posts.set(page.content);
+          this.isLoading.set(false);
+        },
+        error: (e) => {
+          console.error('Failed to load posts', e);
+          this.toastService.show('Failed to load posts', 'error');
+          this.isLoading.set(false);
+        }
+      });
+    } else {
+      this.isLoading.set(false);
+    }
   }
 
   banUser(userId: number) {
@@ -150,6 +177,31 @@ export class DashboardComponent implements OnInit {
             });
           },
           error: (e) => this.toastService.show('Failed to delete post: ' + e.message, 'error')
+        });
+      }
+    });
+  }
+
+  /* --- POST MANAGEMENT --- */
+  togglePostVisibility(post: Post) {
+    this.postService.toggleHide(post.id).subscribe({
+      next: () => {
+        this.posts.update(list => list.map(p => p.id === post.id ? { ...p, hidden: !p.hidden } : p));
+        this.toastService.show(`Post ${post.hidden ? 'visible' : 'hidden'} now.`, 'success');
+      },
+      error: (e) => this.toastService.show('Failed to toggle visibility', 'error')
+    });
+  }
+
+  adminDeletePost(postId: number) {
+    this.confirmationService.confirm('Permanently delete this post?', 'Delete Post').subscribe(confirmed => {
+      if (confirmed) {
+        this.postService.deletePost(postId).subscribe({
+          next: () => {
+            this.posts.update(list => list.filter(p => p.id !== postId));
+            this.toastService.show('Post deleted successfully', 'success');
+          },
+          error: (e) => this.toastService.show('Failed to delete post', 'error')
         });
       }
     });

@@ -9,7 +9,7 @@ export interface User {
   role: string;
   banned: boolean; // Add banned status
   avatarUrl?: string; // Add avatarUrl
-  // Add other properties if necessary (e.g., createdAt)
+  email: string;
 }
 
 @Injectable({
