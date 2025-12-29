@@ -18,11 +18,17 @@ public class Report {
     @JsonIgnoreProperties({"posts", "password", "role", "isBanned", "authorities"}) // Simplify serialization
     private User reporter;
 
-    // The post being reported
+    // The post being reported (Optional if reporting a user)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    @JsonIgnoreProperties({"user", "content"}) // Serialize post ID/Title mainly, avoid deep user serialization
+    @JoinColumn(name = "post_id", nullable = true)
+    @JsonIgnoreProperties({"user", "content"}) 
     private Post reportedPost;
+
+    // The user being reported (Optional if reporting a post)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reported_user_id", nullable = true)
+    @JsonIgnoreProperties({"posts", "password", "role", "isBanned", "authorities"})
+    private User reportedUser;
 
     @Column(nullable = false)
     private String reason; // e.g., "Scam", "Hate", "Other"
@@ -42,6 +48,13 @@ public class Report {
         this.details = details;
     }
 
+    public Report(User reporter, User reportedUser, String reason, String details) {
+        this.reporter = reporter;
+        this.reportedUser = reportedUser;
+        this.reason = reason;
+        this.details = details;
+    }
+
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -49,6 +62,8 @@ public class Report {
     public void setReporter(User reporter) { this.reporter = reporter; }
     public Post getReportedPost() { return reportedPost; }
     public void setReportedPost(Post reportedPost) { this.reportedPost = reportedPost; }
+    public User getReportedUser() { return reportedUser; }
+    public void setReportedUser(User reportedUser) { this.reportedUser = reportedUser; }
     public String getReason() { return reason; }
     public void setReason(String reason) { this.reason = reason; }
     public String getDetails() { return details; }

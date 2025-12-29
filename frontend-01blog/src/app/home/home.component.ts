@@ -157,6 +157,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    if (this.editTitle.length > this.MAX_TITLE_LENGTH) {
+      this.toastService.show(`Title is too long! (${this.editTitle.length}/${this.MAX_TITLE_LENGTH})`, 'error');
+      return;
+    }
+
+    if (this.editContent.length > this.MAX_CONTENT_LENGTH) {
+      this.toastService.show(`Content is too long! (${this.editContent.length}/${this.MAX_CONTENT_LENGTH})`, 'error');
+      return;
+    }
+
     this.postService.updatePost(postId, this.editTitle, this.editContent, this.editFile || undefined, this.removeMediaFlag).subscribe({
       next: (updatedPost) => {
         this.posts.update(posts => posts.map(p => p.id === postId ? updatedPost : p));

@@ -38,3 +38,9 @@ when spamming like it goes to 500 internal server error in console
 when posting a long title it goes  500 value too long in consol instead it show show alert that title is too long,
 as well as comment when commenting with lots of character it goes 500 value too long shouldnt be visible in console and show alert instead
 make sure that post content max limit characters is less than 3000(show it as the user is typing in the contentinput 0/3000 if it crosses it change the colorof (i/3000) to red and show -i/3000) and overflow is handling the long texts no scroll just go to next line
+
+
+
+i can excceeeed the char limit on past content when edit if i did the post break the website 
+editing shows consol code 
+check media upload xss injection 

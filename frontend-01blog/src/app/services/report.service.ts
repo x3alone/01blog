@@ -17,6 +17,10 @@ export interface Report {
     reportedPostAuthorUsername: string;
     reportedPostMediaType?: 'image' | 'video' | 'none';
     reportedPostMediaUrl?: string;
+
+    reportedUserId?: number;
+    reportedUsername?: string;
+    reportedUserAvatarUrl?: string;
 }
 
 @Injectable({
@@ -37,6 +41,10 @@ export class ReportService {
 
     createReport(postId: number, reason: string, details: string): Observable<void> {
         return this.http.post<void>(this.API_URL, { postId, reason, details }, this.getAuthHeaders());
+    }
+
+    reportUser(reportedUserId: number, reason: string, details: string): Observable<void> {
+        return this.http.post<void>(this.API_URL, { reportedUserId, reason, details }, this.getAuthHeaders());
     }
 
     getAllReports(): Observable<Report[]> {

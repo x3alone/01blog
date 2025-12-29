@@ -36,16 +36,26 @@
             } @else {
             {{ profile()?.username?.charAt(0)?.toUpperCase() }}
             }
-            }
-          </div>
-
+          }
         </div>
+        
+      </div>
 
-        <h1 class="username-title">
+      <h1 class="username-title">
           {{ profile()?.username }}
           @if (profile()?.role === 'ADMIN') { <span class="admin-tag">Admin</span>
         }
-      </h1>
+        
+        <button (click)="openReportModal()" class="action-icon-btn report-btn-profile" title="Report User">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            class="feather feather-alert-circle" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </button>
+        </h1>
 
         @if (isEditing()) {
         <div class="edit-form-container">
@@ -54,45 +64,46 @@
             <textarea [(ngModel)]="editForm().aboutMe" placeholder="Tell us about yourself..."
               class="about-input"></textarea>
           </div>
-          
+
           <div class="edit-actions">
             <button (click)="saveEdit()" class="save-btn">Save Change</button>
             <button (click)="cancelEdit()" class="cancel-btn">Cancel</button>
           </div>
         </div>
-      } @else {
+        } @else {
         @if (profile()?.aboutMe) {
-          <p class="about-me">{{ profile()?.aboutMe }}</p>
+        <p class="about-me">{{ profile()?.aboutMe }}</p>
         }
         @if (isOwnProfile()) {
-          <button (click)="startEdit()" class="edit-profile-btn">Edit Profile</button>
+        <button (click)="startEdit()" class="edit-profile-btn">Edit Profile</button>
         }
-      }
-      
-      <div class="stats-bar">
-        <div class="stat-item">
-          <span class="stat-val">{{ posts().length }}</span>
-          <span class="stat-label">Thoughts</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-val">{{ profile()?.followersCount || 0 }}</span>
-          <span class="stat-label">Followers</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-val">{{ profile()?.followingCount || 0 }}</span>
-          <span class="stat-label">Following</span>
-        </div>
-        <div class="action-area">
-          @if (currentUser() && currentUser() !== profile()?.username) {
-          <button (click)="toggleFollow()" class="follow-btn" [class.unfollow]="isFollowing()">
-            {{ isFollowing() ? 'Unfollow' : 'Follow' }}
-          </button>
-          }
+        }
+
+        <div class="stats-bar">
+          <div class="stat-item">
+            <span class="stat-val">{{ posts().length }}</span>
+            <span class="stat-label">Thoughts</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val">{{ profile()?.followersCount || 0 }}</span>
+            <span class="stat-label">Followers</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val">{{ profile()?.followingCount || 0 }}</span>
+            <span class="stat-label">Following</span>
+          </div>
+          <div class="action-area">
+            @if (currentUser() && currentUser() !== profile()?.username) {
+            <button (click)="toggleFollow()" class="follow-btn" [class.unfollow]="isFollowing()">
+              {{ isFollowing() ? 'Unfollow' : 'Follow' }}
+            </button>
+            
+            }
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  
+
     <!-- POSTS -->
     <h2 class="section-title">Latest Thoughts</h2>
 
@@ -117,3 +128,32 @@
   <div class="not-found-message">User not found.</div>
   }
 </div>
+
+<!-- REPORT MODAL -->
+@if (reportModalOpen()) {
+<div class="modal-overlay glass-overlay" (click)="closeReportModal()">
+  <div class="modal-content glass-content" (click)="$event.stopPropagation()">
+    <h3>Report User</h3>
+
+    <label>Reason:</label>
+    <select [(ngModel)]="reportReason" class="glass-input">
+      @for (option of reportOptions; track option) {
+      <option [value]="option" style="color: black;">{{ option }}</option>
+      }
+    </select>
+
+    @if (reportReason === 'Other') {
+    <label>Specify Reason:</label>
+    <input type="text" [(ngModel)]="customReportReason" placeholder="Type reason..." class="glass-input" />
+    }
+
+    <label>Details (Optional):</label>
+    <textarea [(ngModel)]="reportDetails" placeholder="Provide more details..." class="glass-input"></textarea>
+
+    <div class="modal-actions">
+      <button (click)="closeReportModal()" class="cancel-btn">Cancel</button>
+      <button (click)="submitReport()" class="confirm-btn-danger">Report</button>
+    </div>
+  </div>
+</div>
+}

@@ -20,10 +20,16 @@ public class ReportResponse {
     private String reportedPostMediaUrl;
     private String reportedPostMediaType;
 
+    // Flattened Reported User Info
+    private Long reportedUserId;
+    private String reportedUsername;
+    private String reportedUserAvatarUrl;
+
     public ReportResponse(Long id, String reason, String details, LocalDateTime timestamp, 
                           Long reporterId, String reporterUsername, 
                           Long reportedPostId, String reportedPostTitle, String reportedPostContent, String reportedPostAuthorUsername,
-                          String reportedPostMediaUrl, String reportedPostMediaType) {
+                          String reportedPostMediaUrl, String reportedPostMediaType,
+                          Long reportedUserId, String reportedUsername, String reportedUserAvatarUrl) {
         this.id = id;
         this.reason = reason;
         this.details = details;
@@ -36,6 +42,9 @@ public class ReportResponse {
         this.reportedPostAuthorUsername = reportedPostAuthorUsername;
         this.reportedPostMediaUrl = reportedPostMediaUrl;
         this.reportedPostMediaType = reportedPostMediaType;
+        this.reportedUserId = reportedUserId;
+        this.reportedUsername = reportedUsername;
+        this.reportedUserAvatarUrl = reportedUserAvatarUrl;
     }
 
     // Getters
@@ -51,4 +60,7 @@ public class ReportResponse {
     public String getReportedPostAuthorUsername() { return reportedPostAuthorUsername; }
     public String getReportedPostMediaUrl() { return reportedPostMediaUrl; }
     public String getReportedPostMediaType() { return reportedPostMediaType; }
+    public Long getReportedUserId() { return reportedUserId; }
+    public String getReportedUsername() { return reportedUsername; }
+    public String getReportedUserAvatarUrl() { return reportedUserAvatarUrl; }
 }

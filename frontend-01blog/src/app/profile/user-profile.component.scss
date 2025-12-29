@@ -131,10 +131,12 @@
   align-items: center;
   gap: 10px;
 }
+
 .media-container {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
+
 .admin-tag {
   font-size: 0.9rem;
   background: rgba(255, 255, 255, 0.2);
@@ -253,6 +255,107 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
+.report-btn-profile {
+  // margin-left: auto;
+  color: rgba(255, 255, 255, 0.7);
+  transition: 0.3s;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: #ef4444;
+  }
+}
+
+/* Glass Modal */
+.glass-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  /* Darker backdrop */
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.glass-content {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 30px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 500px;
+  color: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+  }
+
+  label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.glass-input {
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  margin-bottom: 10px;
+  font-size: 1rem;
+
+  &:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  option {
+    background: #1e293b;
+    color: white;
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.confirm-btn-danger {
+  background: rgba(239, 68, 68, 0.8);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+
+  &:hover {
+    background: rgba(239, 68, 68, 1);
+  }
+}
+
 /* Posts Section */
 .section-title {
   font-size: 1.5rem;
@@ -263,7 +366,8 @@
 }
 
 .post-card {
-  background: rgba(255, 255, 255, 0.3);  backdrop-filter: blur(5px);
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   padding: 20px;

@@ -5,6 +5,8 @@ import { ActivatedRoute } from '@angular/router';
 import { UserProfileService, UserProfileDto } from '../services/user-profile.service';
 import { AuthService } from '../services/auth.service';
 import { PostService } from '../services/post.service'; // Import PostService
+import { ReportService } from '../services/report.service';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -18,6 +20,8 @@ export class UserProfileComponent implements OnInit {
   private profileService = inject(UserProfileService);
   private authService = inject(AuthService);
   private postService = inject(PostService); // Inject PostService
+  private reportService = inject(ReportService);
+  private toastService = inject(ToastService);
 
   profile = signal<UserProfileDto | null>(null);
   posts = signal<any[]>([]); // Store user posts here
@@ -26,6 +30,15 @@ export class UserProfileComponent implements OnInit {
 
   isEditing = signal(false);
   editForm = signal({ aboutMe: '', avatarUrl: '' });
+
+  // Report State
+
+  // Report State
+  reportModalOpen = signal(false);
+  reportReason = 'Scammer';
+  customReportReason = '';
+  reportDetails = '';
+  reportOptions = ['Scammer', 'Spreading Hate', 'Impersonation', 'Bot', 'Other'];
 
   // Helper signals for template
   currentUser = signal<string>('');
@@ -125,6 +138,16 @@ export class UserProfileComponent implements OnInit {
   }
 
   saveEdit() {
+    if (this.editForm().aboutMe && this.editForm().aboutMe.length > 500) {
+      // You might need to inject ToastService to show this error, or use alert for now if ToastService isn't injected.
+      // Looking at imports, ToastService isn't injected. I'll stick to console/alert or just return for now, 
+      // but ideally I should add ToastService.
+      // Let's add simple alert or just return if it's too long, as requested "prevent that". 
+      // User requested "prevent that", so blocking submission is key.
+      this.toastService.show("About Me is too long! Max 500 characters.", 'error');
+      return;
+    }
+
     this.profileService.updateProfile(this.editForm()).subscribe({
       next: (updatedUser: any) => { // Backend returns User
         const newAvatarUrl = this.editForm().avatarUrl;
@@ -157,5 +180,44 @@ export class UserProfileComponent implements OnInit {
         error: (err) => console.error('Avatar upload failed', err)
       });
     }
+  }
+  // --- REPORTING ---
+  openReportModal() {
+    this.reportModalOpen.set(true);
+  }
+
+  closeReportModal() {
+    this.reportModalOpen.set(false);
+    this.reportReason = 'Inappropriate Content';
+    this.reportDetails = '';
+  }
+
+  submitReport() {
+    const p = this.profile();
+    if (!p) return;
+
+    let finalReason = this.reportReason;
+    if (this.reportReason === 'Other') {
+      if (!this.customReportReason.trim()) {
+        this.toastService.show("Please specify a reason.", "error");
+        return;
+      }
+      finalReason = this.customReportReason; // Use custom input
+    }
+
+    this.reportService.reportUser(p.id, finalReason, this.reportDetails).subscribe({
+      next: () => {
+        this.closeReportModal();
+        this.toastService.show("User reported successfully.", "success");
+      },
+      error: (e) => {
+        // Check for specific error message if available, otherwise generic
+        if (e.error && e.error.message) {
+          this.toastService.show(e.error.message, "error");
+        } else {
+          this.toastService.show("Failed to report user.", "error");
+        }
+      }
+    });
   }
 }

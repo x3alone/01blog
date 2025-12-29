@@ -28,11 +28,20 @@ public class ReportController {
     public ResponseEntity<Void> createReport(@RequestBody Map<String, Object> payload, @AuthenticationPrincipal String username) {
         Long reporterId = userService.getUserByUsername(username).getId();
         
-        Long postId = Long.valueOf(payload.get("postId").toString());
-        String reason = (String) payload.get("reason");
-        String details = (String) payload.get("details");
+        if (payload.containsKey("postId")) {
+            Long postId = Long.valueOf(payload.get("postId").toString());
+            String reason = (String) payload.get("reason");
+            String details = (String) payload.get("details");
+            reportService.createReport(reporterId, postId, reason, details);
+        } else if (payload.containsKey("reportedUserId")) {
+            Long reportedUserId = Long.valueOf(payload.get("reportedUserId").toString());
+            String reason = (String) payload.get("reason");
+            String details = (String) payload.get("details");
+            reportService.createUserReport(reporterId, reportedUserId, reason, details);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
 
-        reportService.createReport(reporterId, postId, reason, details);
         return ResponseEntity.ok().build();
     }
 

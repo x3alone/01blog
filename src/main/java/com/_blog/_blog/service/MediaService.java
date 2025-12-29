@@ -17,6 +17,11 @@ public class MediaService {
     }
 
     public Map uploadFile(MultipartFile file, String folder, String customName) throws IOException {
+        String contentType = file.getContentType();
+        if (contentType == null || (!contentType.startsWith("image/") && !contentType.startsWith("video/"))) {
+            throw new RuntimeException("Invalid file type. Only images and videos are allowed.");
+        }
+
         return cloudinary.uploader().upload(file.getBytes(),
                 ObjectUtils.asMap(
                         "folder", folder,
