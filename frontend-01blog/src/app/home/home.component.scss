@@ -118,6 +118,14 @@
   color: #333;
 }
 
+video.preview-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: #eee;
+}
+
 .media-preview-bar {
   display: flex;
   align-items: center;

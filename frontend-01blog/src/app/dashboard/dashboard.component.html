@@ -162,7 +162,6 @@
           <span class="sub-text">on User @{{ report.reportedUsername }} (ID: {{report.reportedUserId}}) • by @{{
             report.reporterUsername }}</span>
           }
-          <p class="sub-text">• Reason Details: {{ report.details }}</p>
         </div>
 
         @if (report.reportedPostId) {
@@ -171,7 +170,7 @@
           {{ report.reportedPostContent | slice:0:150 }}{{ report.reportedPostContent.length > 150 ? '...' : '' }}
         </div>
         } @else if (report.reportedUserId) {
-        <p class="main-text mt-2" style="color: white;">Reported User ID: {{ report.reportedUserId }}</p>
+        <p class="sub-text" style="color: white;">• Reason Details: {{ report.details }}</p>
         }
       </div>
 
