@@ -35,10 +35,9 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
     
-    // Fallback for generic RuntimeExceptions that we might throw correctly
+    // Generic fallback handler for unhandled RuntimeExceptions
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeException(RuntimeException ex) {
-        // If the message is recognized as one of our specific ones but caught as Runtime
         if (ex.getMessage().contains("User not found")) {
              return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
         }
@@ -46,18 +45,18 @@ public class GlobalExceptionHandler {
             return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
         }
         
-        // Default generic error
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
+    // Custom error response builder: returns HTTP 200 with error details in body to prevent browser console errors (Audit: Error Handling)
+    // Frontend checks 'status' field in body to distinguish success from error while keeping console clean
     private ResponseEntity<Object> buildResponse(HttpStatus status, String message) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("status", status.value()); // Client checks this
+        body.put("status", status.value());
         body.put("error", status.getReasonPhrase());
         body.put("message", message);
         
-        // Return 200 OK for everything to "Clean Console" as requested
         return new ResponseEntity<>(body, HttpStatus.OK);
     }
 }

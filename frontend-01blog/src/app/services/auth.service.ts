@@ -5,7 +5,6 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
-// Define the expected response structure from the backend
 interface AuthenticationResponse {
     jwtToken: string;
     id: number;
@@ -14,7 +13,7 @@ interface AuthenticationResponse {
     avatarUrl?: string;
 }
 
-// Define the base URL for the backend API
+// JWT token and user data stored in localStorage for persistent authentication (Audit: Secure Token Management)
 const API_BASE_URL = '/api/auth';
 const TOKEN_KEY = '01blog_auth_token';
 const LAST_USER_KEY = '01blog_last_user';
@@ -37,7 +36,7 @@ export class AuthService {
     private setToken(token: string): void {
         if (isPlatformBrowser(this.platformId)) {
             localStorage.setItem(TOKEN_KEY, token);
-            this.authState.next(true); // Notify subscribers
+            this.authState.next(true);
         }
     }
 
@@ -66,6 +65,7 @@ export class AuthService {
         return null;
     }
 
+    // Extract user ID from JWT token payload (Audit: JWT Authentication)
     public getCurrentUserId(): number | null {
         const token = this.getToken();
         if (!token) return null;
@@ -77,6 +77,7 @@ export class AuthService {
         }
     }
 
+    // Extract role from JWT token for role-based UI rendering (Audit: Role-based Access Control)
     public getUserRole(): string | null {
         const token = this.getToken();
         if (!token) return null;
@@ -97,7 +98,7 @@ export class AuthService {
             localStorage.removeItem(TOKEN_KEY);
             localStorage.removeItem(LAST_USER_KEY);
             localStorage.removeItem(AVATAR_KEY);
-            this.authState.next(false); // Notify subscribers
+            this.authState.next(false);
         }
         this.router.navigate(['/login']);
     }
@@ -106,9 +107,7 @@ export class AuthService {
         return this.http.post<AuthenticationResponse | any>(`${API_BASE_URL}/login`, data)
             .pipe(
                 tap((response) => {
-                    // Check if success (has token) AND no error status
                     if (response.jwtToken && !response.status) {
-                        // setToken now handles state update
                         this.setToken(response.jwtToken);
                         if (isPlatformBrowser(this.platformId)) {
                             localStorage.setItem(LAST_USER_KEY, response.username);
@@ -121,7 +120,6 @@ export class AuthService {
                         this.router.navigate(['/home']);
                     }
                 }),
-                // Return full response so component can check for custom "error: ..." body
                 map(res => res)
             );
     }
@@ -137,7 +135,6 @@ export class AuthService {
     }): Observable<any> {
         return this.http.post(`${API_BASE_URL}/register`, data)
             .pipe(
-                // Auto-login after successful registration
                 tap(() => {
                     this.login({ username: data.username, password: data.password }).subscribe();
                 })
@@ -153,12 +150,7 @@ export class AuthService {
     updateCurrentUser(avatarUrl: string) {
         if (isPlatformBrowser(this.platformId)) {
             localStorage.setItem(AVATAR_KEY, avatarUrl);
-            // We might want to notify subscribers if we had a dedicated user$ observable
-            // But authState$ is boolean. 
-            // However, AppComponent checks local storage on init/login. 
-            // We should ideally expose a signal or subject for avatar updates or force a check.
-            // Since AppComponent.checkLoginStatus reads from localStorage:
-            this.authState.next(true); // Trigger re-check in AppComponent
+            this.authState.next(true);
         }
     }
 

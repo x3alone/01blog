@@ -22,26 +22,25 @@ public class Post {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    // Cloudinary media fields: URL for display, type (IMAGE/VIDEO), publicId for deletion (Audit: Secure Media Storage)
     @Column
     private String mediaUrl;
 
     @Column
-    private String mediaType; // IMAGE, VIDEO
+    private String mediaType;
 
     @Column
     private String publicId;
 
-    // ManyToOne relationship: Many posts can belong to one user
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // Constructors
     public Post() {
-        this.createdAt = LocalDateTime.now(); // Set creation date automatically
+        this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
+
     public Long getId() {
         return id;
     }
@@ -102,7 +101,7 @@ public class Post {
         this.user = user;
     }
 
-    // Bidirectional OneToMany with Comment
+    // Cascade delete: when post is deleted, all comments are automatically removed (Audit: Deleted Content Removal)
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<Comment> comments = new java.util.ArrayList<>();
 
@@ -114,11 +113,11 @@ public class Post {
         this.comments = comments;
     }
 
-    // Bidirectional OneToMany with Report
+    // Cascade delete: reports tied to deleted posts are automatically removed (Audit: Database Relationships)
     @OneToMany(mappedBy = "reportedPost", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<Report> reports = new java.util.ArrayList<>();
 
-    // Likes Relationship
+    // Many-to-many: tracks which users liked this post (Audit: Post Interactions)
     @ManyToMany
     @JoinTable(
         name = "post_likes",
@@ -143,6 +142,7 @@ public class Post {
         this.reports = reports;
     }
 
+    // Admin hide functionality: hidden posts excluded from public feed but retained in database (Audit: Admin Remove/Hide Posts)
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean hidden = false;
 

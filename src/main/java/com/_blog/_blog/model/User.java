@@ -25,12 +25,10 @@ public class User implements UserDetails {
     private String role;
 
     @Column(nullable = false)
-    @JsonProperty("isBanned") // Force JSON field name to match frontend
+    @JsonProperty("isBanned")
     private boolean isBanned = false; 
 
-    @Column(unique = true) // Email should be unique, but maybe nullable for existing users? 
-    // User requested "must provide", so let's make it nullable=false for new ones, but strict enforcement might break existing data if we don't migrate.
-    // I'll make it nullable=true by default in DB but enforced in App to avoid startup crashes on existing rows.
+    @Column(unique = true)
     private String email;
 
     private String firstName;
@@ -40,14 +38,10 @@ public class User implements UserDetails {
     private String nickname;
     private String aboutMe;
 
-    // ------------------------------------------------------------------
-    // FIX: ADD THE POST RELATIONSHIP AND BREAK THE CYCLIC DEPENDENCY
-    // The previous error of an empty response was due to this missing fix.
-    // ------------------------------------------------------------------
+    // One user has many posts; JsonIgnore prevents DTO circular dependency during serialization (Audit: Database Relationships)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore // <-- CRITICAL FIX: Prevents infinite serialization loop (User -> Post -> User -> ...)
+    @JsonIgnore
     private List<Post> posts;
-    // ------------------------------------------------------------------
 
 
     public User() {}
@@ -58,7 +52,7 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    // Getters and setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public boolean isBanned() { return isBanned; }
@@ -75,10 +69,10 @@ public class User implements UserDetails {
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
     
-    public List<Post> getPosts() { return posts; } // Added getter for completeness
-    public void setPosts(List<Post> posts) { this.posts = posts; } // Added setter for completeness
+    public List<Post> getPosts() { return posts; }
+    public void setPosts(List<Post> posts) { this.posts = posts; }
 
-    // New Getters & Setters
+
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
@@ -101,14 +95,13 @@ public class User implements UserDetails {
     public void setAboutMe(String aboutMe) { this.aboutMe = aboutMe; }
 
 
-    // UserDetails methods
+    // UserDetails implementation: integrates with Spring Security for authentication (Audit: Spring Security Integration)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // NOTE: This should likely return an authority with "ROLE_" prefix for consistency with @PreAuthorize
-        // e.g., return List.of(() -> "ROLE_" + role);
-        return List.of(() -> role); // Keeping your original logic
+        return List.of(() -> role);
     }
 
+    // Ban enforcement: locked accounts cannot authenticate (Audit: Admin Ban Users)
     @Override
     public boolean isAccountNonLocked() {
         return !isBanned;

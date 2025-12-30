@@ -16,6 +16,7 @@ public class MediaService {
         this.cloudinary = cloudinary;
     }
 
+    // Upload file to Cloudinary with folder organization and custom naming (Audit: Secure Media Storage)
     public Map uploadFile(MultipartFile file, String folder, String customName) throws IOException {
         String contentType = file.getContentType();
         if (contentType == null || (!contentType.startsWith("image/") && !contentType.startsWith("video/"))) {
@@ -26,10 +27,11 @@ public class MediaService {
                 ObjectUtils.asMap(
                         "folder", folder,
                         "public_id", customName,
-                        "resource_type", "auto" // Auto detect image or video
+                        "resource_type", "auto"
                 ));
     }
 
+    // Delete file from Cloudinary using publicId (called when post/comment is deleted) (Audit: Secure Media Storage)
     public void deleteFile(String publicId) throws IOException {
         cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
     }

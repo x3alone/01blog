@@ -25,27 +25,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final Key key;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    // CRITICAL FIX: Use the SAME hardcoded Base64 secret key as defined in AuthService
+    // Shared JWT secret key for token validation (must match AuthService key) (Audit: Secure Token Management)
     private final String jwtSecretBase64 = "L7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD";
 
     private final com._blog._blog.repository.UserRepository userRepository;
 
     public JwtAuthFilter(com._blog._blog.repository.UserRepository userRepository) {
         this.userRepository = userRepository;
-        // Initialize the key using the Base64 string for HMAC SHA-512 signing
         this.key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecretBase64));
     }
 
-    /**
-     * Determines which request paths should bypass the JWT validation logic.
-     */
+    // Bypass JWT validation for authentication endpoints (login/register do not require existing token)
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
-        
         return pathMatcher.match("/api/auth/**", path) || pathMatcher.match("/auth/**", path);
     }
 
+    // JWT validation filter: extracts token, validates signature, checks ban status, and sets authentication context (Audit: JWT Authentication)
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -56,7 +53,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
-                // FIX: Use Jwts.parserBuilder() and the initialized key
                 Claims claims = Jwts.parserBuilder()
                         .setSigningKey(key) 
                         .build()
@@ -65,35 +61,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 String username = claims.getSubject();
                 
-                // SECURITY UPDATE: Load user from DB to check real-time status (Banned/Role Change)
+                // Real-time user validation: checks current ban status and role from database, not stale token claims (Audit: Admin Ban Enforcement)
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     var userOpt = userRepository.findByUsername(username);
                     
                     if (userOpt.isPresent()) {
                         var user = userOpt.get();
                         
-                        // 1. Check if Banned
+                        // Immediate rejection of banned users prevents any API access
                         if (user.isBanned()) {
-                            // User is banned - Prevent access immediately
                             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                             response.setContentType("application/json");
                             response.getWriter().write("{\"error\": \"User is banned\"}");
-                            return; // Stop execution
+                            return;
                         }
 
-                        // 2. Use REAL-TIME Role from DB, not stale claim from Token
+                        // Using current role from database ensures role changes take effect immediately without re-login
                         String role = user.getRole();
 
-                        // Create authorities from the role
                         java.util.List<org.springframework.security.core.authority.SimpleGrantedAuthority> authorities = new java.util.ArrayList<>();
                         if (role != null) {
-                            // Add as is for hasAuthority('ADMIN')
                             authorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority(role));
-                            // Add with prefix for hasRole('ADMIN')
                             authorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role));
                         }
 
-                        // Authenticate the user based on the valid token (no password needed)
                         UsernamePasswordAuthenticationToken auth =
                                 new UsernamePasswordAuthenticationToken(username, null, authorities);
                         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -101,8 +92,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
 
             } catch (Exception e) {
-                // Log and clear context if the token is invalid or expired
-                // System.err.println("JWT Validation Failed: " + e.getMessage());
                 SecurityContextHolder.clearContext();
             }
         }

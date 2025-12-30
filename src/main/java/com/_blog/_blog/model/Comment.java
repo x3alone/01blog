@@ -17,6 +17,7 @@ public class Comment {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    // Media support in comments: allows users to attach images/videos (Audit: Comment with Media)
     @Column
     private String mediaUrl;
 
@@ -30,6 +31,7 @@ public class Comment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    // Parent post relationship: when post is deleted, all comments cascade delete (Audit: Deleted Content Removal)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;

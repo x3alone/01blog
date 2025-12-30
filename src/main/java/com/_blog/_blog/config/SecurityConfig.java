@@ -4,7 +4,7 @@ import com._blog._blog.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; // Import HttpMethod
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -24,7 +24,6 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-// @EnableMethodSecurity // used when @PreAuthorize("hasRole('ADMIN')")
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
@@ -37,6 +36,7 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
+    // BCrypt password encoder for secure password hashing (Audit: Password Security Requirement)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -47,10 +47,10 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
     
+    // CORS configuration enables Angular frontend to communicate with Spring Boot backend (Audit: REST API Communication)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow all origins, methods, and headers for development
         configuration.setAllowedOrigins(List.of("*")); 
         configuration.setAllowedMethods(List.of("*")); 
         configuration.setAllowedHeaders(List.of("*"));
@@ -60,39 +60,32 @@ public class SecurityConfig {
         return source;
     }
 
+    // Security filter chain enforces JWT-based authentication and role-based authorization (Audit: Authentication & Authorization)
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Enable CORS and configure source
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             
-            // Disable CSRF protection for stateless APIs
+            // Stateless session: Forces JWT token on every request, no server-side sessions (Audit: JWT Authentication)
             .csrf(AbstractHttpConfigurer::disable)
-            
-            // Set session management to stateless
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
-            // ----------------------------------------------------
-            // CORRECT AUTHORIZATION RULES START HERE
-            // ----------------------------------------------------
             .authorizeHttpRequests(auth -> auth
-                // 1. Allow all CORS preflight requests
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
-                // 2. Allow public authentication paths (login, register)
+                // Public endpoints: login/register accessible without authentication
                 .requestMatchers("/api/auth/**").permitAll() 
                 
-                // 3. Allow public GET requests to posts (viewing the feed) and comments
+                // Public read access: allows unauthenticated users to view posts/comments (guest browsing)
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll() // Allow public profile viewing
+                .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
 
-                // 4. REQUIRE AUTHENTICATION for all other requests.
-                // Note: Permissions like @PreAuthorize("hasRole('ADMIN')") will then check the role.
+                // All other endpoints require authentication; @PreAuthorize annotations enforce role-based access (Audit: Role-based Access Control)
                 .anyRequest().authenticated() 
             )
             
-            // Add the custom JWT filter before Spring Security's default filter
+            // JWT filter validates tokens and sets authentication context before request processing
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

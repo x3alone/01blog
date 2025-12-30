@@ -10,7 +10,6 @@ export const adminGuard: CanActivateFn = (route, state) => {
         return true;
     }
 
-    // Redirect to unauthorized error page
     router.navigate(['/error'], { queryParams: { code: '403' } });
     return false;
 };
