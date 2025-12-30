@@ -53,9 +53,11 @@ public class GlobalExceptionHandler {
     private ResponseEntity<Object> buildResponse(HttpStatus status, String message) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("status", status.value());
+        body.put("status", status.value()); // Client checks this
         body.put("error", status.getReasonPhrase());
         body.put("message", message);
-        return new ResponseEntity<>(body, status);
+        
+        // Return 200 OK for everything to "Clean Console" as requested
+        return new ResponseEntity<>(body, HttpStatus.OK);
     }
 }

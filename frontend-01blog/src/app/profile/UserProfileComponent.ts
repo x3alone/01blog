@@ -65,7 +65,7 @@ export class UserProfileComponent implements OnInit {
         this.checkIfOwnProfile(data.username);
       },
       error: (err) => {
-        console.error('Failed to load profile', err);
+        // console.error('Failed to load profile', err);
         this.isLoading.set(false);
       }
     });
@@ -76,7 +76,9 @@ export class UserProfileComponent implements OnInit {
       next: (page: any) => { // using any to avoid import issues or strict typing on Page interface here if not imported
         this.posts.set(page.content);
       },
-      error: (err) => console.error('Failed to load posts', err)
+      error: (err) => {
+        // console.error('Failed to load posts', err) 
+      }
     });
   }
 
@@ -165,7 +167,10 @@ export class UserProfileComponent implements OnInit {
 
         this.isEditing.set(false);
       },
-      error: (err) => console.error('Failed to update profile', err)
+      error: (err) => {
+        // console.error('Failed to update profile', err)
+        this.toastService.show("Failed to update profile", 'error');
+      }
     });
   }
 
@@ -177,7 +182,10 @@ export class UserProfileComponent implements OnInit {
           const url = res.secure_url || res.url;
           this.editForm.update(curr => ({ ...curr, avatarUrl: url }));
         },
-        error: (err) => console.error('Avatar upload failed', err)
+        error: (err) => {
+          // console.error('Avatar upload failed', err)
+          this.toastService.show("Avatar upload failed", 'error');
+        }
       });
     }
   }
@@ -206,13 +214,27 @@ export class UserProfileComponent implements OnInit {
     }
 
     this.reportService.reportUser(p.id, finalReason, this.reportDetails).subscribe({
-      next: () => {
+      next: (res: any) => {
+        if (res && res.status && res.status !== 200) {
+          // Handle error logic here because we suppressed 4xx/5xx
+          if (res.status === 409 || res.status === 500) {
+            this.toastService.show("User already reported or conflict occurred.", "error");
+          } else if (res.message) {
+            this.toastService.show(res.message, "error");
+          } else {
+            this.toastService.show("Failed to report user.", "error");
+          }
+          return;
+        }
+
         this.closeReportModal();
         this.toastService.show("User reported successfully.", "success");
       },
       error: (e) => {
         // Check for specific error message if available, otherwise generic
-        if (e.error && e.error.message) {
+        if (e.status === 409 || e.status === 500) {
+          this.toastService.show("User already reported or conflict occurred.", "error");
+        } else if (e.error && e.error.message) {
           this.toastService.show(e.error.message, "error");
         } else {
           this.toastService.show("Failed to report user.", "error");

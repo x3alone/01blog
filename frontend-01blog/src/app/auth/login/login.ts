@@ -243,10 +243,31 @@ export class LoginComponent {
     }
 
     this.auth.login({ username: this.username, password: this.password }).subscribe({
-      next: () => {
+      next: (res: any) => {
+        // Since we now return 200 OK for errors to clear console, check the body
+        if (res.status && res.status !== 200) {
+          if (res.status === 403) {
+            this.loginError = "You have been banned by an admin.";
+          }
+          else if (res.status === 404) {
+            this.loginError = "username does not exist";
+          }
+          else if (res.status === 401) {
+            this.loginError = "password not correct";
+          }
+          else if (res.message) {
+            this.loginError = res.message;
+          }
+          else {
+            this.loginError = 'Login failed. Please check your connection.';
+          }
+          return;
+        }
+
         this.router.navigate(['/home']);
       },
       error: (err) => {
+        // Fallback for real network errors
         // console.error('Login error:', err); // Suppressed expected errors
 
         // Granular Error Handling

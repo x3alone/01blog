@@ -373,13 +373,25 @@ export class RegisterComponent {
     };
 
     this.auth.register(data).subscribe({
-      next: () => {
+      next: (res: any) => {
+        // Clean console fix: Check for 200 OK with error body
+        if (res && res.status && res.status !== 200) {
+             if (res.status === 409 || res.status === 500) {
+               this.registerError = 'Username already exists';
+             } else if (res.message) {
+               this.registerError = res.message;
+             } else {
+               this.registerError = 'Registration failed.';
+             }
+             return; // Stop success flow
+        }
+
         this.router.navigate(['/home']);
       },
       error: (err) => {
         // console.error('Registration error:', err); // Suppressed expected errors
-        if (err.status === 409) {
-          this.registerError = 'username already exists';
+        if (err.status === 409 || err.status === 500) {
+          this.registerError = 'Username already exists';
         } else if (err.error?.message) {
           this.registerError = err.error.message;
         }
@@ -398,7 +410,7 @@ export class RegisterComponent {
           this.avatarUrl = res.secure_url || res.url;
         },
         error: (err: any) => {
-          console.error('Upload failed', err);
+          // console.error('Upload failed', err);
           this.registerError = "Failed to upload avatar.";
         }
       });

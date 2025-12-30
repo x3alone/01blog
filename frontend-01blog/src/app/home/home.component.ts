@@ -256,11 +256,26 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (!this.reportingPostId) return;
 
     this.reportService.createReport(this.reportingPostId, this.reportReason, this.reportDetails).subscribe({
-      next: () => {
+      next: (res: any) => {
+        if (res && res.status && res.status !== 200) {
+          if (res.status === 409 || res.status === 500) {
+            this.toastService.show("Post already reported or conflict occurred.", "error");
+          } else {
+            this.toastService.show("Failed to submit report", "error");
+          }
+          return;
+        }
+
         this.closeReportModal();
         this.toastService.show("Report submitted", "success");
       },
-      error: (e) => this.toastService.show("Failed to submit report", "error")
+      error: (e) => {
+        if (e.status === 409 || e.status === 500) {
+          this.toastService.show("Post already reported or conflict occurred.", "error");
+        } else {
+          this.toastService.show("Failed to submit report", "error")
+        }
+      }
     });
   }
 
@@ -296,7 +311,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         }
       },
       error: (e: any) => {
-        console.error('Failed to load posts', e);
+        // console.error('Failed to load posts', e);
         this.isLoading.set(false);
       }
     });
@@ -424,7 +439,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         this.toastService.show("Post created successfully.", 'success');
       },
       error: (e: any) => {
-        console.error('Create post failed', e);
+        // console.error('Create post failed', e);
         this.isPosting.set(false);
         this.toastService.show("Failed to create post.", 'error');
       }
@@ -511,8 +526,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   addComment(postId: number) {
-    const content = this.newCommentInputs().get(postId);
+    let content = this.newCommentInputs().get(postId);
     if (!content) return;
+
+    content = content.trim();
+
+    if (!content) {
+        this.toastService.show("Comment cannot be empty.", "error");
+        return;
+    }
 
     if (content.length > this.MAX_COMMENT_LENGTH) {
       this.toastService.show(`Comment too long! (${content.length}/${this.MAX_COMMENT_LENGTH})`, 'error');

@@ -67,7 +67,7 @@ export class PostService {
     getAllPosts(page: number, size: number): Observable<Page<Post>> {
         return this.http.get<Page<Post>>(`${this.API_URL}?page=${page}&size=${size}`).pipe(
             catchError(err => {
-                console.error('Error fetching posts:', err);
+                // console.error('Error fetching posts:', err);
                 return throwError(() => new Error('Failed to load posts from server.'));
             })
         );
@@ -76,7 +76,7 @@ export class PostService {
     getPostsByUserId(userId: number, page: number, size: number): Observable<Page<Post>> {
         return this.http.get<Page<Post>>(`${this.API_URL}/user/${userId}?page=${page}&size=${size}`).pipe(
             catchError(err => {
-                console.error(`Error fetching posts for user ${userId}:`, err);
+                // console.error(`Error fetching posts for user ${userId}:`, err);
                 return throwError(() => new Error('Failed to load user posts from server.'));
             })
         );
@@ -109,7 +109,7 @@ export class PostService {
         }
         return this.http.put<Post>(`${this.API_URL}/${id}`, formData, this.getAuthHeaders()).pipe(
             catchError(err => {
-                console.error(`Error updating post ${id}:`, err);
+                // console.error(`Error updating post ${id}:`, err);
                 // The backend will return 403 Forbidden if the user is not the author/admin
                 return throwError(() => new Error(err.error?.message || `Failed to update post. Status: ${err.status}`));
             })
@@ -122,7 +122,7 @@ export class PostService {
         // Backend returns HTTP 204 No Content for a successful delete (type void)
         return this.http.delete<void>(`${this.API_URL}/${id}`, headers).pipe(
             catchError(err => {
-                console.error(`Error deleting post ${id}:`, err);
+                // console.error(`Error deleting post ${id}:`, err);
                 // The backend will return 403 Forbidden if the user is not the author/admin
                 return throwError(() => new Error(err.error?.message || `Failed to delete post. Status: ${err.status}`));
             })
@@ -132,7 +132,7 @@ export class PostService {
     toggleHide(id: number): Observable<void> {
         return this.http.put<void>(`${this.API_URL}/${id}/hide`, {}, this.getAuthHeaders()).pipe(
             catchError(err => {
-                console.error(`Error toggling hide for post ${id}:`, err);
+                // console.error(`Error toggling hide for post ${id}:`, err);
                 return throwError(() => new Error('Failed to toggle visibility'));
             })
         );

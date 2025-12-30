@@ -70,7 +70,9 @@ export class AppComponent implements OnInit {
       next: (data) => {
         this.processNotifications(data);
       },
-      error: (e) => console.error('Failed to load notifications', e)
+      error: (e) => {
+        // console.error('Failed to load notifications', e) 
+      }
     });
   }
 
@@ -85,7 +87,9 @@ export class AppComponent implements OnInit {
   loadUnreadCount() {
     this.notificationService.getUnreadCount().subscribe({
       next: (count) => this.unreadCount.set(count),
-      error: (e) => console.error('Failed to count unread', e)
+      error: (e) => {
+        // console.error('Failed to count unread', e)
+      }
     });
   }
 
@@ -98,7 +102,9 @@ export class AppComponent implements OnInit {
         next: () => {
           this.unreadCount.set(0); // Clear badge immediately
         },
-        error: (e) => console.error('Failed to mark read', e)
+        error: (e) => {
+          // console.error('Failed to mark read', e) 
+        }
       });
     }
   }

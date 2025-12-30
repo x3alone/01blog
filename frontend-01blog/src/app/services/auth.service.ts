@@ -102,11 +102,12 @@ export class AuthService {
         this.router.navigate(['/login']);
     }
 
-    login(data: { username: string; password: string }): Observable<string> {
-        return this.http.post<AuthenticationResponse>(`${API_BASE_URL}/login`, data)
+    login(data: { username: string; password: string }): Observable<any> {
+        return this.http.post<AuthenticationResponse | any>(`${API_BASE_URL}/login`, data)
             .pipe(
                 tap((response) => {
-                    if (response.jwtToken) {
+                    // Check if success (has token) AND no error status
+                    if (response.jwtToken && !response.status) {
                         // setToken now handles state update
                         this.setToken(response.jwtToken);
                         if (isPlatformBrowser(this.platformId)) {
@@ -120,7 +121,8 @@ export class AuthService {
                         this.router.navigate(['/home']);
                     }
                 }),
-                map(res => res.jwtToken)
+                // Return full response so component can check for custom "error: ..." body
+                map(res => res)
             );
     }
     register(data: {
