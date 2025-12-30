@@ -33,6 +33,11 @@ public class ReportService {
                 .orElseThrow(() -> new RuntimeException("Reporter not found"));
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        // Check if self-reporting
+        if (reporter.getId().equals(post.getUser().getId())) {
+             throw new RuntimeException("You cannot report your own post.");
+        }
         
         // Check if already reported
         if (reportRepository.existsByReporterAndReportedPost(reporter, post)) {
@@ -49,6 +54,10 @@ public class ReportService {
                 .orElseThrow(() -> new RuntimeException("Reporter not found"));
         User reportedUser = userRepository.findById(reportedUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (reporter.getId().equals(reportedUser.getId())) {
+             throw new RuntimeException("You cannot report yourself.");
+        }
 
         // Check if already reported
         if (reportRepository.existsByReporterAndReportedUser(reporter, reportedUser)) {

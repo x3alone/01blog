@@ -36,25 +36,27 @@
             } @else {
             {{ profile()?.username?.charAt(0)?.toUpperCase() }}
             }
-          }
-        </div>
-        
-      </div>
+            }
+          </div>
 
-      <h1 class="username-title">
+        </div>
+
+        <h1 class="username-title">
           {{ profile()?.username }}
           @if (profile()?.role === 'ADMIN') { <span class="admin-tag">Admin</span>
-        }
-        
-        <button (click)="openReportModal()" class="action-icon-btn report-btn-profile" title="Report User">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            class="feather feather-alert-circle" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-          </svg>
-        </button>
+          }
+
+          @if (currentUser() && currentUser() !== profile()?.username) {
+          <button (click)="openReportModal()" class="action-icon-btn report-btn-profile" title="Report User">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              class="feather feather-alert-circle" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </button>
+          }
         </h1>
 
         @if (isEditing()) {
@@ -97,7 +99,7 @@
             <button (click)="toggleFollow()" class="follow-btn" [class.unfollow]="isFollowing()">
               {{ isFollowing() ? 'Unfollow' : 'Follow' }}
             </button>
-            
+
             }
           </div>
         </div>
