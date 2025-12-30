@@ -40,42 +40,4 @@ api secret
 GSt_Y30ps-6kFdimHOOoVKcpE60
 env var api 
 CLOUDINARY_URL=cloudinary://632548746385176:GSt_Y30ps-6kFdimHOOoVKcpE60@dibe3wgh1
-µ
 
-
-
-
- >need to add rate limit to comments 
-
--add hide to posts only admin can hide and then only admin can see the posts that are hidden 
--add delete user in dashboard 
--add postid routing (the name of tap will be the title of post) so i can see only one post if i click on a post, thus lower the size of posts to realistic size that shows both image and video forms 
-
-posts fixed size media, and in the edit i should be also able to edit the uploaded media whether remove it or remplace it with another one that i can upload 
-add scroll bar in notification and remove that stacking of following and notifs but keep the 5 notif line
-try to  remove extra colors from dash board even white on posts and remove hover action on posts,
-try to lower or darken the background color  maybe lower radius if the posts form  1e1e1e color (  1e1e1e black ish)
-
->add scroll to comments  and fix its size 
->remove logo and displace home to right top 
- 
-  try to  remove extra colors from dash board even white  on posts and remove hover action on posts,  try to make the posts (glassmorphism ui 1e1e1e ) 
-
-  
-
-  checks and test 
- > test report a post and delete it from the author or admin and then go  to dashboard to check if the post is deleted or not 
-
-
-
-
-.profile-card[_ngcontent-ng-c3556646560] {
-    background: rgba(255, 255, 255, 0.1);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    margin-bottom: 40px;
-}
