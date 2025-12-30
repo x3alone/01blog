@@ -69,7 +69,7 @@ public class UserController {
          return ResponseEntity.ok().build();
     }
 
-    // Admin bans user; prevents self-banning via service layer (Audit: Admin Ban Users)
+    //Admin bans user; prevents self-banning via service layer (Audit: Admin Ban Users)
     @PutMapping("/{id}/ban")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> banUser(@PathVariable Long id, @AuthenticationPrincipal String username) {
