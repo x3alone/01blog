@@ -3,72 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ToastService } from '../../services/toast.service';
 
 @Component({
-    selector: 'app-toast',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
-    <div class="toast-container">
-      @for (toast of toastService.toasts(); track toast.id) {
-        <div class="toast" [ngClass]="toast.type">
-          {{ toast.message }}
-        </div>
-      }
-    </div>
-  `,
-    styles: [`
-    .toast-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      pointer-events: none;
-    }
-
-    .toast {
-      padding: 12px 24px;
-      border-radius: 8px;
-      color: white;
-      font-weight: 500;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      backdrop-filter: blur(8px);
-      animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-in 1.5s forwards; /* Total 2s visibility roughly */
-      pointer-events: auto;
-      min-width: 250px;
-      
-      /* Glassmorphism / Gradient styles consistent with app */
-      background: rgba(30, 41, 59, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .toast.success {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(161, 255, 172, 0.45);
-    }
-
-    .toast.error {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 109, 109, 0.2);
-    }
-
-    .toast.info {
-      background: rgba(255, 255, 255, 0.5);
-       border: 1px solid rgba(59, 130, 246, 0.2);
-    }
-
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    
-    @keyframes fadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
-    }
-  `]
+  selector: 'app-toast',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './toast.component.html',
+  styleUrl: './toast.component.scss'
 })
 export class ToastComponent {
-    toastService = inject(ToastService);
+  toastService = inject(ToastService);
 }

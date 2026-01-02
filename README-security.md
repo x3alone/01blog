@@ -1,4 +1,4 @@
-# Security Documentation (Audit & Defense)
+# Security Documentation 
 
 ## 🛡️ Security Architecture Overview
 This application follows a **Defense-in-Depth** strategy. Security is not just one layer; it is implemented at the Database, API, and Client levels.
@@ -69,9 +69,3 @@ We Implement **Role-Based Access Control (RBAC)**.
 - **Cloudinary:** We do not execute user-uploaded files on our server.
 - They are proxied to Cloudinary.
 - **Validation:** We check file types (MIME types) to ensure only Images/Videos are uploaded, not `.exe` or `.sh` scripts.
-
-## 5️⃣ Audit Checklist
-- [x] Passwords Hashed (BCrypt)? **YES**
-- [x] HTTPS enforced? **YES** (In Prod environment)
-- [x] No sensitive data in logs? **YES**
-- [x] Dependencies up to date? **YES** (Maven checks)

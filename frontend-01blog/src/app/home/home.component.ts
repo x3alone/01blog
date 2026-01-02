@@ -135,7 +135,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const file = event.target.files[0];
     if (file) {
       this.editFile = file;
-      this.removeMediaFlag = false; // logic: if uploading new, we are replacing, so technically removing old is handled by backend replace logic
+      this.removeMediaFlag = false; // logic: if uploading new, replace, so technically removing old is handled by backend replace logic
 
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -182,19 +182,23 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   toggleHide(post: Post) {
-    this.postService.toggleHide(post.id).subscribe({
-      next: () => {
-        const newStatus = !post.hidden;
-        this.posts.update(posts => posts.map(p => p.id === post.id ? { ...p, hidden: newStatus } : p));
-        const msg = newStatus ? "Post is now hidden" : "Post is now visible";
-        this.toastService.show(msg, "success");
-      },
-      error: () => this.toastService.show("Failed to toggle visibility", "error")
+    this.confirmationService.confirm("Are you sure you want to hide this post?", "Hide Post").subscribe(confirmed => {
+      if (confirmed) {
+        this.postService.toggleHide(post.id).subscribe({
+          next: () => {
+            const newStatus = !post.hidden;
+            this.posts.update(posts => posts.map(p => p.id === post.id ? { ...p, hidden: newStatus } : p));
+            const msg = newStatus ? "Post is now hidden" : "Post is now visible";
+            this.toastService.show(msg, "success");
+          },
+          error: () => this.toastService.show("Failed to toggle visibility", "error")
+        });
+      }
     });
   }
 
   toggleLike(post: Post) {
-    if (this.likingPosts.has(post.id)) return; // Debounce
+      if(this.likingPosts.has(post.id)) return; // Debounce
 
     this.likingPosts.add(post.id);
 
@@ -287,8 +291,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (reset) {
       this.currentPage = 0;
       this.hasMore.set(true);
-      // Optional: Clear posts immediately or wait for response? 
-      // If we clear, user sees flicker. If we don't, we replace.
+      // If  clear, user sees flicker. If no,  replace.
     }
 
     this.postService.getAllPosts(this.currentPage, this.pageSize).subscribe({
@@ -532,8 +535,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     content = content.trim();
 
     if (!content) {
-        this.toastService.show("Comment cannot be empty.", "error");
-        return;
+      this.toastService.show("Comment cannot be empty.", "error");
+      return;
     }
 
     if (content.length > this.MAX_COMMENT_LENGTH) {

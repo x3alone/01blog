@@ -22,7 +22,7 @@ public class Post {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    // Cloudinary media fields: URL for display, type (IMAGE/VIDEO), publicId for deletion (Audit: Secure Media Storage)
+    // Cloudinary media fields: URL for display, type (IMAGE/VIDEO), publicId for deletion ( Secure Media Storage)
     @Column
     private String mediaUrl;
 
@@ -101,7 +101,7 @@ public class Post {
         this.user = user;
     }
 
-    // Cascade delete: when post is deleted, all comments are automatically removed (Audit: Deleted Content Removal)
+    // Cascade delete: when post is deleted, all comments are automatically removed ( Deleted Content Removal)
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<Comment> comments = new java.util.ArrayList<>();
 
@@ -113,11 +113,11 @@ public class Post {
         this.comments = comments;
     }
 
-    // Cascade delete: reports tied to deleted posts are automatically removed (Audit: Database Relationships)
+    // Cascade delete: reports tied to deleted posts are automatically removed ( Database Relationships)
     @OneToMany(mappedBy = "reportedPost", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<Report> reports = new java.util.ArrayList<>();
 
-    // Many-to-many: tracks which users liked this post (Audit: Post Interactions)
+    // Many-to-many: tracks which users liked this post ( Post Interactions)
     @ManyToMany
     @JoinTable(
         name = "post_likes",
@@ -142,7 +142,7 @@ public class Post {
         this.reports = reports;
     }
 
-    // Admin hide functionality: hidden posts excluded from public feed but retained in database (Audit: Admin Remove/Hide Posts)
+    // Admin hide functionality: hidden posts excluded from public feed but retained in database ( Admin Remove/Hide Posts)
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean hidden = false;
 

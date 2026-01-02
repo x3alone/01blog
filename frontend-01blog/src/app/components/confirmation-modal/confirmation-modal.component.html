@@ -1,0 +1,13 @@
+@if (confirmationService.confirmation()) {
+<div class="modal-overlay">
+    <div class="modal-content">
+        <h3>{{ confirmationService.confirmation()?.title }}</h3>
+        <p>{{ confirmationService.confirmation()?.message }}</p>
+        <div class="modal-actions">
+            <button class="btn-cancel"
+                (click)="confirmationService.confirmation()?.reject && confirmationService.confirmation()?.reject!()">Cancel</button>
+            <button class="btn-confirm" (click)="confirmationService.confirmation()?.accept()">Confirm</button>
+        </div>
+    </div>
+</div>
+}

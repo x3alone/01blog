@@ -36,7 +36,7 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
-    // BCrypt password encoder for secure password hashing (Audit: Password Security Requirement)
+    // BCrypt password encoder for secure password hashing ( Password Security Requirement)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -47,7 +47,7 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
     
-    // CORS configuration enables Angular frontend to communicate with Spring Boot backend (Audit: REST API Communication)
+    // CORS configuration enables Angular frontend to communicate with Spring Boot backend ( REST API Communication)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -60,13 +60,13 @@ public class SecurityConfig {
         return source;
     }
 
-    // Security filter chain enforces JWT-based authentication and role-based authorization (Audit: Authentication & Authorization)
+    // Security filter chain enforces JWT-based authentication and role-based authorization ( Authentication & Authorization)
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             
-            // Stateless session: Forces JWT token on every request, no server-side sessions (Audit: JWT Authentication)
+            // Stateless session: Forces JWT token on every request, no server-side sessions ( JWT Authentication)
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
@@ -81,7 +81,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
 
-                // All other endpoints require authentication; @PreAuthorize annotations enforce role-based access (Audit: Role-based Access Control)
+                // All other endpoints require authentication; @PreAuthorize annotations enforce role-based access ( Role-based Access Control)
                 .anyRequest().authenticated() 
             )
             

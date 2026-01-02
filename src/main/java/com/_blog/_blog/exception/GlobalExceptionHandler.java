@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
-    // Custom error response builder: returns HTTP 200 with error details in body to prevent browser console errors (Audit: Error Handling)
+    // Custom error response builder: returns HTTP 200 with error details in body to prevent browser console errors ( Error Handling)
     // Frontend checks 'status' field in body to distinguish success from error while keeping console clean
     private ResponseEntity<Object> buildResponse(HttpStatus status, String message) {
         Map<String, Object> body = new HashMap<>();

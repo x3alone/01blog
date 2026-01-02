@@ -27,7 +27,7 @@ public class Report {
     @JsonIgnoreProperties({"posts", "password", "role", "isBanned", "authorities"})
     private User reportedUser;
 
-    // Reason and timestamp create audit trail for admin review (Audit: Reports with Reasons & Timestamps)
+    // Reason and timestamp create  trail for admin review ( Reports with Reasons & Timestamps)
     @Column(nullable = false)
     private String reason;
 

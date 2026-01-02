@@ -1,0 +1,52 @@
+<div class="reports-container">
+    <h3 class="section-title">Reported Posts</h3>
+
+    @if (reports().length === 0) {
+    <div class="no-reports-message">No reports found.</div>
+    }
+
+    <div class="reports-list">
+        @for (report of reports(); track report.id) {
+        <div class="report-card">
+            <div class="report-header">
+                <span class="report-reason">{{ report.reason }}</span>
+                <span class="report-date">{{ report.timestamp | date:'short' }}</span>
+            </div>
+
+            <p class="report-details">"{{ report.details }}"</p>
+            <p class="reporter-info">Reported by: {{ report.reporterUsername }}</p>
+
+            <div class="reported-post-box">
+                <div class="mini-post-header">
+                    <span class="mini-label">Reported Post</span>
+                    <span class="post-author">@{{ report.reportedPostAuthorUsername }}</span>
+                </div>
+
+                <h4 class="post-title">{{ report.reportedPostTitle }}</h4>
+                <p class="post-snippet">{{ report.reportedPostContent | slice:0:150 }}{{
+                    report.reportedPostContent.length > 150 ? '...' : '' }}</p>
+
+                @if (report.reportedPostMediaType === 'image' && report.reportedPostMediaUrl) {
+                <div class="media-preview">
+                    <img [src]="report.reportedPostMediaUrl" alt="Reported Media">
+                </div>
+                }
+                @if (report.reportedPostMediaType === 'video' && report.reportedPostMediaUrl) {
+                <div class="media-preview">
+                    <video [src]="report.reportedPostMediaUrl" controls></video>
+                </div>
+                }
+            </div>
+
+            <div class="action-buttons">
+                <button (click)="deletePost(report)" class="delete-btn" [disabled]="isProcessing(report.id)">
+                    @if (isProcessing(report.id)) { ... } @else { Delete Post }
+                </button>
+                <button (click)="dismissReport(report.id)" class="dismiss-btn" [disabled]="isProcessing(report.id)">
+                    @if (isProcessing(report.id)) { ... } @else { Dismiss }
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+</div>

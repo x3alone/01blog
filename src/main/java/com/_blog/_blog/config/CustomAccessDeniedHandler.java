@@ -13,10 +13,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Custom handler to return 200 OK for 403 errors to keep browser console clean
- * Frontend checks the 'status' field in the JSON body to handle authorization failures
- */
+// Custom handler to return 200 OK for 403 errors to keep browser console clean
+// Frontend checks the 'status' field in the JSON body to handle authorization failures
+ 
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 

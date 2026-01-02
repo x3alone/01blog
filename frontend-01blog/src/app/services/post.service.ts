@@ -5,7 +5,7 @@ import { catchError } from 'rxjs/operators';
 
 // --- Data Models ---
 export interface Post {
-    id: number; // NOTE: Changed to 'number' to match Java Long/ID type better
+    id: number; //  Changed to 'number' to match Java Long/ID type 
     title: string;
     content: string;
     userId: number; // NEW FIELD

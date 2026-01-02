@@ -39,8 +39,8 @@ public class PostService {
         this.notificationService = notificationService;
     }
 
-    // ... (rest of methods unchanged until toggleLike) ...
-    // Note: I will use a larger replacement chunk or carefully target toggleLike + Constructor if they are far apart.
+    // ... (rest of methods unchanged until toggleLike) 
+    //  I ll use a larger replacement chunk or carefully target toggleLike + Constructor if they are far apart.
     // Since I can't easily jump around, I will do constructor first, then toggleLike in separate call if needed. 
     // Wait, replacing constructor and field definition first.
 
@@ -198,17 +198,9 @@ public class PostService {
     }
     
 
-    // Existing createPost method (without media) should be REMOVED or MODIFIED, 
-    // as it is redundant and can cause confusion. Since the Controller uses the new method, 
-    // we can remove the old one:
-    /* REMOVE THIS METHOD:
-    @Transactional
-    public PostResponse createPost(CreatePostRequest request) { ... }
-    */
+    
 
- /**
-     * Retrieves all posts, ordered by creation date (newest first).
-     */
+    // Retrieves all posts, ordered by creation date (newest first).
     // Updated getAllPosts to support pagination
     @Transactional(readOnly = true)
     public Page<PostResponse> getAllPosts(int page, int size) {
@@ -223,9 +215,8 @@ public class PostService {
             postsPage = postRepository.findAll(pageable);
         } else if (currentUsername != null) {
             // Logged in user: See public posts OR their own hidden posts
-            // We need to use a query that handles this OR condition cleanly
-            // The derived query findByHiddenFalseOrUserUsername... should work if naming is correct
-            // But verify sort precedence. passing pageable with sort is safest.
+            // query findByHiddenFalseOrUserUsername... should work if naming is correct
+            //  verify sort precedence. passing pageable with sort is safest.
             postsPage = postRepository.findByHiddenFalseOrUserUsernameOrderByCreatedAtDesc(currentUsername, pageable);
         } else {
             // Guest: Only not hidden
@@ -261,9 +252,9 @@ public class PostService {
         return postsPage.map(this::mapToDto);
     }
 
-    /**
-     * Helper method to map Post entity to PostResponse DTO.
-     */
+   
+     // Helper method to map Post entity to PostResponse DTO.
+     
     @Transactional
     public void toggleLike(Long postId) {
         Post post = postRepository.findById(postId)
@@ -291,9 +282,8 @@ public class PostService {
         postRepository.save(post);
     }
 
-    /**
-     * Helper method to map Post entity to PostResponse DTO.
-     */
+     // Helper method to map Post entity to PostResponse DTO.
+     
     private PostResponse mapToDto(Post post) {
         String currentUsername = null;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -304,7 +294,7 @@ public class PostService {
         boolean likedByCurrentUser = false;
         if (currentUsername != null) {
             // Check if current user is in the likes set.
-            // Note: This relies on User equals/hashCode being based on ID or ID check.
+            // This relies on User equals/hashCode being based on ID or ID check.
             // Ideally we check by ID match.
             String finalCurrentUsername = currentUsername;
             likedByCurrentUser = post.getLikes().stream().anyMatch(u -> u.getUsername().equals(finalCurrentUsername));

@@ -25,7 +25,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final Key key;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    // Shared JWT secret key for token validation (must match AuthService key) (Audit: Secure Token Management)
+    // Shared JWT secret key for token validation (must match AuthService key) (Secure Token Management)
     private final String jwtSecretBase64 = "L7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD";
 
     private final com._blog._blog.repository.UserRepository userRepository;
@@ -42,7 +42,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         return pathMatcher.match("/api/auth/**", path) || pathMatcher.match("/auth/**", path);
     }
 
-    // JWT validation filter: extracts token, validates signature, checks ban status, and sets authentication context (Audit: JWT Authentication)
+    // JWT validation filter: extracts token, validates signature, checks ban status, and sets authentication context ( JWT Authentication)
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -61,7 +61,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 String username = claims.getSubject();
                 
-                // Real-time user validation: checks current ban status and role from database, not stale token claims (Audit: Admin Ban Enforcement)
+                // Real-time user validation: checks current ban status and role from database, not stale token claims ( Admin Ban Enforcement)
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     var userOpt = userRepository.findByUsername(username);
                     

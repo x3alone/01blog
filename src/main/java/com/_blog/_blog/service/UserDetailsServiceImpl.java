@@ -17,11 +17,10 @@ import java.util.Optional;
 import org.springframework.security.authentication.LockedException; 
 // thiss is where to delete if i got duplicates method handling bc LockedException is manually set in user getters and setters
 
-/**
- * Custom implementation of Spring Security's UserDetailsService interface.
- * This class is responsible for fetching user details (username, password, roles)
- * from the database during the authentication process.
- */
+// Custom implementation of Spring Security's UserDetailsService interface.
+// This class is responsible for fetching user details (username, password, roles)
+// from the database during the authentication process.
+
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -60,9 +59,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         );
     }
 
-    /**
-     * Converts a simple role string into a collection of GrantedAuthority objects.
-     */
+    
+    // Converts a simple role string into a collection of GrantedAuthority objects.
     private Collection<? extends GrantedAuthority> getAuthorities(String role) {
         // Roles should typically be prefixed with 'ROLE_' in Spring Security
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));

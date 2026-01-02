@@ -13,9 +13,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Custom entry point to return 200 OK for 401 errors to keep browser console clean
- */
+// Custom entry point to return 200 OK for 401 errors to keep browser console clean
+
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

@@ -24,10 +24,10 @@ public class PostController {
         this.postService = postService;
     }
 
-    /**
-     * Create Post with optional Image/Video
-     * USES: Multipart form data (not JSON body directly)
-     */
+    
+    // Create Post with optional Image/Video
+     // USES: Multipart form data (not JSON body directly)
+     
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostResponse> createPost(
             @RequestParam("title") String title,

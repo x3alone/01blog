@@ -24,21 +24,21 @@ public class AuthController {
         this.mediaService = mediaService;
     }
 
-    /**
-     * Handles user registration and returns a 201 Created status upon success.
-     * Note: Does not return a JWT upon registration, only successful creation.
-     */
+    
+      //Handles user registration and returns a 201 Created status upon success.
+     //  Does not return a JWT upon registration, only successful creation.
+     
     @PostMapping("/register")
     public ResponseEntity<Void> register(@RequestBody RegisterRequest registerRequest) {
         authService.register(registerRequest);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    /**
-     * Handles user login, calls authService.login, and returns the JWT in the 
-     * AuthenticationResponse DTO with a 200 OK status.
-     * * NOTE: This explicitly uses the updated 'login' method name.
-     */
+    
+    // Handles user login, calls authService.login, and returns the JWT in the 
+     // AuthenticationResponse DTO with a 200 OK status.
+     //  This explicitly uses the updated 'login' method name.
+     
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest loginRequest) {
         // 1. Call the service layer to perform authentication and generate the JWT

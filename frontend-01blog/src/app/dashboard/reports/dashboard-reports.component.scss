@@ -1,0 +1,150 @@
+.reports-container {
+    padding: 20px;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.no-reports-message {
+    color: #aaa;
+    font-style: italic;
+}
+
+.reports-list {
+    display: grid;
+    gap: 20px;
+}
+
+.report-card {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.report-reason {
+    font-weight: bold;
+    color: #f87171;
+    /* Red-ish */
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.report-date {
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+.report-details {
+    font-style: italic;
+    color: #e2e8f0;
+    margin-bottom: 10px;
+}
+
+.reporter-info {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-bottom: 15px;
+}
+
+.reported-post-box {
+    background: #0f172a;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    border: 1px solid #334155;
+}
+
+.mini-post-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.mini-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #94a3b8;
+}
+
+.post-author {
+    font-size: 0.85rem;
+    color: #38bdf8;
+    font-weight: 500;
+}
+
+.post-title {
+    margin: 0 0 5px;
+    color: #f1f5f9;
+    font-size: 1rem;
+}
+
+.post-snippet {
+    color: #eee;
+    margin: 0 0 10px !important;
+    line-height: 1.4;
+    font-size: 0.9rem;
+}
+
+.media-preview {
+    width: 100%;
+    height: 150px;
+    background: #000;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-preview img,
+.media-preview video {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.delete-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.delete-btn:hover {
+    background: #dc2626;
+}
+
+.dismiss-btn {
+    background: #64748b;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.dismiss-btn:hover {
+    background: #475569;
+}

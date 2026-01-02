@@ -38,7 +38,7 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(TOKEN_KEY, token);
       this.authState.next(true);
-      this.clearBanned(); // ✅ Clear ban on successful login
+      this.clearBanned(); //  Clear ban on successful login
     }
   }
 

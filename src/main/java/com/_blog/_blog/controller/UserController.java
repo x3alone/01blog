@@ -26,7 +26,7 @@ public class UserController {
         this.mediaService = mediaService;
     }
 
-    // Public endpoint: allows viewing any user profile (Audit: Public Profile Viewing)
+    // Public endpoint: allows viewing any user profile ( Public Profile Viewing)
     @GetMapping("/{profileOwnerId}")
     public ResponseEntity<UserProfileDto> getUserProfile(
             @PathVariable Long profileOwnerId,
@@ -44,7 +44,7 @@ public class UserController {
         UserProfileDto profileDto = userService.getUserProfile(profileOwnerId, currentUserId);
         return ResponseEntity.ok(profileDto);
     }
-    // Admin-only endpoint: retrieves all users for dashboard (Audit: Admin-Only Routes)
+    // Admin-only endpoint: retrieves all users for dashboard ( Admin-Only Routes)
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ADMIN')") 
     public ResponseEntity<List<User>> getAllUsers() {
@@ -52,7 +52,7 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    // Admin promotes user to ADMIN role; prevents self-promotion via service layer (Audit: Role-based Access Control)
+    // Admin promotes user to ADMIN role; prevents self-promotion via service layer ( Role-based Access Control)
     @PutMapping("/{id}/promote")
     @PreAuthorize("hasRole('ADMIN')") 
     public ResponseEntity<Void> promoteUser(@PathVariable Long id, @AuthenticationPrincipal String username) {
@@ -69,7 +69,7 @@ public class UserController {
          return ResponseEntity.ok().build();
     }
 
-    //Admin bans user; prevents self-banning via service layer (Audit: Admin Ban Users)
+    //Admin bans user; prevents self-banning via service layer ( Admin Ban Users)
     @PutMapping("/{id}/ban")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> banUser(@PathVariable Long id, @AuthenticationPrincipal String username) {

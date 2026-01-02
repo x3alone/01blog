@@ -59,7 +59,7 @@
   <div class="data-list fade-in">
     @if(isLoading()) { <p>Loading users...</p> }
     @for (user of users(); track user.id) {
-    <!-- Note: Users view keeps simpler structure, but adapted to new grid logic slightly if needed or kept simple flex -->
+    <!--  Users view keeps simpler structure, but adapted to new grid logic slightly if needed or kept simple flex -->
     <div class="list-item user-item">
       <div class="item-main">
         <span class="main-text" [ngClass]="{
@@ -215,7 +215,7 @@
         </button>
         } -->
 
-        <!-- Delete Post (Trash) - Only for Post Reports -->
+        <!-- Delete Post  Only for Post Reports -->
         @if(report.reportedPostId) {
         <button (click)="deleteReportedPost(report.reportedPostId, report.id)" class="action-icon-btn"
           title="Delete Post & Resolve">

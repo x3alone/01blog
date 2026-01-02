@@ -20,7 +20,7 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         authService.logout();
       } else if (error.status === 403) {
-        // 🔴 Mark user as banned
+        //Mark user as banned
         authService.setBanned(true);
         authService.logout();
         router.navigate(['/unauthorized']); // optional banned page

@@ -38,7 +38,7 @@ public class User implements UserDetails {
     private String nickname;
     private String aboutMe;
 
-    // One user has many posts; JsonIgnore prevents DTO circular dependency during serialization (Audit: Database Relationships)
+    // One user has many posts; JsonIgnore prevents DTO circular dependency during serialization ( Database Relationships)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Post> posts;
@@ -95,13 +95,13 @@ public class User implements UserDetails {
     public void setAboutMe(String aboutMe) { this.aboutMe = aboutMe; }
 
 
-    // UserDetails implementation: integrates with Spring Security for authentication (Audit: Spring Security Integration)
+    // UserDetails implementation: integrates with Spring Security for authentication ( Spring Security Integration)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(() -> role);
     }
 
-    // Ban enforcement: locked accounts cannot authenticate (Audit: Admin Ban Users)
+    // Ban enforcement: locked accounts cannot authenticate ( Admin Ban Users)
     @Override
     public boolean isAccountNonLocked() {
         return !isBanned;

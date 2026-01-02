@@ -30,7 +30,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder; 
     private final AuthenticationManager authenticationManager;
 
-    // JWT secret key shared with JwtAuthFilter for token generation and validation (Audit: Secure Token Management)
+    // JWT secret key shared with JwtAuthFilter for token generation and validation ( Secure Token Management)
     private final String jwtSecretBase64 = "L7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD2gC5jB4kF7tP8oQ0rN9sM1v7hC6aG2bF1yT5uR3oP0wN8jK4dL7mF9tA5bG1cE3dU2iJ6kH0vQ4sO8rI7uW6xV9zY1wE3tD";
     private final Key key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecretBase64));
     
@@ -43,7 +43,7 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
     }
 
-    // User registration with BCrypt password hashing and automatic admin assignment for first user (Audit: Password Security, Role-based Access Control)
+    // User registration with BCrypt password hashing and automatic admin assignment for first user ( Password Security, Role-based Access Control)
     public void register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new com._blog._blog.exception.UserAlreadyExistsException("username already exists"); 
@@ -70,7 +70,7 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    // Login with sequential validation: provides specific error messages (username vs password vs banned) for better UX (Audit: Error Handling)
+    // Login with sequential validation: provides specific error messages (username vs password vs banned) for better UX ( Error Handling)
     public AuthenticationResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("username does not exist"));
@@ -79,7 +79,7 @@ public class AuthService {
             throw new BadCredentialsException("password not correct");
         }
 
-        // Ban enforcement: prevents banned users from obtaining new JWT tokens (Audit: Admin Ban Users)
+        // Ban enforcement: prevents banned users from obtaining new JWT tokens ( Admin Ban Users)
         if (user.isBanned()) {
              throw new org.springframework.security.authentication.LockedException("you have been banned by an admin");
         }
@@ -92,7 +92,7 @@ public class AuthService {
              throw new BadCredentialsException("password not correct");
         }
 
-        // JWT token generation with HS512 encryption, includes user ID and role claims (Audit: JWT Authentication)
+        // JWT token generation with HS512 encryption, includes user ID and role claims ( JWT Authentication)
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + jwtExpirationMs);
 

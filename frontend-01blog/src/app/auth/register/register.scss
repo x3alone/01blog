@@ -1,113 +1,278 @@
-.auth-wrapper {
+:host {
+    min-height: 90vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 90vh;
-    /* Adjust for padding */
-    padding: 20px 0;
+    padding: 20px;
 }
 
-.auth-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-    width: 100%;
-    max-width: 400px;
-    overflow: hidden;
-}
-
-.auth-content {
+.register-box {
+    width: 600px;
     padding: 40px;
+    background: rgba(255, 255, 255, 0.15);
+    box-sizing: border-box;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, .2);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.auth-title {
+.register-box h2 {
+    margin: 0 0 30px;
+    padding: 0;
+    color: #fff;
     text-align: center;
-    color: #1e293b;
-    /* Slate 800 */
-    margin-bottom: 30px;
-    font-size: 1.8rem;
-    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.auth-form {
+.form-row {
     display: flex;
-    flex-direction: column;
     gap: 20px;
 }
 
-.form-group label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #64748b;
-    margin-bottom: 6px;
+.form-row .user-box {
+    flex: 1;
 }
 
-.clean-input {
+.user-box {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.user-box input {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 1rem;
-    color: #1e293b;
-    transition: border-color 0.2s;
-    box-sizing: border-box;
-}
-
-.clean-input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.clean-btn {
-    background: #3b82f6;
-    color: white;
+    padding: 10px 0;
+    font-size: 16px;
+    color: #fff;
+    margin-bottom: 5px;
+    /* Space for error message */
     border: none;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: 700;
+    border-bottom: 1px solid #fff;
+    outline: none;
+    background: transparent;
+}
+
+.user-box label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 10px 0;
+    font-size: 16px;
+    color: #fff;
+    pointer-events: none;
+    transition: .5s;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.user-box label.static-label {
+    top: -20px;
+    left: 0;
+    color: #ffffffff;
+    font-size: 12px;
+}
+
+.user-box input:focus~label,
+.user-box input:valid~label,
+.user-box select:focus~label,
+.user-box select:valid~label {
+    top: -20px;
+    left: 0;
+    color: #ffffffff;
+    font-size: 12px;
+}
+
+.static-box label {
+    top: -20px;
+    left: 0;
+    color: #ffffffff;
+    font-size: 12px;
+}
+
+input[type="date"] {
+    color: #fff;
+    font-family: inherit;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
     cursor: pointer;
-    transition: background 0.2s;
 }
 
-.clean-btn:hover:not(:disabled) {
-    background: #2563eb;
+.upload-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+    transition: 0.3s;
+    pointer-events: auto;
+    position: relative;
+    z-index: 100 !important;
+    /* Force high z-index */
+    background: rgba(255, 255, 255, 0.05);
+    /* Slight fill to help hit target */
+
+    /* Fix for pointer-events being overridden by parent label rule */
+    pointer-events: auto !important;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: #fff;
+    }
+
+    span {
+        color: #fff;
+        font-size: 0.9rem;
+    }
 }
 
-.clean-btn:disabled {
-    background: #cbd5e1;
-    cursor: not-allowed;
-}
-
-.auth-footer {
-    margin-top: 25px;
-    text-align: center;
-    font-size: 0.9rem;
-}
-
-.text-link {
-    color: #3b82f6;
+.register-box form a {
+    position: relative;
+    display: inline-block;
+    padding: 10px 20px;
+    color: #333;
+    font-size: 16px;
     text-decoration: none;
-    font-weight: 600;
-}
-
-.text-link:hover {
-    text-decoration: underline;
-}
-
-.error-message {
-    background: #fee2e2;
-    color: #ef4444;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-size: 0.9rem;
+    overflow: hidden;
+    transition: 0.5s;
+    letter-spacing: 4px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.15);
+    box-sizing: border-box;
+    box-shadow: 0 0px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
     text-align: center;
 }
 
-.validation-error {
-    color: #ef4444;
+.register-box a:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.register-box a span {
+    position: absolute;
+    display: block;
+}
+
+.register-box a span:nth-child(1) {
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffffffff);
+    animation: btn-anim1 1s linear infinite;
+}
+
+.register-box a span:nth-child(2) {
+    top: -100%;
+    right: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, #ffffffff);
+    animation: btn-anim2 1s linear infinite;
+    animation-delay: .25s
+}
+
+.register-box a span:nth-child(3) {
+    bottom: 0;
+    right: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(270deg, transparent, #ffffffff);
+    animation: btn-anim3 1s linear infinite;
+    animation-delay: .5s
+}
+
+.register-box a span:nth-child(4) {
+    bottom: -100%;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(360deg, transparent, #ffffffff);
+    animation: btn-anim4 1s linear infinite;
+    animation-delay: .75s
+}
+
+@keyframes btn-anim1 {
+    0% {
+        left: -100%;
+    }
+
+    50%,
+    100% {
+        left: 100%;
+    }
+}
+
+@keyframes btn-anim2 {
+    0% {
+        top: -100%;
+    }
+
+    50%,
+    100% {
+        top: 100%;
+    }
+}
+
+@keyframes btn-anim3 {
+    0% {
+        right: -100%;
+    }
+
+    50%,
+    100% {
+        right: 100%;
+    }
+}
+
+@keyframes btn-anim4 {
+    0% {
+        bottom: -100%;
+    }
+
+    50%,
+    100% {
+        bottom: 100%;
+    }
+}
+
+.error-text {
+    color: #ff6b6b;
+    /* Red text */
     font-size: 0.8rem;
-    margin-top: 5px;
+    margin: 2px 0 0 0;
+    font-weight: 500;
+    text-align: left;
+}
+
+.main-error {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 1rem;
+}
+
+.register-link {
+    margin-top: 20px;
+    color: #fff;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    a {
+        color: #ffffffff;
+        text-decoration: none;
+        font-weight: bold;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
 }
