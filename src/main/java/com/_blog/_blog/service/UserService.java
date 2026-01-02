@@ -159,4 +159,24 @@ public class UserService {
         
         return userRepository.save(user);
     }
+
+    // Search Users for Navbar
+    public List<UserProfileDto> searchUsers(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return List.of();
+        }
+        
+        List<User> users = userRepository.findByUsernameContainingIgnoreCase(query);
+        
+        // Map to DTO (Simplified mapping for search results)
+        return users.stream().map(user -> new UserProfileDto(
+            user.getId(),
+            user.getUsername(),
+            user.getRole(),
+            0, 0, false, // Counts/Status not strictly needed for basic search list, can optimize if needed
+            user.isBanned(),
+            user.getAboutMe(),
+            user.getAvatarUrl()
+        )).toList();
+    }
 }

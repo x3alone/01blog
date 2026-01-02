@@ -110,4 +110,10 @@ public class UserController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    // Search Users Endpoint
+    @GetMapping("/search")
+    public ResponseEntity<List<UserProfileDto>> searchUsers(@RequestParam("query") String query) {
+        return ResponseEntity.ok(userService.searchUsers(query));
+    }
 }

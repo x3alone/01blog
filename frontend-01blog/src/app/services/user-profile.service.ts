@@ -44,4 +44,9 @@ export class UserProfileService {
     formData.append('file', file);
     return this.http.post(`${this.apiUrl}/users/avatar`, formData);
   }
+
+  // Helper search method
+  searchUsers(query: string): Observable<UserProfileDto[]> {
+    return this.http.get<UserProfileDto[]>(`${this.apiUrl}/users/search?query=${query}`);
+  }
 }

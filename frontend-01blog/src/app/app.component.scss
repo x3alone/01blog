@@ -51,7 +51,105 @@
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
+}
+
+/* SEARCH BAR */
+.search-container {
+  position: relative;
+  margin-right: 20px;
+}
+
+.search-input-wrapper {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+  width: 500px;
+  transition: all 0.2s;
+}
+
+.search-input-wrapper.focused {
+  background: #1e1e1e;
+  border-color: rgba(255, 255, 255, 0.5);
+  width: 550px;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.search-icon {
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.search-input {
+  background: transparent;
+  border: none;
+  color: white;
+  width: 100%;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.search-input::placeholder {
+  color: #aaa;
+}
+
+.search-dropdown {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 100%;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 500;
+  max-width: 300px;
+  min-width: 250px;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: #f1f5f9;
+}
+
+.search-result-item:hover {
+  background: #334155;
+}
+
+.result-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #64748b;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 10px;
+  font-size: 0.8rem;
+  overflow: hidden;
+}
+
+.result-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-results {
+  padding: 10px;
+  color: #94a3b8;
+  font-style: italic;
+  text-align: center;
 }
 
 .nav-item {
@@ -67,9 +165,11 @@
   border: none;
   background: transparent;
 }
+
 a.nav-item.profile-link:hover {
-    color: white;
+  color: white;
 }
+
 .nav-item:hover,
 .nav-item.active {
   background: rgba(59, 130, 246, 0.1);
@@ -166,20 +266,20 @@ a.nav-item.profile-link:hover {
 //   animation: slideDown 0.2s ease-out;
 // }
 
-.notification-dropdown{
-    position: absolute;
-    top: 50px;
-    right: -10px;
-    width: 300px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-    padding: 15px;
-    z-index: 1001;
-    animation: _ngcontent-ng-c289296288_slideDown 0.2s ease-out;
-    background: #d9d9d9bf;
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+.notification-dropdown {
+  position: absolute;
+  top: 50px;
+  right: -10px;
+  width: 300px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  padding: 15px;
+  z-index: 1001;
+  animation: _ngcontent-ng-c289296288_slideDown 0.2s ease-out;
+  background: #d9d9d9bf;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 

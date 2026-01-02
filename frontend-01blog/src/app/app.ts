@@ -14,10 +14,13 @@ import { ToastComponent } from './components/toast/toast.component';
 import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
 import { ThemeService } from './services/theme.service';
 
+import { FormsModule } from '@angular/forms';
+import { UserProfileService, UserProfileDto } from './services/user-profile.service';
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterModule, ToastComponent, ConfirmationModalComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterModule, ToastComponent, ConfirmationModalComponent, FormsModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -39,6 +42,13 @@ export class AppComponent implements OnInit {
   notifications = signal<BlogNotification[]>([]);
   unreadCount = signal(0);
   showNotifications = signal(false);
+
+  // Search State
+  userProfileService = inject(UserProfileService);
+  searchQuery = signal('');
+  searchResults = signal<UserProfileDto[]>([]);
+  showSearchResults = signal(false);
+  isSearchFocused = signal(false);
 
   ngOnInit() {
     this.authService.authState$.subscribe(() => this.checkLoginStatus());
@@ -87,6 +97,47 @@ export class AppComponent implements OnInit {
       this.notificationService.markAllAsRead().subscribe({ next: () => this.unreadCount.set(0) });
     }
   }
+
+  // --- SEARCH LOGIC ---
+  onSearchInput() {
+    const query = this.searchQuery().trim();
+    if (query.length > 0) {
+      this.userProfileService.searchUsers(query).subscribe({
+        next: (users) => {
+          this.searchResults.set(users);
+          this.showSearchResults.set(true);
+        },
+        error: () => {
+          this.searchResults.set([]);
+        }
+      });
+    } else {
+      this.searchResults.set([]);
+      this.showSearchResults.set(false);
+    }
+  }
+
+  onSearchFocus() {
+    this.isSearchFocused.set(true);
+    if (this.searchQuery().trim().length > 0) {
+      this.showSearchResults.set(true);
+    }
+  }
+
+  onSearchBlur() {
+    // Delay hiding to allow click event on result
+    setTimeout(() => {
+      this.isSearchFocused.set(false);
+      this.showSearchResults.set(false);
+    }, 200);
+  }
+
+  selectSearchedUser(validUserId: number) {
+    this.router.navigate(['/user', validUserId]);
+    this.searchQuery.set('');
+    this.showSearchResults.set(false);
+  }
+
 
   @HostListener('document:click', ['$event'])
   clickout(event: Event) {

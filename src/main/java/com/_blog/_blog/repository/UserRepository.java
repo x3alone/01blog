@@ -13,4 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Used during registration to check if a username is already taken.
     boolean existsByUsername(String username);
+
+    // Search users by partial username (Case Insensitive)
+    java.util.List<User> findByUsernameContainingIgnoreCase(String username);
 }
