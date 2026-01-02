@@ -52,7 +52,6 @@ export class PostService {
 
     private readonly API_URL = 'http://localhost:8080/api/posts';
 
-    // NOTE: Removed unnecessary console.warn and simplified headers
     private getAuthHeaders() {
         const token = localStorage.getItem('01blog_auth_token');
         return {

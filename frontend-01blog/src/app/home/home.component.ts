@@ -87,7 +87,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // ... (keeping existing methods)
+
 
   checkLoginStatus() {
     if (this.authService.isAuthenticated()) {
@@ -275,6 +275,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         } else {
           this.toastService.show("Failed to submit report", "error")
         }
+        this.authService.logout();
       }
     });
   }
@@ -377,7 +378,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
   readonly MAX_CONTENT_LENGTH = 3000;
   readonly MAX_COMMENT_LENGTH = 1000;
 
-  // ... (keeping existing logic)
 
   createPost() {
     this.postCreationError.set(null);
