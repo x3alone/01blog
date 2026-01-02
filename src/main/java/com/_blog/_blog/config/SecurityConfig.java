@@ -29,11 +29,18 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsServiceImpl userDetailsService;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     @Autowired
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, UserDetailsServiceImpl userDetailsService) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, 
+                          UserDetailsServiceImpl userDetailsService,
+                          CustomAccessDeniedHandler accessDeniedHandler,
+                          CustomAuthenticationEntryPoint authenticationEntryPoint) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userDetailsService = userDetailsService;
+        this.accessDeniedHandler = accessDeniedHandler;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     // BCrypt password encoder for secure password hashing ( Password Security Requirement)
@@ -83,6 +90,12 @@ public class SecurityConfig {
 
                 // All other endpoints require authentication; @PreAuthorize annotations enforce role-based access ( Role-based Access Control)
                 .anyRequest().authenticated() 
+            )
+            
+            // Wire up custom exception handlers to return 200 OK instead of 401/403 (for clean console)
+            .exceptionHandling(e -> e
+                .accessDeniedHandler(accessDeniedHandler)
+                .authenticationEntryPoint(authenticationEntryPoint)
             )
             
             // JWT filter validates tokens and sets authentication context before request processing

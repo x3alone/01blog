@@ -182,7 +182,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   toggleHide(post: Post) {
-    this.confirmationService.confirm("Are you sure you want to hide this post?", "Hide Post").subscribe(confirmed => {
+    this.confirmationService.confirm("Are you sure you want to hide/reveal  this post?", "Hide Post").subscribe(confirmed => {
       if (confirmed) {
         this.postService.toggleHide(post.id).subscribe({
           next: () => {

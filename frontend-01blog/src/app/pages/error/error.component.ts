@@ -18,9 +18,10 @@ export class ErrorComponent implements OnInit {
 
     // Custom messages for known codes
     private errorMap: Record<string, string> = {
-        '403': 'You do not have permission to view this page.',
+        '0': 'Unable to connect to the server. Please check your internet connection or try again later.',
+        '403': 'Access Denied. You may be banned or lack permissions.', // Explicit message for banned users
         '404': 'The page you are looking for does not exist.',
-        '500': 'Something went wrong on our end.'
+        '500': 'Internal Server Error. Our team has been notified.'
     };
 
     ngOnInit() {

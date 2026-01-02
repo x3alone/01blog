@@ -31,12 +31,18 @@ public class PostService {
     private final UserRepository userRepository;
     private final MediaService mediaService;
     private final NotificationService notificationService;
+    private final com._blog._blog.repository.FollowRepository followRepository;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, MediaService mediaService, NotificationService notificationService) {
+    public PostService(PostRepository postRepository, 
+                       UserRepository userRepository, 
+                       MediaService mediaService, 
+                       NotificationService notificationService,
+                       com._blog._blog.repository.FollowRepository followRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.mediaService = mediaService;
         this.notificationService = notificationService;
+        this.followRepository = followRepository;
     }
 
     // ... (rest of methods unchanged until toggleLike) 
@@ -201,7 +207,7 @@ public class PostService {
     
 
     // Retrieves all posts, ordered by creation date (newest first).
-    // Updated getAllPosts to support pagination
+    // Updated getAllPosts to support personalized feed
     @Transactional(readOnly = true)
     public Page<PostResponse> getAllPosts(int page, int size) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -212,14 +218,20 @@ public class PostService {
         Page<Post> postsPage;
 
         if (isAdmin) {
+            // Admin sees all
             postsPage = postRepository.findAll(pageable);
         } else if (currentUsername != null) {
-            // Logged in user: See public posts OR their own hidden posts
-            // query findByHiddenFalseOrUserUsername... should work if naming is correct
-            //  verify sort precedence. passing pageable with sort is safest.
-            postsPage = postRepository.findByHiddenFalseOrUserUsernameOrderByCreatedAtDesc(currentUsername, pageable);
+            // Logged in: Personal Feed (Followed + Self)
+            // 1. Get current user ID
+            User currentUser = userRepository.findByUsername(currentUsername).orElseThrow();
+            
+            // 2. Get Followed IDs
+            List<Long> followedIds = followRepository.findFollowingIds(currentUser.getId());
+            
+            // 3. Execute Custom Query
+            postsPage = postRepository.findFeedPosts(followedIds, currentUser.getId(), pageable);
         } else {
-            // Guest: Only not hidden
+            // Guest: Only not hidden (Global)
             postsPage = postRepository.findByHiddenFalseOrderByCreatedAtDesc(pageable);
         }
 

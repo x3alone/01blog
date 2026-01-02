@@ -21,4 +21,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // Find by User ID - Public only (for visitors)
     org.springframework.data.domain.Page<Post> findByUserIdAndHiddenFalseOrderByCreatedAtDesc(Long userId, org.springframework.data.domain.Pageable pageable);
+
+    // Custom Feed Query: Followed Public Posts + My All Posts
+    @org.springframework.data.jpa.repository.Query("SELECT p FROM Post p WHERE (p.user.id IN :userIds AND p.hidden = false) OR (p.user.id = :currentUserId) ORDER BY p.createdAt DESC")
+    org.springframework.data.domain.Page<Post> findFeedPosts(java.util.List<Long> userIds, Long currentUserId, org.springframework.data.domain.Pageable pageable);
 }

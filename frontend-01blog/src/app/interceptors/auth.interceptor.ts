@@ -1,7 +1,7 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, throwError } from 'rxjs';
+import { catchError, tap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
@@ -16,14 +16,29 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
   }
 
   return next(authReq).pipe(
+    // 1. Check for "Soft Errors" in successful responses (Status 200 but body has error code)
+    tap((event) => {
+      if (event instanceof HttpResponse) {
+        const body = event.body as any;
+        if (body && body.status === 403) {
+          authService.setBanned(true);
+          authService.logout();
+          router.navigate(['/error'], { queryParams: { code: '403' } });
+        }
+      }
+    }),
+    // 2. Handle standard Http Errors
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         authService.logout();
       } else if (error.status === 403) {
-        //Mark user as banned
         authService.setBanned(true);
         authService.logout();
-        router.navigate(['/unauthorized']); // optional banned page
+        router.navigate(['/error'], { queryParams: { code: '403' } });
+      } else if (error.status === 0) {
+        router.navigate(['/error'], { queryParams: { code: '0' } });
+      } else if (error.status === 500) {
+        router.navigate(['/error'], { queryParams: { code: '500' } });
       }
       return throwError(() => error);
     })

@@ -70,9 +70,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         
                         // Immediate rejection of banned users prevents any API access
                         if (user.isBanned()) {
-                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            // Return 200 OK with error details to prevent browser console 403 errors
+                            response.setStatus(HttpServletResponse.SC_OK);
                             response.setContentType("application/json");
-                            response.getWriter().write("{\"error\": \"User is banned\"}");
+                            response.getWriter().write("{\"status\": 403, \"error\": \"User is banned\"}");
                             return;
                         }
 
