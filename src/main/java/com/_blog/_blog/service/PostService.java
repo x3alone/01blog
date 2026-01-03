@@ -97,7 +97,25 @@ public class PostService {
             }
         }
 
+        // 5. Notify Followers
+        notifyFollowers(savedPost, user);
+
         return mapToDto(savedPost);
+    } 
+
+    private void notifyFollowers(Post post, User author) {
+        List<Long> followerIds = followRepository.findFollowerIds(author.getId());
+        for (Long followerId : followerIds) {
+            userRepository.findById(followerId).ifPresent(follower -> {
+                 notificationService.createNotification(
+                    follower,
+                    author,
+                    author.getUsername() + " posted a new post" + post.getTitle(),
+                    "POST",
+                    post.getId()
+                 );
+            });
+        }
     }
     
     // DELETE METHOD: Updated to handle media deletion

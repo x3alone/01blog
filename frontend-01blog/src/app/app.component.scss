@@ -67,14 +67,14 @@
   padding: 5px 12px;
   display: flex;
   align-items: center;
-  width: 500px;
+  width: 1050px;
   transition: all 0.2s;
 }
 
 .search-input-wrapper.focused {
   background: #1e1e1e;
   border-color: rgba(255, 255, 255, 0.5);
-  width: 550px;
+  width: 1050px;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
 
@@ -318,6 +318,8 @@ a.nav-item.profile-link:hover {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.2);
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 
   /* Scrollbar Styling */
   &::-webkit-scrollbar {
