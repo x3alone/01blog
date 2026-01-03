@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // Import FormsModule
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { UserProfileService, UserProfileDto } from '../services/user-profile.service';
 import { AuthService } from '../services/auth.service';
 import { PostService, Post } from '../services/post.service'; // Import PostService
@@ -19,6 +19,7 @@ import { ConfirmationService } from '../services/confirmation.service';
 })
 export class UserProfileComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private profileService = inject(UserProfileService);
   private authService = inject(AuthService);
   private postService = inject(PostService); // Inject PostService
@@ -75,7 +76,14 @@ export class UserProfileComponent implements OnInit {
     this.currentUser.set(username || '');
 
     this.route.paramMap.subscribe(params => {
-      const userId = Number(params.get('id'));
+      const idParam = params.get('id');
+      const userId = Number(idParam);
+
+      if (!idParam || isNaN(userId)) {
+        this.router.navigate(['/error'], { queryParams: { code: '404' } });
+        return;
+      }
+
       if (userId) {
         this.loadProfile(userId);
         this.loadUserPosts(userId);
@@ -92,8 +100,10 @@ export class UserProfileComponent implements OnInit {
         this.checkIfOwnProfile(data.username);
       },
       error: (err) => {
-        // console.error('Failed to load profile', err);
         this.isLoading.set(false);
+        if (err.status === 404) {
+          this.router.navigate(['/error'], { queryParams: { code: '404' } });
+        }
       }
     });
   }
