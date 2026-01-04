@@ -95,6 +95,16 @@ public class UserController {
     public ResponseEntity<Map> uploadAvatar(
             @RequestParam("file") MultipartFile file, 
             @AuthenticationPrincipal String username) {
+        
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+             return ResponseEntity.badRequest().body(Map.of("message", "Only image files are allowed."));
+        }
+
         try {
             User user = userService.getUserByUsername(username);
             String customName = "avatar_" + user.getId() + "_" + System.currentTimeMillis();

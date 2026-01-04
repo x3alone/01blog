@@ -34,6 +34,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
+
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ResponseEntity<Object> handleResponseStatusException(org.springframework.web.server.ResponseStatusException ex) {
+        return buildResponse(HttpStatus.valueOf(ex.getStatusCode().value()), ex.getReason());
+    }
     
     // Generic fallback handler for unhandled RuntimeExceptions
     @ExceptionHandler(RuntimeException.class)

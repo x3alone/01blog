@@ -94,7 +94,12 @@ export class UserProfileComponent implements OnInit {
   loadProfile(userId: number) {
     this.isLoading.set(true);
     this.profileService.getProfile(userId).subscribe({
-      next: (data) => {
+      next: (data: any) => { // Use 'any' to check for custom status field
+        if (data && data.status === 404) {
+             this.router.navigate(['/error'], { queryParams: { code: '404' } });
+             return;
+        }
+
         this.profile.set(data);
         this.isLoading.set(false);
         this.checkIfOwnProfile(data.username);
@@ -102,7 +107,7 @@ export class UserProfileComponent implements OnInit {
       error: (err) => {
         this.isLoading.set(false);
         if (err.status === 404) {
-          this.router.navigate(['/error'], { queryParams: { code: '404' } });
+           this.router.navigate(['/error'], { queryParams: { code: '404' } });
         }
       }
     });
@@ -214,6 +219,10 @@ export class UserProfileComponent implements OnInit {
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
     if (file) {
+      if (!file.type.startsWith('image/')) {
+        this.toastService.show("Only image files are allowed for avatars.", 'error');
+        return;
+      }
       this.profileService.uploadAvatar(file).subscribe({
         next: (res: any) => {
           const url = res.secure_url || res.url;
