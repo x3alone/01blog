@@ -1,0 +1,33 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.iml
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Angular (in case specific rules needed at root)
+.angular/
+dist/
+
+# Scratchpad / Temp Files
+autid
+drk mode.txt
+empty.txt
+road map.txt
+testing.txt
+todo.md
+HELP.md
