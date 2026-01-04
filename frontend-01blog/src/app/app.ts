@@ -77,10 +77,15 @@ export class AppComponent implements OnInit {
 
   loadNotifications() {
     this.notificationService.getNotifications().subscribe({
-      next: (data) =>
-        this.notifications.set(
-          data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        )
+      next: (data: any) => {
+        if (Array.isArray(data)) {
+          this.notifications.set(
+            data.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          );
+        } else {
+          this.notifications.set([]);
+        }
+      }
     });
   }
 

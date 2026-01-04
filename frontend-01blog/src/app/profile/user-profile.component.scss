@@ -22,7 +22,7 @@
 /* PROFILE CARD */
 .profile-card {
   position: relative;
-  background: rgba(30, 41, 59, 0.7);
+  background: rgba(0, 0, 0, 0.1);
   /* Dark semi-transparent */
   backdrop-filter: blur(10px);
   border-radius: 16px;
@@ -32,9 +32,13 @@
 }
 
 .cover-photo {
-  height: 200px;
-  background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
-  position: relative;
+    height: 200px;
+    /* background: linear-gradient(135deg, #ffffff, #a855f7, #000000); */
+    position: relative;
+    background: linear-gradient(350deg, #ffffff, #00ffd7, #5d9bff, #ff0505);
+    background-size: 500% 1%;
+    animation: _ngcontent-ng-c2826283383_gradient-animation 15s ease infinite;
+    background-attachment: fixed;
 }
 
 .profile-content {
@@ -255,17 +259,17 @@
 }
 
 .save-btn {
-  background: #ffffff38;
+  background: rgba(255, 255, 255, 0.31);
   color: white;
-  border: none;
-  padding: 6px 12px;
+  padding: 8px 16px;
   border-radius: 4px;
+  border: none;
   cursor: pointer;
 }
 
 .cancel-btn {
-  background: #64748b;
-  color: white;
+  background: #ffffffc4;
+  color: black;
   border: none;
   padding: 6px 12px;
   border-radius: 4px;
@@ -851,13 +855,17 @@ button.comment-toggle-btn.liked svg {
 }
 
 .modal-content.glass-content {
-  background: rgba(30, 41, 59, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  padding: 30px;
-  border-radius: 12px;
-  width: 400px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    padding: 25px;
+    border-radius: 12px;
+    width: 400px;
+    background: rgba(0, 0, 0, 0.54);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.49), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    color: white;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .glass-input {

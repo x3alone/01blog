@@ -119,11 +119,11 @@
 }
 
 video.preview-img {
-    width: 80px;
-    height: 80px;
-    border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    background: #eee;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #eee;
 }
 
 .media-preview-bar {
@@ -820,12 +820,14 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
 }
 
@@ -880,7 +882,7 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
   .comment-text {
     color: #e2e8f0;
     overflow-wrap: anywhere;
-  word-break: break-word;
+    word-break: break-word;
   }
 
   .comment-input-wrapper {
@@ -933,7 +935,7 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
   }
 
   .send-btn:hover {
-    background: #252525;
+    background: #333333a8;
   }
 
   /* Edit Form */
@@ -941,7 +943,7 @@ button.px-6.py-2.bg-indigo-600.hover\:bg-indigo-500.text-white.font-semibold.rou
     background: #2d2d2d;
     border-color: #444;
     overflow-wrap: anywhere;
-  word-break: break-word;
+    word-break: break-word;
 
     input,
     textarea {

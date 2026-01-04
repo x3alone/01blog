@@ -56,8 +56,16 @@ export class DashboardComponent implements OnInit {
       });
     } else if (this.currentView === 'reports') {
       this.reportService.getAllReports().subscribe({
-        next: (data) => {
-          this.reports.set(data);
+        next: (data: any) => {
+          if (Array.isArray(data)) {
+            this.reports.set(data);
+          } else {
+            // Handle potential '200 OK' error response
+            this.reports.set([]);
+            if (data && data.status) {
+              this.toastService.show('Failed to load reports: ' + (data.message || 'Error ' + data.status), 'error');
+            }
+          }
           this.isLoading.set(false);
         },
         error: (e) => {
