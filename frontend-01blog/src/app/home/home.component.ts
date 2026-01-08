@@ -10,10 +10,12 @@ import { FollowService } from '../services/follow.service';
 import { ToastService } from '../services/toast.service';
 import { ConfirmationService } from '../services/confirmation.service';
 
+import { MatIconModule } from '@angular/material/icon';
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, MatIconModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -198,7 +200,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   toggleLike(post: Post) {
-      if(this.likingPosts.has(post.id)) return; // Debounce
+    if (this.likingPosts.has(post.id)) return; // Debounce
 
     this.likingPosts.add(post.id);
 

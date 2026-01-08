@@ -10,10 +10,12 @@ import { ToastService } from '../services/toast.service';
 import { CommentService, Comment } from '../services/comment.service';
 import { ConfirmationService } from '../services/confirmation.service';
 
+import { MatIconModule } from '@angular/material/icon';
+
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, DatePipe, FormsModule, RouterModule],
+  imports: [CommonModule, DatePipe, FormsModule, RouterModule, MatIconModule],
   templateUrl: './user-profile.component.html', // Pointing to the separate HTML file
   styleUrl: './user-profile.component.scss'     // Pointing to the separate SCSS file
 })
@@ -96,8 +98,8 @@ export class UserProfileComponent implements OnInit {
     this.profileService.getProfile(userId).subscribe({
       next: (data: any) => { // Use 'any' to check for custom status field
         if (data && data.status === 404) {
-             this.router.navigate(['/error'], { queryParams: { code: '404' } });
-             return;
+          this.router.navigate(['/error'], { queryParams: { code: '404' } });
+          return;
         }
 
         this.profile.set(data);
@@ -107,7 +109,7 @@ export class UserProfileComponent implements OnInit {
       error: (err) => {
         this.isLoading.set(false);
         if (err.status === 404) {
-           this.router.navigate(['/error'], { queryParams: { code: '404' } });
+          this.router.navigate(['/error'], { queryParams: { code: '404' } });
         }
       }
     });
