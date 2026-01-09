@@ -1,7 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { AppComponent } from './app'; // Corrected import path to standard 'app.component'
-
+import { AppComponent } from './app'; 
 describe('AppComponent', () => {
   beforeEach(async () => {
     // Configure the testing module with the standalone component and providers
@@ -25,10 +24,6 @@ describe('AppComponent', () => {
   it(`should have the title 'frontend-01blog'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    // Assuming the component instance has a 'title' property
-    // The test below checks the rendered text, so this test might be redundant 
-    // unless you want to check the instance property directly.
-    // expect(app.title).toEqual('frontend-01blog'); 
   });
 
   it('should render title in an h1 tag', () => {

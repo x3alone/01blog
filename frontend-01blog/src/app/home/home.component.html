@@ -1,26 +1,20 @@
 <div class="home-layout">
-  <!-- MAIN FEED COLUMN -->
   <main class="feed-column">
 
-    <!-- CREATION POST  -->
     @if (loggedIn()) {
     <div class="discord-input-container">
-
       <div class="input-wrapper">
-        <!-- Title Input -->
         <input type="text" [(ngModel)]="newPostTitle" placeholder="Post Title" class="discord-title-input">
 
-        <!-- Main Content Area with integrated Upload -->
         <div class="discord-textarea-wrapper">
           <textarea [(ngModel)]="newPostContent" placeholder="What's on your mind?" class="discord-textarea" rows="2"
             maxlength="3000"></textarea>
 
-          <!-- Character Counter -->
-          <div class="char-counter" [style.color]="newPostContent().length > 3000 ? '#ef4444' : '#94a3b8'">
+          <div class="char-counter" [class.error-text]="newPostContent().length > 3000">
             {{ newPostContent().length > 3000 ? (3000 - newPostContent().length) : newPostContent().length }} / 3000
           </div>
-
         </div>
+
         <div class="input-actions">
           <label class="upload-btn">
             <span class="plus-icon">+</span>
@@ -28,28 +22,24 @@
           </label>
         </div>
 
-        <!-- Preview -->
         @if (imagePreviewUrl()) {
         <div class="media-preview-bar">
           <img [src]="imagePreviewUrl()">
           <span (click)="selectedFile = null; imagePreviewUrl.set(null)" class="remove-media">x</span>
         </div>
         }
+
         @if (postCreationError()) {
-        <div class="error-msg" style="color: #ffffff94; font-size: 0.9rem; margin-top: 5px; font-weight: bolder;">{{
-          postCreationError() }}
-        </div>
+        <div class="error-msg-bold">{{ postCreationError() }}</div>
         }
       </div>
 
       <button (click)="createPost()" [disabled]="isPosting()" class="send-btn">
         Post
       </button>
-
     </div>
     }
 
-    <!-- FEED LIST -->
     <div class="feed-list">
       @if (posts().length === 0) {
       <div class="empty-state">No posts yet. Be the first to clear the sky!</div>
@@ -58,12 +48,11 @@
       @for (post of posts(); track post.id) {
       <div class="post-card scroll-animate">
 
-        <!-- POST HEADER -->
         <div class="post-header">
           <div class="author-info">
             <div class="author-avatar" [routerLink]="['/user', post.userId]">
               @if (post.avatarUrl) {
-              <img [src]="post.avatarUrl" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+              <img [src]="post.avatarUrl" class="avatar-img-circle">
               } @else {
               {{ post.username ? post.username.charAt(0).toUpperCase() : '?' }}
               }
@@ -74,130 +63,107 @@
             </div>
           </div>
 
-          <!-- ACTIONS OR REPORT -->
-          @if (canDelete(post)) {
           <div class="post-actions">
-            @if (canEdit(post)) {
-            <button (click)="startEdit(post)" class="action-icon-btn edit-btn" title="Edit">
-              <mat-icon>edit</mat-icon>
-            </button>
-            }
-            @if (isAdmin()) {
-            <button (click)="toggleHide(post)" class="action-icon-btn" [title]="post.hidden ? 'Unhide' : 'Hide'">
-              <!-- Eye Off / On Icon -->
-              @if (post.hidden) {
-              <mat-icon>visibility_off</mat-icon>
-              } @else {
-              <mat-icon>visibility</mat-icon>
+            @if (canDelete(post)) {
+              @if (canEdit(post)) {
+              <button (click)="startEdit(post)" class="action-icon-btn edit-btn" title="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
               }
-            </button>
+              @if (isAdmin()) {
+              <button (click)="toggleHide(post)" class="action-icon-btn" [title]="post.hidden ? 'Unhide' : 'Hide'">
+                <mat-icon>{{ post.hidden ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              }
+              <button (click)="deletePost(post.id)" class="action-icon-btn delete-btn" title="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            } @else if (loggedIn() && post.userId !== currentUserId()) {
+              <button (click)="openReportModal(post)" class="action-icon-btn report-btn" title="Report">
+                <mat-icon>flag</mat-icon>
+              </button>
             }
-            <button (click)="deletePost(post.id)" class="action-icon-btn delete-btn" title="Delete">
-              <mat-icon>delete</mat-icon>
-            </button>
           </div>
-          } @else {
-          @if (loggedIn() && post.userId !== currentUserId()) {
-          <button (click)="openReportModal(post)" class="action-icon-btn report-btn" title="Report">
-            <mat-icon>flag</mat-icon>
-          </button>
-          }
-          }
         </div>
 
-        <!-- POST CONTENT -->
         @if (editingPostId() === post.id) {
         <div class="edit-post-form animate-fade-in">
           <input [(ngModel)]="editTitle" placeholder="Title">
           <textarea [(ngModel)]="editContent" placeholder="Content" rows="5"></textarea>
 
-          <!-- Edit Media Section -->
           <div class="edit-media-section">
             @if (editFilePreview || (post.mediaUrl && !removeMediaFlag)) {
             <div class="media-preview-container">
-              <!-- Show either new file preview OR existing post media -->
-              <!-- If new file selected (editFilePreview), show it -->
               @if (editFilePreview) {
               <img [src]="editFilePreview" class="preview-img">
               } @else {
-              <!-- Show existing -->
-              @if (post.mediaType === 'video') {
-              <video [src]="post.mediaUrl" class="preview-img" controls></video>
-              } @else {
-              <img [src]="post.mediaUrl" class="preview-img">
-              }
+                @if (post.mediaType === 'video') {
+                <video [src]="post.mediaUrl" class="preview-img" controls></video>
+                } @else {
+                <img [src]="post.mediaUrl" class="preview-img">
+                }
               }
               <button (click)="flagRemoveMedia()" class="remove-media-btn" title="Remove Media">x</button>
             </div>
             }
 
             <label class="replace-media-btn">
-              <mat-icon>file_upload</mat-icon> {{ (editFilePreview || (post.mediaUrl && !removeMediaFlag)) ? ''
-              : 'Add Media' }}
+              <mat-icon>file_upload</mat-icon> {{ (editFilePreview || (post.mediaUrl && !removeMediaFlag)) ? '' : 'Add Media' }}
               <input type="file" (change)="onEditFileSelected($event)" accept="image/*,video/*" hidden>
             </label>
           </div>
 
-          <div class="flex gap-4">
-            <button (click)="saveEdit(post.id)"
-              class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow-md transition duration-300">Save
-              Changes</button>
-            <button (click)="cancelEdit()"
-              class="px-6 py-2 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg shadow-md transition duration-300">Cancel</button>
+          <div class="button-group">
+            <button (click)="saveEdit(post.id)" class="btn btn-primary">Save Changes</button>
+            <button (click)="cancelEdit()" class="btn btn-secondary">Cancel</button>
           </div>
         </div>
         } @else {
-        <h3 class="post-title">{{ post.title }}</h3>
-        <div class="post-content-wrapper">
-          <p class="post-content line-clamp-3" style="overflow-wrap: anywhere; word-break: break-word;">{{ post.content
-            }}</p>
-        </div>
-
-        @if (post.mediaUrl) {
-        <div class="post-media fixed-height-media">
-          @if (post.mediaType === 'video') {
-          <video [src]="post.mediaUrl" controls class="media-content"></video>
-          } @else if (post.mediaUrl.endsWith('.pdf')) {
-          <div class="pdf-preview">
-            <span class="file-icon">📄</span>
-            <a [href]="post.mediaUrl" target="_blank" class="pdf-link">View PDF</a>
+          <h3 class="post-title">{{ post.title }}</h3>
+          <div class="post-content-wrapper">
+            <p class="post-content text-truncate-3">{{ post.content }}</p>
           </div>
-          } @else {
-          <img [src]="post.mediaUrl" alt="Post media" class="media-content">
+
+          @if (post.mediaUrl) {
+          <div class="post-media fixed-height-media">
+            @if (post.mediaType === 'video') {
+            <video [src]="post.mediaUrl" controls class="media-content"></video>
+            } @else if (post.mediaUrl.endsWith('.pdf')) {
+            <div class="pdf-preview">
+              <span class="file-icon">📄</span>
+              <a [href]="post.mediaUrl" target="_blank" class="pdf-link">View PDF</a>
+            </div>
+            } @else {
+            <img [src]="post.mediaUrl" alt="Post media" class="media-content">
+            }
+          </div>
           }
-        </div>
-        }
         }
 
         <div class="post-footer">
-          <!-- LIKE BUTTON -->
           @if (loggedIn()) {
-          <button (click)="toggleLike(post)" class="comment-toggle-btn" [class.liked]="post.likedByCurrentUser"
-            style="margin-right: 15px;">
-            <mat-icon
-              [style.color]="post.likedByCurrentUser ? '#ef4444' : 'currentColor'">{{ post.likedByCurrentUser ? 'favorite' : 'favorite_border' }}</mat-icon>
-            <span style="margin-left: 5px;">{{ post.likeCount }}</span>
+          <button (click)="toggleLike(post)" class="comment-toggle-btn margin-right-md" [class.liked]="post.likedByCurrentUser">
+            <mat-icon [class.icon-red]="post.likedByCurrentUser">
+                {{ post.likedByCurrentUser ? 'favorite' : 'favorite_border' }}
+            </mat-icon>
+            <span class="margin-left-xs">{{ post.likeCount }}</span>
           </button>
           }
 
-          <!-- COMMENT SECTION TOGGLE -->
           <button (click)="toggleComments(post.id)" class="comment-toggle-btn">
             <mat-icon>chat_bubble_outline</mat-icon>
             Comments
           </button>
         </div>
 
-        <!-- COMMENTS SECTION -->
         @if (isCommentsExpanded(post.id)) {
         <div class="comments-section">
-
-          <!-- Comment List -->
           <div class="comments-list">
             @for (comment of getCommentsForPost(post.id); track comment.id) {
             <div class="comment-item">
               <div class="comment-avatar">
                 @if (comment.avatarUrl) {
-                <img [src]="comment.avatarUrl" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                <img [src]="comment.avatarUrl" class="avatar-img-circle">
                 } @else {
                 {{ comment.username.charAt(0).toUpperCase() }}
                 }
@@ -207,14 +173,12 @@
                   <span class="comment-author">{{ comment.username }}</span>
                   <span class="comment-date">{{ comment.createdAt | date:'short' }}</span>
                 </div>
-                <p class="comment-text" style="overflow-wrap: anywhere; word-break: break-word;">{{ comment.content }}
-                </p>
+                <p class="comment-text">{{ comment.content }}</p>
                 @if (comment.mediaUrl) {
                 <img [src]="comment.mediaUrl" class="comment-media-img">
                 }
               </div>
 
-              <!-- Comment Actions -->
               @if (canDeleteComment(comment)) {
               <div class="comment-actions">
                 <button (click)="deleteComment(post.id, comment.id)" class="comment-action-btn delete" title="Delete">
@@ -225,23 +189,11 @@
             </div>
             }
           </div>
-
         </div>
-
-        <!-- New Comment Input MOVED inside comments expanded check? 
-             User asked to fix "can post twice".
-        -->
-
-        <!-- WAIT, comment input should probably be OUTSIDE if we want it always visible? 
-             Original code had it outside relevant to Expand toggle?
-             Checking line 222 in original: "@if (loggedIn())" was indeed after comment list.
-             Using original structure. 
-        -->
         }
 
         @if (loggedIn()) {
         <div class="comment-input-area">
-          <!-- Comment Preview -->
           @if (getCommentPreview(post.id)) {
           <div class="comment-media-preview">
             <img [src]="getCommentPreview(post.id)">
@@ -250,7 +202,6 @@
           }
 
           <div class="comment-input-wrapper">
-            <!-- Media Upload Icon inside input -->
             <label class="comment-upload-btn" title="Add Image">
               <input type="file" (change)="onCommentFileSelected(post.id, $event)" accept="image/*,video/*" hidden>
               <mat-icon>add_photo_alternate</mat-icon>
@@ -271,24 +222,15 @@
           </div>
         </div>
         }
-
-        <!-- Wait, I missed the end of isCommentsExpanded? -->
-        <!-- Ah, line 142 @if(isCommentsExpanded). 187 was closing it. -->
-        <!-- BUT loggedIn for comment input is OUTSIDE that if? -->
-        <!-- In Step 434: 190 @if(loggedIn) was AFTER 187 </div> (closing comments-section). -->
-        <!-- So comment input is ALWAYS visible if logged in. Correct. -->
-
-      </div> <!-- Close post-card -->
-      }
-      <!-- Sentinel for Infinite Scroll -->
-      <div #sentinel class="infinite-scroll-sentinel" style="height: 20px; margin: 20px 0;">
-        @if (isLoading()) { <div style="text-align:center; color:#888;">Loading more...</div> }
+      </div> }
+      
+      <div #sentinel class="infinite-scroll-sentinel">
+        @if (isLoading()) { <div class="loading-text">Loading more...</div> }
       </div>
-    </div> <!-- Close feed-list -->
+    </div>
   </main>
 </div>
 
-<!-- REPORT MODAL -->
 @if (reportModalOpen()) {
 <div class="modal-overlay">
   <div class="modal-card">

@@ -1,9 +1,7 @@
 <div class="app-container" [class.dark-mode]="themeService.darkMode()">
 
-  <!-- GLOBAL TOP NAVIGATION -->
   <header class="app-top-nav">
     <div class="nav-links">
-      <!-- Home Link as Logo replacement -->
       <a routerLink="/home" class="nav-item" title="Home" routerLinkActive="active">
         <mat-icon>home</mat-icon>
       </a>
@@ -12,7 +10,6 @@
     <div class="nav-links">
       @if (loggedIn()) {
 
-      <!-- SEARCH BAR (Logged In Only) -->
       <div class="search-container">
         <div class="search-input-wrapper" [class.focused]="isSearchFocused()">
           <mat-icon class="search-icon">search</mat-icon>
@@ -26,7 +23,7 @@
           <div class="search-result-item" (click)="selectSearchedUser(user.id)">
             <div class="result-avatar">
               @if (user.avatarUrl) {
-              <img [src]="user.avatarUrl">
+              <img [src]="user.avatarUrl" class="avatar-img-small">
               } @else {
               {{ user.username.charAt(0).toUpperCase() }}
               }
@@ -41,7 +38,6 @@
         }
       </div>
 
-      <!-- Dashboard Link (Admin Only) -->
       @if (isAdmin()) {
       <a routerLink="/dashboard" class="nav-item dashboard-link">
         <div class="icon-box">
@@ -50,7 +46,6 @@
       </a>
       }
 
-      <!-- Notifications -->
       <div class="nav-item notif-wrapper">
         <button (click)="toggleNotifications()" class="icon-btn bell-btn" title="Notifications">
           <mat-icon>notifications</mat-icon>
@@ -76,18 +71,10 @@
         }
       </div>
 
-      <!-- Dark Mode Toggle -->
       <button (click)="themeService.toggleTheme()" class="icon-btn theme-btn" title="Toggle Theme">
-        @if (themeService.darkMode()) {
-        <!-- Sun Icon -->
-        <mat-icon>light_mode</mat-icon>
-        } @else {
-        <!-- Moon Icon -->
-        <mat-icon>dark_mode</mat-icon>
-        }
+        <mat-icon>{{ themeService.darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
       </button>
 
-      <!-- Profile Link -->
       <a [routerLink]="['/user', currentUserId()]" class="nav-item profile-link" title="My Profile"
         routerLinkActive="active">
         <div class="user-avatar-small">
@@ -99,27 +86,16 @@
         </div>
       </a>
 
-      <!-- Logout -->
       <button (click)="logout()" class="nav-item logout-btn" title="Logout">
         <mat-icon>logout</mat-icon>
       </button>
       } @else {
-      <!-- Public User Links -->
       <a routerLink="/login" class="nav-item text-link">Login</a>
       <a routerLink="/register" class="nav-item text-link emphasize">Register</a>
       }
     </div>
   </header>
 
-  <!-- MAIN CONTENT AREA -->
-  <style>
-    .avatar-img-small {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-  </style>
   <div class="main-wrapper">
     <router-outlet></router-outlet>
   </div>

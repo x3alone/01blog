@@ -8,13 +8,13 @@ export interface Post {
     id: number; //  Changed to 'number' to match Java Long/ID type 
     title: string;
     content: string;
-    userId: number; // NEW FIELD
+    userId: number;
     username: string;
     mediaUrl: string;
     mediaType: string;
     createdAt: string;
 
-    avatarUrl?: string; // NEW FIELD
+    avatarUrl?: string;
     hidden?: boolean;
     likeCount: number;
     likedByCurrentUser: boolean;
@@ -25,7 +25,7 @@ export interface CreatePostRequest {
     content: string;
 }
 
-// NEW DTO for Updates
+// NEW DTO for edit
 export interface UpdatePostRequest {
     title: string;
     content: string;
@@ -95,7 +95,7 @@ export class PostService {
         return this.http.post<Post>(this.API_URL, formData, headers);
     }
 
-    // NEW: Update Post Method
+    // Update Post Method
     updatePost(id: number, title: string, content: string, file?: File, removeMedia?: boolean): Observable<Post> {
         const formData = new FormData();
         formData.append('title', title);
@@ -115,7 +115,7 @@ export class PostService {
         );
     }
 
-    // NEW: Delete Post Method
+    //  Delete Post Method
     deletePost(id: number): Observable<void> {
         const headers = this.getAuthHeaders();
         // Backend returns HTTP 204 No Content for a successful delete (type void)
