@@ -2,7 +2,6 @@ package com._blog._blog.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import com.fasterxml.jackson.annotation.JsonIgnore; 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity

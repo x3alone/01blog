@@ -12,12 +12,10 @@ import org.springframework.util.AntPathMatcher;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys; 
-import io.jsonwebtoken.SignatureAlgorithm; 
 
 import java.io.IOException;
 import java.security.Key;
 import java.util.Base64;
-import java.util.Collections;
 
 @Component 
 public class JwtAuthFilter extends OncePerRequestFilter {

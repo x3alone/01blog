@@ -19,7 +19,7 @@ export class ErrorComponent implements OnInit {
     // Custom messages for known codes
     private errorMap: Record<string, string> = {
         '0': 'Unable to connect to the server. Please check your internet connection or try again later.',
-        '403': 'Access Denied. You may be banned or lack permissions.', // Explicit message for banned users
+        '403': 'Access Denied. You may be banned or lack permissions.',
         '404': 'The page you are looking for does not exist.',
         '500': 'Internal Server Error. Our team has been notified.'
     };

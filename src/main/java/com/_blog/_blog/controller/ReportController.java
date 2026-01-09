@@ -1,6 +1,5 @@
 package com._blog._blog.controller;
 
-import com._blog._blog.model.Report;
 import com._blog._blog.dto.ReportResponse; 
 import com._blog._blog.service.ReportService;
 import com._blog._blog.service.UserService;
@@ -10,7 +9,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/reports")

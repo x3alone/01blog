@@ -1,14 +1,10 @@
 /* frontend-01blog/src/styles.scss */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-/* Add any custom global CSS or resets below the Tailwind imports */ 
+
 body {
   margin: 0;
   padding: 0;
-  // This is a global style, it belongs here.
   background-color: black; 
   color: white; 
 }

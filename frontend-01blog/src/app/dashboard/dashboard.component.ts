@@ -6,10 +6,12 @@ import { PostService, Post } from '../services/post.service';
 import { ToastService } from '../services/toast.service';
 import { ConfirmationService } from '../services/confirmation.service';
 
+import { MatIconModule } from '@angular/material/icon';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })

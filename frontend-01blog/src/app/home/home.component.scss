@@ -13,6 +13,7 @@
   padding: 20px;
 }
 
+
 .post-media.fixed-height-media {
   display: flex;
   justify-content: center;
@@ -203,6 +204,10 @@ video.preview-img {
 }
 
 .author-avatar {
+  width:100%; 
+  height:100%; 
+  object-fit:cover; 
+  border-radius:50%;
   width: 42px;
   height: 42px;
   background: linear-gradient(135deg, #3b82f6, #818cf8);
@@ -301,8 +306,10 @@ video.preview-img {
 }
 
 img {
-  height: 60px;
-  border-radius: 4px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
 span.remove-preview {

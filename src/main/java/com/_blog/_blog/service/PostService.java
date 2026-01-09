@@ -2,7 +2,6 @@ package com._blog._blog.service;
 
 import com._blog._blog.dto.CreatePostRequest;
 import com._blog._blog.dto.PostResponse;
-import com._blog._blog.dto.UpdatePostRequest;
 import com._blog._blog.model.Post;
 import com._blog._blog.model.User;
 import com._blog._blog.repository.PostRepository;
@@ -12,13 +11,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile; // IMPORTANT: Need this import
+import org.springframework.web.multipart.MultipartFile; 
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException; // IMPORTANT: Need this import
+import java.io.IOException; 
 import java.util.List;
-import java.util.Map; // IMPORTANT: Need this import
-import java.util.stream.Collectors;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,23 +42,13 @@ public class PostService {
         this.notificationService = notificationService;
         this.followRepository = followRepository;
     }
-
-    // ... (rest of methods unchanged until toggleLike) 
-    //  I ll use a larger replacement chunk or carefully target toggleLike + Constructor if they are far apart.
-    // Since I can't easily jump around, I will do constructor first, then toggleLike in separate call if needed. 
-    // Wait, replacing constructor and field definition first.
-
-
-
-
-    // RENAMED and IMPLEMENTED method to match PostController
     @Transactional
     public PostResponse createPostWithMedia(CreatePostRequest request, MultipartFile file) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalStateException("Authenticated user not found."));
 
-        // 1. Create Post Object
+        // Create Post Object
         Post post = new Post();
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
@@ -71,10 +59,10 @@ public class PostService {
         post.setPublicId(null);
         post.setMediaType(null);
 
-        // 2. Save first to generate the Post ID (needed for naming)
+        //  Save first to generate the Post ID (needed for naming)
         Post savedPost = postRepository.save(post);
 
-        // 3. Handle File Upload if exists
+        // Handle File Upload if exists
         if (file != null && !file.isEmpty()) {
             try {
                 // Naming pattern: user{id}_post{id}_{timestamp}
@@ -97,7 +85,7 @@ public class PostService {
             }
         }
 
-        // 5. Notify Followers
+        // Notify Followers
         notifyFollowers(savedPost, user);
 
         return mapToDto(savedPost);
@@ -118,7 +106,7 @@ public class PostService {
         }
     }
     
-    // DELETE METHOD: Updated to handle media deletion
+    // DELETE METHOD handle media deletion
     @Transactional
     public void deletePost(Long id) {
         Post post = postRepository.findById(id)
@@ -132,7 +120,7 @@ public class PostService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to delete this post");
         }
         
-        // 1. Delete media for ALL comments associated with this post
+        //  Delete media for ALL comments associated with this post
         for (com._blog._blog.model.Comment comment : post.getComments()) {
             if (comment.getPublicId() != null && !comment.getPublicId().isEmpty()) {
                 try {
@@ -143,7 +131,7 @@ public class PostService {
             }
         }
 
-        // 2. Delete media for the post itself
+        // Delete media for the post itself
         if (post.getPublicId() != null && !post.getPublicId().isEmpty()) {
             try {
                 mediaService.deleteFile(post.getPublicId());
@@ -183,7 +171,7 @@ public class PostService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to edit this post");
         }
 
-        // 1. Handle Media Removal or Replacement
+        // Handle Media Removal or Replacement
         if (removeMedia || (file != null && !file.isEmpty())) {
             // If there's existing media, delete it from Cloudinary
             if (post.getPublicId() != null && !post.getPublicId().isEmpty()) {
@@ -199,7 +187,7 @@ public class PostService {
             }
         }
 
-        // 2. Handle New File Upload
+        // Handle New File Upload
         if (file != null && !file.isEmpty()) {
             try {
                 String customName = "user" + post.getUser().getId() + "_post" + post.getId() + "_" + System.currentTimeMillis();
@@ -213,7 +201,7 @@ public class PostService {
             }
         }
 
-        // 3. Update Text Content
+        // Update Text Content
         post.setTitle(title);
         post.setContent(content);
 
@@ -224,8 +212,8 @@ public class PostService {
 
     
 
-    // Retrieves all posts, ordered by creation date (newest first).
-    // Updated getAllPosts to support personalized feed
+    // Retrieves all posts, ordered by creation date (newest first)
+    // getAllPosts to support personalized feed
     @Transactional(readOnly = true)
     public Page<PostResponse> getAllPosts(int page, int size) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -240,13 +228,13 @@ public class PostService {
             postsPage = postRepository.findAll(pageable);
         } else if (currentUsername != null) {
             // Logged in: Personal Feed (Followed + Self)
-            // 1. Get current user ID
+            // Get current user ID
             User currentUser = userRepository.findByUsername(currentUsername).orElseThrow();
             
-            // 2. Get Followed IDs
+            // Get Followed IDs
             List<Long> followedIds = followRepository.findFollowingIds(currentUser.getId());
             
-            // 3. Execute Custom Query
+            // Execute Custom Query
             postsPage = postRepository.findFeedPosts(followedIds, currentUser.getId(), pageable);
         } else {
             // Guest: Only not hidden (Global)

@@ -17,10 +17,12 @@ import { ThemeService } from './services/theme.service';
 import { FormsModule } from '@angular/forms';
 import { UserProfileService, UserProfileDto } from './services/user-profile.service';
 
+import { MatIconModule } from '@angular/material/icon';
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterModule, ToastComponent, ConfirmationModalComponent, FormsModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterModule, ToastComponent, ConfirmationModalComponent, FormsModule, MatIconModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

@@ -4,10 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
 
+import { MatIconModule } from '@angular/material/icon';
+
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, MatIconModule],
   templateUrl: './register.html',
   styleUrl: './register.scss'
 })

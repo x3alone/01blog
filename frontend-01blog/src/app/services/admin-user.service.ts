@@ -17,24 +17,16 @@ export interface User {
 })
 export class AdminUserService {
   private http = inject(HttpClient);
-  // Assuming a new admin endpoint for listing all users: /api/admin/users
   private apiUrl = '/api/users';
 
-  // --- API CALLS ---
-
   getAllUsers(): Observable<User[]> {
-    // You must ensure your Spring Boot UserController has a GET /api/users endpoint
-    // that returns List<User> and is protected by @PreAuthorize("hasRole('ADMIN')").
-    return this.http.get<User[]>(`${this.apiUrl}/all`); // Assuming /api/users/all
+    return this.http.get<User[]>(`${this.apiUrl}/all`);
   }
 
   updateUserRole(userId: number, newRole: 'USER' | 'ADMIN'): Observable<void> {
-    // Maps to your @PutMapping("/{id}/promote") or potentially a demote endpoint
+    // Maps to @PutMapping("/{id}/promote")  
     const endpoint = newRole === 'ADMIN' ? 'promote' : 'demote';
-    //  Your current backend only has 'promote'. You should add a 'demote' endpoint 
-    // or adjust the UserService to handle setting the role explicitly. 
-    // For now, we only call 'promote'.
-    return this.http.put<void>(`${this.apiUrl}/${userId}/promote`, {});
+    return this.http.put<void>(`${this.apiUrl}/${userId}/${endpoint}`, {});
   }
 
   demoteUser(id: number): Observable<void> {
