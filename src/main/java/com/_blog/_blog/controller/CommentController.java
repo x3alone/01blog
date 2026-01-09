@@ -3,7 +3,6 @@ package com._blog._blog.controller;
 import com._blog._blog.dto.CommentResponse;
 import com._blog._blog.dto.CreateCommentRequest;
 import com._blog._blog.service.CommentService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

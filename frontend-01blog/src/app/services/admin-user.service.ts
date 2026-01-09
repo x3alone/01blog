@@ -24,7 +24,7 @@ export class AdminUserService {
   }
 
   updateUserRole(userId: number, newRole: 'USER' | 'ADMIN'): Observable<void> {
-    // Maps to @PutMapping("/{id}/promote")  @PutMapping("/{id}/demote")
+    // Maps to @PutMapping("/{id}/promote")  
     const endpoint = newRole === 'ADMIN' ? 'promote' : 'demote';
     return this.http.put<void>(`${this.apiUrl}/${userId}/${endpoint}`, {});
   }

@@ -77,7 +77,7 @@ export class AuthService {
     return this.bannedState.value;
   }
 
-  // --- USER INFO ---
+  // USER INFO 
   getUsername(): string | null {
     if (isPlatformBrowser(this.platformId)) return localStorage.getItem(LAST_USER_KEY);
     return null;

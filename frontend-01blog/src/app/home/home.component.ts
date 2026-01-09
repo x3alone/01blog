@@ -120,7 +120,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.editTitle = post.title;
     this.editContent = post.content;
     this.editFile = null;
-    this.editFilePreview = null; // Reset new file preview
+    this.editFilePreview = null; 
     this.removeMediaFlag = false;
   }
 
@@ -299,7 +299,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.postService.getAllPosts(this.currentPage, this.pageSize).subscribe({
       next: (page: Page<Post>) => {
         if (reset) {
-          this.posts.set(page.content); // Use set to replace
+          this.posts.set(page.content); //  set to replace
         } else {
           this.posts.update(current => [...current, ...page.content]); // Append
         }
@@ -351,7 +351,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
         } else {
-          // Keep the "re-animate on scroll down" logic requested by user
           // "if i scroll down ... animation" usually implies re-triggering when re-entering viewport
           entry.target.classList.remove('visible');
         }

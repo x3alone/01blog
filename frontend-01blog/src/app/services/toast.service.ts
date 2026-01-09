@@ -20,7 +20,7 @@ export class ToastService {
 
         setTimeout(() => {
             this.remove(id);
-        }, 2000); // Fades in 2 sec as requested
+        }, 2000); // Fades in 2 seco
     }
 
     remove(id: number) {

@@ -1,10 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Import FormsModule
+import { FormsModule } from '@angular/forms'; 
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { UserProfileService, UserProfileDto } from '../services/user-profile.service';
 import { AuthService } from '../services/auth.service';
-import { PostService, Post } from '../services/post.service'; // Import PostService
+import { PostService, Post } from '../services/post.service'; 
 import { ReportService } from '../services/report.service';
 import { ToastService } from '../services/toast.service';
 import { CommentService, Comment } from '../services/comment.service';
@@ -16,22 +16,22 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-user-profile',
   standalone: true,
   imports: [CommonModule, DatePipe, FormsModule, RouterModule, MatIconModule],
-  templateUrl: './user-profile.component.html', // Pointing to the separate HTML file
-  styleUrl: './user-profile.component.scss'     // Pointing to the separate SCSS file
+  templateUrl: './user-profile.component.html',
+  styleUrl: './user-profile.component.scss'
 })
 export class UserProfileComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private profileService = inject(UserProfileService);
   private authService = inject(AuthService);
-  private postService = inject(PostService); // Inject PostService
+  private postService = inject(PostService); 
   private reportService = inject(ReportService);
   private toastService = inject(ToastService);
   private commentService = inject(CommentService);
   private confirmationService = inject(ConfirmationService);
 
   profile = signal<UserProfileDto | null>(null);
-  posts = signal<Post[]>([]); // Store user posts here
+  posts = signal<Post[]>([]);   
   isLoading = signal(true);
   isOwnProfile = signal(false);
 
@@ -96,7 +96,7 @@ export class UserProfileComponent implements OnInit {
   loadProfile(userId: number) {
     this.isLoading.set(true);
     this.profileService.getProfile(userId).subscribe({
-      next: (data: any) => { // Use 'any' to check for custom status field
+      next: (data: any) => { //'any' to check for custom status field
         if (data && data.status === 404) {
           this.router.navigate(['/error'], { queryParams: { code: '404' } });
           return;
@@ -185,11 +185,7 @@ export class UserProfileComponent implements OnInit {
 
   saveEdit() {
     if (this.editForm().aboutMe && this.editForm().aboutMe.length > 500) {
-      // You might need to inject ToastService to show this error, or use alert for now if ToastService isn't injected.
-      // Looking at imports, ToastService isn't injected. I'll stick to console/alert or just return for now, 
-      // but ideally I should add ToastService.
-      // Let's add simple alert or just return if it's too long, as requested "prevent that". 
-      // User requested "prevent that", so blocking submission is key.
+    
       this.toastService.show("About Me is too long! Max 500 characters.", 'error');
       return;
     }
@@ -237,7 +233,7 @@ export class UserProfileComponent implements OnInit {
       });
     }
   }
-  // --- POST ACTIONS (Edit, Delete, Like) ---
+  //POST ACTIONS (Edit, Delete, Like)
 
   canEditPost(post: Post): boolean {
     const uid = this.authService.getCurrentUserId();
@@ -323,7 +319,7 @@ export class UserProfileComponent implements OnInit {
           next: () => {
             this.posts.update(posts => posts.filter(p => p.id !== postId));
             this.toastService.show("Post deleted", "success");
-            // Also update thoughts count
+            //  update thoughts count
             this.profile.update(p => p ? { ...p, postsCount: (p as any).postsCount ? (p as any).postsCount - 1 : this.posts().length } : null);
           },
           error: (e) => this.toastService.show("Failed to delete post", "error")
@@ -380,7 +376,7 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
-  // --- COMMENTS ---
+  //cOMMENTS
 
   toggleComments(postId: number) {
     const expanded = this.expandedComments();

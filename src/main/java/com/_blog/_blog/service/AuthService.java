@@ -17,11 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key; 
 import java.util.Date;
-import java.util.Optional;
 import java.util.Base64; 
-
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
 @Service
 public class AuthService {

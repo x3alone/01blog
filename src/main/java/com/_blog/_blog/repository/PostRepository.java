@@ -3,8 +3,6 @@ package com._blog._blog.repository;
 import com._blog._blog.model.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     // For Admins (or global view) - though findAll(Pageable) works, we want explicit ordering if not passed in Pageable, 

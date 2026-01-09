@@ -1,7 +1,6 @@
 package com._blog._blog.config;
 
 import com._blog._blog.service.UserDetailsServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -32,7 +31,6 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    @Autowired
     public SecurityConfig(JwtAuthFilter jwtAuthFilter, 
                           UserDetailsServiceImpl userDetailsService,
                           CustomAccessDeniedHandler accessDeniedHandler,
@@ -43,7 +41,6 @@ public class SecurityConfig {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
-    // BCrypt password encoder for secure password hashing ( Password Security Requirement)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -54,51 +51,59 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
     
-    // CORS configuration enables Angular frontend to communicate with Spring Boot backend ( REST API Communication)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); 
-        configuration.setAllowedMethods(List.of("*")); 
-        configuration.setAllowedHeaders(List.of("*"));
+        
+        // ALLOW ONLY YOUR FRONTEND
+        configuration.setAllowedOrigins(List.of("http://localhost:4200")); 
+        
+        // Allow standard REST methods
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")); 
+        
+        // Allow necessary headers for JWT
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+        
+        // Allow credentials (useful if you ever use HttpOnly cookies)
+        configuration.setAllowCredentials(true);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); 
         return source;
     }
 
-    // Security filter chain enforces JWT-based authentication and role-based authorization ( Authentication & Authorization)
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            
-            // Stateless session: Forces JWT token on every request, no server-side sessions ( JWT Authentication)
             .csrf(AbstractHttpConfigurer::disable)
+            
+            // Stateless session: Forces JWT token on every request
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
             .authorizeHttpRequests(auth -> auth
+                // Always allow preflight OPTIONS requests
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
-                // Public endpoints: login/register accessible without authentication
+                // PUBLIC: Only login and registration are allowed without a token
                 .requestMatchers("/api/auth/**").permitAll() 
                 
-                // Public read access: allows unauthenticated users to view posts/comments (guest browsing)
-                .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
+                // SECURE: Posts, Comments, and User profiles now REQUIRE a token
+                .requestMatchers("/api/posts/**").authenticated()
+                .requestMatchers("/api/comments/**").authenticated()
+                .requestMatchers("/api/users/**").authenticated()
 
-                // All other endpoints require authentication; @PreAuthorize annotations enforce role-based access ( Role-based Access Control)
+                // All other endpoints require authentication
                 .anyRequest().authenticated() 
             )
             
-            // Wire up custom exception handlers to return 200 OK instead of 401/403 (for clean console)
+            // Custom exception handlers
             .exceptionHandling(e -> e
                 .accessDeniedHandler(accessDeniedHandler)
                 .authenticationEntryPoint(authenticationEntryPoint)
             )
             
-            // JWT filter validates tokens and sets authentication context before request processing
+            // JWT filter
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

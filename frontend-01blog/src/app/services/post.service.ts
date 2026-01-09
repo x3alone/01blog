@@ -61,7 +61,7 @@ export class PostService {
         };
     }
 
-    // --- API Implementation ---
+    //  API Implementation
 
     getAllPosts(page: number, size: number): Observable<Page<Post>> {
         return this.http.get<Page<Post>>(`${this.API_URL}?page=${page}&size=${size}`).pipe(

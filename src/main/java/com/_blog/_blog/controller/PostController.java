@@ -2,16 +2,13 @@ package com._blog._blog.controller;
 
 import com._blog._blog.dto.CreatePostRequest;
 import com._blog._blog.dto.PostResponse;
-import com._blog._blog.dto.UpdatePostRequest;
 import com._blog._blog.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import jakarta.validation.Valid;
 
-import java.util.List;
 import org.springframework.data.domain.Page;
 
 @RestController

@@ -37,7 +37,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    // --- Admin Actions with Protection Logic ---
+    // Admin Actions with Protection Logic
 
     // Helper to get currentUser and validate logic
     private void validateAdminAction(Long targetUserId, Long currentUserId, String action) {
@@ -45,12 +45,12 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot " + action + " yourself.");
         }
 
-        // 1. Protection for Super Admin (Target)
+        // Protection for Super Admin (Target)
         if (targetUserId == 1L) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Super Admin cannot be modified.");
         }
 
-        // 2. Logic for Standard Admins (Current)
+        // Logic for Standard Admins (Current)
         // If current user is NOT Super Admin (ID 1), they have restrictions.
         if (currentUserId != 1L) {
             User targetUser = userRepository.findById(targetUserId)
@@ -112,15 +112,15 @@ public class UserService {
     //currentUserId: the user who is currently logged in (can be null if not logged in)
     //UserProfileDto: the DTO containing profile info
     public UserProfileDto getUserProfile(Long profileOwnerId, Long currentUserId) {
-        // 1. Get the user whose profile is being viewed
+        // Get the user whose profile is being viewed
         User profileOwner = userRepository.findById(profileOwnerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found."));
         
-        // 2. Calculate Follow Counts
+        // Calculate Follow Counts
         long followersCount = followRepository.countByFollowingId(profileOwner.getId());
         long followingCount = followRepository.countByFollowerId(profileOwner.getId());
         
-        // 3. Determine Follow Status (only if a user is logged in)
+        // Determine Follow Status (only if a user is logged in)
         boolean isFollowedByCurrentUser = false;
         
         if (currentUserId != null) {
@@ -132,7 +132,7 @@ public class UserService {
             }
         }
         
-        // 4. Map to DTO
+        // Map to DTO
         return new UserProfileDto(
                 profileOwner.getId(),
                 profileOwner.getUsername(),
